@@ -24,3 +24,63 @@
  .app-shell>footer{margin:0 16px;padding-bottom:24px;flex-wrap:wrap}
 }
 @media(prefers-reduced-motion:reduce){.app-shell>nav{transition:none}}
+
+/* Responsive workspace: narrow phones, tablets, and foldable windows. */
+.app-shell .brand,.app-shell .brand>div,.page-heading>div,.workspace>*,.cloud-fields>*{min-width:0}
+.app-shell .brand-icon,.account-area{flex-shrink:0}
+.app-shell .brand strong{overflow-wrap:anywhere}
+.cloud-fields input,.cloud-fields select,.cloud-fields textarea{width:100%;max-width:100%}
+.toolbar label{min-width:0;flex:1 1 200px}
+.toolbar input[type=search]{min-width:0}
+#cloud-dialog,#asset-dialog{max-height:90dvh}
+dialog h2{overflow-wrap:anywhere}
+dialog .section-heading>button{flex-shrink:0}
+.record-actions{display:flex;flex-wrap:wrap;gap:6px}
+.record-actions button{margin:0}
+.record-actions a{display:inline-flex;align-items:center;min-height:44px;padding:8px}
+@media(max-width:1100px){.workspace{grid-template-columns:1fr}.workspace aside{margin-top:0}}
+@media(max-width:900px){
+ .app-shell>header{padding-top:max(12px,env(safe-area-inset-top));padding-left:max(12px,env(safe-area-inset-left));padding-right:max(12px,env(safe-area-inset-right))}
+ .app-shell>header .brand{gap:8px}
+ .account-area #account-email,.account-area .badge{display:none}
+ .app-shell>nav{padding-bottom:calc(20px + env(safe-area-inset-bottom));overscroll-behavior:contain}
+ .app-shell>main{padding-left:max(16px,env(safe-area-inset-left));padding-right:max(16px,env(safe-area-inset-right))}
+ .app-shell>footer{padding-bottom:calc(24px + env(safe-area-inset-bottom))}
+}
+@media(max-width:650px){
+ .toolbar{align-items:stretch}
+ .toolbar label,.toolbar input[type=search]{flex:1 1 100%;width:100%}
+ .toolbar>button{flex:1}
+ .card{padding:16px}
+ .scanner-card{padding:6px 6px 12px}
+ .page-heading{flex-wrap:wrap}
+ .section-heading{flex-wrap:wrap}
+ .page-heading h1{font-size:clamp(22px,6vw,26px)}
+ .stats{gap:10px}
+ .stats span{font-size:13px;overflow-wrap:anywhere}
+ #cloud-stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}
+ .camera{height:clamp(260px,48dvh,360px)}
+ .camera-actions{padding:12px 6px 0}
+ .camera-actions button{flex:1 1 120px;min-height:48px}
+ .setting{flex-wrap:wrap;gap:12px}
+ .setting select{width:100%;max-width:100%;flex-basis:100%}
+ .setting:has(input){flex-wrap:nowrap}
+ dialog,#cloud-dialog,#asset-dialog{width:calc(100% - 24px);max-width:calc(100% - 24px);padding:16px;max-height:calc(100dvh - 24px - env(safe-area-inset-top) - env(safe-area-inset-bottom));overscroll-behavior:contain}
+ .records-data-table,.records-data-table tbody{display:block;width:100%}
+ .records-data-table thead{position:absolute;width:1px;height:1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+ .records-data-table tr{display:block;border:1px solid var(--border);border-radius:10px;margin-bottom:14px;padding:6px 12px}
+ .records-data-table tr:last-child{margin-bottom:0}
+ .records-data-table td{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);gap:12px;max-width:none;padding:12px 0;border-color:var(--border);font-size:14px}
+ .records-data-table td:last-child{border-bottom:0}
+ .records-data-table td::before{content:attr(data-label);font-weight:600;color:var(--muted)}
+ .records-data-table td>span,.record-actions{min-width:0}
+ .table-scroll{overflow:visible}
+}
+@media(max-width:380px){
+ .app-shell>header{gap:8px}
+ .app-shell>header .brand-icon{display:none}
+ .app-shell>header .brand p{display:none}
+ .app-shell>header .brand strong{font-size:16px}
+ .stats b{font-size:24px}
+}
+@media(max-height:500px) and (orientation:landscape){.camera{height:260px}}
