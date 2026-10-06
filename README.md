@@ -48,3 +48,9 @@ Configure `SUPER_ADMIN_EMAIL` and `SUPER_ADMIN_PASSWORD_HASH` through Render env
 Sessions use opaque random cookies with HttpOnly, SameSite=Strict and Secure in production, expire after eight hours, and are revoked on logout. Sessions and sign-in attempt counters are held in server memory: restarts require signing in again. The account hash remains in Render environment variables across deployments.
 
 Local history and inventory are preserved in IndexedDB; the dashboard shows this browser's records. This initial release has one configured Super Admin account, with no user-management or cloud inventory database.
+
+## Shared ITAM records
+
+The website remains hosted on Render. The persistent database and uploaded evidence are hosted through ChatGPT Sites D1 and R2. Configure `SITE_API_URL`, `SITE_API_SECRET`, and `SITE_SERVICE_TOKEN` as Render secrets to use the shared service. With these configured, the original single-account fallback is replaced by database users, role permissions and scopes. See [ITAM implementation](docs/ITAM-implementation.md) for the schema mapping, deployment instructions and explicit remaining limits.
+
+Asset Management contains shared records. **Device History** and **Device Inventory** preserve the scanner's earlier browser-only records; importing device items into shared assets is an explicit action. Camera footage is never uploaded.

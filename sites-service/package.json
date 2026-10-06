@@ -1,0 +1,19 @@
+{
+  "dependencies": {
+    "decimal.js": "^10.6.0",
+    "drizzle-orm": "^0.45.3"
+  },
+  "devDependencies": {
+    "drizzle-kit": "^0.31.11",
+    "esbuild": "^0.28.2",
+    "wrangler": "^4.147.0"
+  },
+  "name": "jlijano-mdm-data",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "generate": "drizzle-kit generate",
+    "test": "node --test test/*.test.js"
+  }
+}

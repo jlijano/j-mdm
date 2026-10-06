@@ -1,5 +1,5 @@
 import http from 'node:http';
-import { createAuth } from './auth.js';
+import { createRemoteAuth } from './remote-auth.js';
 import { createReadStream } from 'node:fs';
 import { realpath, stat } from 'node:fs/promises';
 import path from 'node:path';
@@ -29,7 +29,7 @@ function reply(res, status, text, headers = {}) {
 }
 
 export function createServer(options = {}) {
-  const auth = createAuth(options);
+  const auth = createRemoteAuth(options);
   return http.createServer(async (req, res) => {
     res.setHeader('X-Content-Type-Options', 'nosniff');
     res.setHeader('Cache-Control', 'no-store');
@@ -72,7 +72,7 @@ export function createServer(options = {}) {
         reply(res, 404, 'Not found\n');
         return;
       }
-      if (auth.deny(req, res, pathname)) return;
+      if (await auth.deny(req, res, pathname)) return;
       res.writeHead(200, {
         'Content-Type': types[path.extname(filename).toLowerCase()] || 'text/plain; charset=utf-8',
         'Content-Length': info.size

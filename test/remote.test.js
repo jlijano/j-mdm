@@ -1,0 +1,11 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import http from 'node:http';
+import {createServer} from '../server.js';
+test('Render gateway protects mutations and keeps Sites credentials on the server',async t=>{
+ const received=[];const upstream=http.createServer(async(req,res)=>{received.push({url:req.url,secret:req.headers['x-mdm-api-secret'],bearer:req.headers['oai-sites-authorization']});res.setHeader('content-type','application/json');if(req.url==='/api/auth/me'){res.statusCode=req.headers.cookie?.includes('mdm_session=')?200:401;res.end(JSON.stringify({user:{email:'fixture@example.com'}}));}else{res.setHeader('set-cookie','mdm_session='+ 'a'.repeat(64)+'; Path=/; HttpOnly; Secure');res.end(JSON.stringify({ok:true}));}});await new Promise(r=>upstream.listen(0,'127.0.0.1',r));t.after(()=>upstream.close());const siteURL=`http://127.0.0.1:${upstream.address().port}`;
+ const server=createServer({siteURL,siteSecret:'gateway-secret',siteBearer:'platform-secret',allowHTTP:true});await new Promise(r=>server.listen(0,'127.0.0.1',r));t.after(()=>server.close());const root=`http://127.0.0.1:${server.address().port}`;
+ assert.equal((await fetch(root+'/api/auth/login',{method:'POST',headers:{'content-type':'application/json',origin:'https://evil.example'},body:'{}'})).status,403);assert.equal(received.length,0);
+ const login=await fetch(root+'/api/auth/login',{method:'POST',headers:{'content-type':'application/json',origin:root},body:'{}'});assert.equal(login.status,200);assert.ok(login.headers.get('set-cookie')?.includes('HttpOnly'));assert.equal(await login.text(),'{"ok":true}');assert.equal(received[0].secret,'gateway-secret');assert.equal(received[0].bearer,'Bearer platform-secret');
+ const deny=await fetch(root+'/dashboard',{redirect:'manual'});assert.equal(deny.status,303);const allow=await fetch(root+'/dashboard',{headers:{cookie:'mdm_session='+ 'a'.repeat(64)}});assert.equal(allow.status,200);assert.ok((await allow.text()).includes('Asset Management'));
+});

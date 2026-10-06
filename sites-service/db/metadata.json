@@ -1,0 +1,3770 @@
+{
+  "asset_categories": [
+    {
+      "name": "category_id",
+      "type": "BIGINT",
+      "key": "PK",
+      "null": "NO",
+      "description": "Surrogate identifier."
+    },
+    {
+      "name": "category_name",
+      "type": "VARCHAR(100)",
+      "key": "UQ",
+      "null": "NO",
+      "description": "Category name, e.g. Computer, Mobile Device."
+    },
+    {
+      "name": "description",
+      "type": "VARCHAR(255)",
+      "key": "",
+      "null": "YES",
+      "description": "Optional description."
+    },
+    {
+      "name": "is_active",
+      "type": "BOOLEAN",
+      "key": "",
+      "null": "NO",
+      "description": "Controls whether the category can be selected."
+    }
+  ],
+  "asset_types": [
+    {
+      "name": "asset_type_id",
+      "type": "BIGINT",
+      "key": "PK",
+      "null": "NO",
+      "description": "Identifier."
+    },
+    {
+      "name": "category_id",
+      "type": "BIGINT",
+      "key": "FK",
+      "null": "NO",
+      "description": "References asset_categories.category_id.",
+      "references": [
+        "asset_categories",
+        "category_id"
+      ]
+    },
+    {
+      "name": "type_name",
+      "type": "VARCHAR(100)",
+      "key": "",
+      "null": "NO",
+      "description": "Type name, e.g. Laptop, Desktop."
+    },
+    {
+      "name": "is_active",
+      "type": "BOOLEAN",
+      "key": "",
+      "null": "NO",
+      "description": "Availability flag."
+    }
+  ],
+  "asset_classes": [
+    {
+      "name": "asset_class_id",
+      "type": "BIGINT",
+      "key": "PK",
+      "null": "NO",
+      "description": "Identifier."
+    },
+    {
+      "name": "class_name",
+      "type": "VARCHAR(100)",
+      "key": "UQ",
+      "null": "NO",
+      "description": "Capital Asset, Trackable Asset, Non-Capital Asset, Consumable."
+    },
+    {
+      "name": "description",
+      "type": "VARCHAR(255)",
+      "key": "",
+      "null": "YES",
+      "description": "Definition and usage."
+    }
+  ],
+  "manufacturers": [
+    {
+      "name": "manufacturer_id",
+      "type": "BIGINT",
+      "key": "PK",
+      "null": "NO",
+      "description": "Identifier."
+    },
+    {
+      "name": "manufacturer_name",
+      "type": "VARCHAR(150)",
+      "key": "UQ",
+      "null": "NO",
+      "description": "Manufacturer name."
+    },
+    {
+      "name": "support_url",
+      "type": "VARCHAR(500)",
+      "key": "",
+      "null": "YES",
+      "description": "Support/warranty lookup URL."
+    },
+    {
+      "name": "is_active",
+      "type": "BOOLEAN",
+      "key": "",
+      "null": "NO",
+      "description": "Availability flag."
+    }
+  ],
+  "asset_models": [
+    {
+      "name": "model_id",
+      "type": "BIGINT",
+      "key": "PK",
+      "null": "NO",
+      "description": "Identifier."
+    },
+    {
+      "name": "manufacturer_id",
+      "type": "BIGINT",
+      "key": "FK",
+      "null": "NO",
+      "description": "References manufacturers.",
+      "references": [
+        "manufacturers",
+        "manufacturer_id"
+      ]
+    },
+    {
+      "name": "category_id",
+      "type": "BIGINT",
+      "key": "FK",
+      "null": "NO",
+      "description": "Default category.",
+      "references": [
+        "asset_categories",
+        "category_id"
+      ]
+    },
+    {
+      "name": "asset_type_id",
+      "type": "BIGINT",
+      "key": "FK",
+      "null": "NO",
+      "description": "Default asset type.",
+      "references": [
+        "asset_types",
+        "asset_type_id"
+      ]
+    },
+    {
+      "name": "model_name",
+      "type": "VARCHAR(150)",
+      "key": "",
+      "null": "NO",
+      "description": "Commercial model name."
+    },
+    {
+      "name": "model_number",
+      "type": "VARCHAR(150)",
+      "key": "",
+      "null": "YES",
+      "description": "Manufacturer model number."
+    },
+    {
+      "name": "default_useful_life_months",
+      "type": "INT",
+      "key": "",
+      "null": "YES",
+      "description": "Default lifecycle value used when finance does not override."
+    },
+    {
+      "name": "is_active",
+      "type": "BOOLEAN",
+      "key": "",
+      "null": "NO",
+      "description": "Availability flag."
+    }
+  ],
+  "asset_statuses": [
+    {
+      "name": "status_id",
+      "type": "BIGINT",
+      "key": "PK",
+      "null": "NO",
+      "description": "Identifier."
+    },
+    {
+      "name": "status_code",
+      "type": "VARCHAR(50)",
+      "key": "UQ",
+      "null": "NO",
+      "description": "Stable machine-readable code."
+    },
+    {
+      "name": "status_name",
+      "type": "VARCHAR(100)",
+      "key": "",
+      "null": "NO",
+      "description": "Display value."
+    },
+    {
+      "name": "lifecycle_stage",
+      "type": "VARCHAR(50)",
+      "key": "",
+      "null": "YES",
+      "description": "Optional reporting group."
+    },
+    {
+      "name": "is_terminal",
+      "type": "BOOLEAN",
+      "key": "",
+      "null": "NO",
+      "description": "True for terminal states such as Disposed."
+    },
+    {
+      "name": "is_active",
+      "type": "BOOLEAN",
+      "key": "",
+      "null": "NO",
+      "description": "Availability flag."
+    }
+  ],
+  "asset_conditions": [
+    {
+      "name": "condition_id",
+      "type": "BIGINT",
+      "key": "PK",
+      "null": "NO",
+      "description": "Identifier."
+    },
+    {
+      "name": "condition_code",
+      "type": "VARCHAR(50)",
+      "key": "UQ",
+      "null": "NO",
+      "description": "Machine code."
+    },
+    {
+      "name": "condition_name",
+      "type": "VARCHAR(100)",
+      "key": "",
+      "null": "NO",
+      "description": "New, Good, Fair, Damaged."
+    },
+    {
+      "name": "description",
+      "type": "VARCHAR(255)",
+      "key": "",
+      "null": "YES",
+      "description": "Condition definition."
+    }
+  ],
+  "units_of_measure": [
+    {
+      "name": "unit_of_measure_id",
+      "type": "BIGINT",
+      "key": "PK",
+      "null": "NO",
+      "description": "Identifier."
+    },
+    {
+      "name": "uom_code",
+      "type": "VARCHAR(20)",
+      "key": "UQ",
+      "null": "NO",
+      "description": "EA, BOX, PACK, etc."
+    },
+    {
+      "name": "uom_name",
+      "type": "VARCHAR(100)",
+      "key": "",
+      "null": "NO",
+      "description": "Display name."
+    },
+    {
+      "name": "is_active",
+      "type": "BOOLEAN",
+      "key": "",
+      "null": "NO",
+      "description": "Availability flag."
+    }
+  ],
+  "movement_types": [
+    {
+      "name": "movement_type_id",
+      "type": "BIGINT",
+      "key": "PK",
+      "null": "NO",
+      "description": "Identifier."
+    },
+    {
+      "name": "movement_code",
+      "type": "VARCHAR(50)",
+      "key": "UQ",
+      "null": "NO",
+      "description": "STOCK_IN, ASSIGNMENT, TRANSFER, etc."
+    },
+    {
+      "name": "movement_name",
+      "type": "VARCHAR(100)",
+      "key": "",
+      "null": "NO",
+      "description": "Display name."
+    },
+    {
+      "name": "changes_location",
+      "type": "BOOLEAN",
+      "key": "",
+      "null": "NO",
+      "description": "Whether movement changes current location."
+    },
+    {
+      "name": "changes_custody",
+      "type": "BOOLEAN",
+      "key": "",
+      "null": "NO",
+      "description": "Whether movement changes assigned user."
+    },
+    {
+      "name": "is_active",
+      "type": "BOOLEAN",
+      "key": "",
+      "null": "NO",
+      "description": "Availability flag."
+    }
+  ],
+  "location_types": [
+    {
+      "name": "location_type_id",
+      "type": "BIGINT",
+      "key": "PK",
+      "null": "NO",
+      "description": "Identifier."
+    },
+    {
+      "name": "location_type_code",
+      "type": "VARCHAR(50)",
+      "key": "UQ",
+      "null": "NO",
+      "description": "STORAGE, OFFICE, WFH, DATA_CENTER, REPAIR_CENTER, TRANSIT, DISPOSAL_AREA, THIRD_PARTY."
+    },
+    {
+      "name": "location_type_name",
+      "type": "VARCHAR(100)",
+      "key": "",
+      "null": "NO",
+      "description": "Display name."
+    },
+    {
+      "name": "is_active",
+      "type": "BOOLEAN",
+      "key": "",
+      "null": "NO",
+      "description": "Availability flag."
+    }
+  ],
+  "depreciation_methods": [
+    {
+      "name": "depreciation_method_id",
+      "type": "BIGINT",
+      "key": "PK",
+      "null": "NO",
+      "description": "Identifier."
+    },
+    {
+      "name": "method_code",
+      "type": "VARCHAR(50)",
+      "key": "UQ",
+      "null": "NO",
+      "description": "STRAIGHT_LINE, DECLINING_BALANCE, NONE."
+    },
+    {
+      "name": "method_name",
+      "type": "VARCHAR(100)",
+      "key": "",
+      "null": "NO",
+      "description": "Display name."
+    },
+    {
+      "name": "description",
+      "type": "VARCHAR(255)",
+      "key": "",
+      "null": "YES",
+      "description": "Method notes."
+    },
+    {
+      "name": "is_active",
+      "type": "BOOLEAN",
+      "key": "",
+      "null": "NO",
+      "description": "Availability flag."
+    }
+  ],
+  "disposal_methods": [
+    {
+      "name": "disposal_method_id",
+      "type": "BIGINT",
+      "key": "PK",
+      "null": "NO",
+      "description": "Identifier."
+    },
+    {
+      "name": "method_code",
+      "type": "VARCHAR(50)",
+      "key": "UQ",
+      "null": "NO",
+      "description": "RECYCLE, RESALE, DONATION, RETURN_VENDOR, DESTROYED, TRADE_IN, OTHER."
+    },
+    {
+      "name": "method_name",
+      "type": "VARCHAR(100)",
+      "key": "",
+      "null": "NO",
+      "description": "Display name."
+    },
+    {
+      "name": "requires_certificate",
+      "type": "BOOLEAN",
+      "key": "",
+      "null": "NO",
+      "description": "Whether certificate evidence is required."
+    },
+    {
+      "name": "is_active",
+      "type": "BOOLEAN",
+      "key": "",
+      "null": "NO",
+      "description": "Availability flag."
+    }
+  ],
+  "business_units": [
+    {
+      "name": "business_unit_id",
+      "type": "BIGINT",
+      "key": "PK",
+      "null": "NO",
+      "description": "Identifier."
+    },
+    {
+      "name": "business_unit_code",
+      "type": "VARCHAR(50)",
+      "key": "UQ",
+      "null": "NO",
+      "description": "Stable code."
+    },
+    {
+      "name": "business_unit_name",
+      "type": "VARCHAR(150)",
+      "key": "",
+      "null": "NO",
+      "description": "Name."
+    },
+    {
+      "name": "is_active",
+      "type": "BOOLEAN",
+      "key": "",
+      "null": "NO",
+      "description": "Availability flag."
+    }
+  ],
+  "departments": [
+    {
+      "name": "department_id",
+      "type": "BIGINT",
+      "key": "PK",
+      "null": "NO",
+      "description": "Identifier."
+    },
+    {
+      "name": "business_unit_id",
+      "type": "BIGINT",
+      "key": "FK",
+      "null": "NO",
+      "description": "References business_units.",
+      "references": [
+        "business_units",
+        "business_unit_id"
+      ]
+    },
+    {
+      "name": "department_code",
+      "type": "VARCHAR(50)",
+      "key": "",
+      "null": "YES",
+      "description": "Optional code."
+    },
+    {
+      "name": "department_name",
+      "type": "VARCHAR(150)",
+      "key": "",
+      "null": "NO",
+      "description": "Name."
+    },
+    {
+      "name": "is_active",
+      "type": "BOOLEAN",
+      "key": "",
+      "null": "NO",
+      "description": "Availability flag."
+    }
+  ],
+  "cost_centers": [
+    {
+      "name": "cost_center_id",
+      "type": "BIGINT",
+      "key": "PK",
+      "null": "NO",
+      "description": "Identifier."
+    },
+    {
+      "name": "department_id",
+      "type": "BIGINT",
+      "key": "FK",
+      "null": "YES",
+      "description": "Owning department when applicable.",
+      "references": [
+        "departments",
+        "department_id"
+      ]
+    },
+    {
+      "name": "cost_center_code",
+      "type": "VARCHAR(50)",
+      "key": "UQ",
+      "null": "NO",
+      "description": "Finance code."
+    },
+    {
+      "name": "cost_center_name",
+      "type": "VARCHAR(150)",
+      "key": "",
+      "null": "NO",
+      "description": "Name."
+    },
+    {
+      "name": "is_active",
+      "type": "BOOLEAN",
+      "key": "",
+      "null": "NO",
+      "description": "Availability flag."
+    }
+  ],
+  "employees": [
+    {
+      "name": "employee_id",
+      "type": "BIGINT",
+      "key": "PK",
+      "null": "NO",
+      "description": "Identifier."
+    },
+    {
+      "name": "employee_number",
+      "type": "VARCHAR(50)",
+      "key": "UQ",
+      "null": "NO",
+      "description": "HR/personnel identifier."
+    },
+    {
+      "name": "first_name",
+      "type": "VARCHAR(100)",
+      "key": "",
+      "null": "NO",
+      "description": "First name."
+    },
+    {
+      "name": "middle_name",
+      "type": "VARCHAR(100)",
+      "key": "",
+      "null": "YES",
+      "description": "Middle name."
+    },
+    {
+      "name": "last_name",
+      "type": "VARCHAR(100)",
+      "key": "",
+      "null": "NO",
+      "description": "Last name."
+    },
+    {
+      "name": "email",
+      "type": "VARCHAR(255)",
+      "key": "",
+      "null": "YES",
+      "description": "Corporate email."
+    },
+    {
+      "name": "business_unit_id",
+      "type": "BIGINT",
+      "key": "FK",
+      "null": "YES",
+      "description": "Organizational scope.",
+      "references": [
+        "business_units",
+        "business_unit_id"
+      ]
+    },
+    {
+      "name": "department_id",
+      "type": "BIGINT",
+      "key": "FK",
+      "null": "YES",
+      "description": "Department.",
+      "references": [
+        "departments",
+        "department_id"
+      ]
+    },
+    {
+      "name": "cost_center_id",
+      "type": "BIGINT",
+      "key": "FK",
+      "null": "YES",
+      "description": "Cost center.",
+      "references": [
+        "cost_centers",
+        "cost_center_id"
+      ]
+    },
+    {
+      "name": "manager_employee_id",
+      "type": "BIGINT",
+      "key": "FK",
+      "null": "YES",
+      "description": "Self-reference to employee manager.",
+      "references": [
+        "employees",
+        "employee_id"
+      ]
+    },
+    {
+      "name": "default_location_id",
+      "type": "BIGINT",
+      "key": "FK",
+      "null": "YES",
+      "description": "Normal work location.",
+      "references": [
+        "locations",
+        "location_id"
+      ]
+    },
+    {
+      "name": "employment_status",
+      "type": "VARCHAR(50)",
+      "key": "",
+      "null": "NO",
+      "description": "Active, Leave, Separated, etc."
+    },
+    {
+      "name": "hire_date",
+      "type": "DATE",
+      "key": "",
+      "null": "YES",
+      "description": "Start date."
+    },
+    {
+      "name": "termination_date",
+      "type": "DATE",
+      "key": "",
+      "null": "YES",
+      "description": "End date."
+    },
+    {
+      "name": "is_active",
+      "type": "BOOLEAN",
+      "key": "",
+      "null": "NO",
+      "description": "Operational active flag."
+    }
+  ],
+  "locations": [
+    {
+      "name": "location_id",
+      "type": "BIGINT",
+      "key": "PK",
+      "null": "NO",
+      "description": "Identifier."
+    },
+    {
+      "name": "location_type_id",
+      "type": "BIGINT",
+      "key": "FK",
+      "null": "NO",
+      "description": "References location_types.",
+      "references": [
+        "location_types",
+        "location_type_id"
+      ]
+    },
+    {
+      "name": "parent_location_id",
+      "type": "BIGINT",
+      "key": "FK",
+      "null": "YES",
+      "description": "Self-reference for hierarchy.",
+      "references": [
+        "locations",
+        "location_id"
+      ]
+    },
+    {
+      "name": "location_code",
+      "type": "VARCHAR(100)",
+      "key": "UQ",
+      "null": "YES",
+      "description": "Optional stable code."
+    },
+    {
+      "name": "location_name",
+      "type": "VARCHAR(200)",
+      "key": "",
+      "null": "NO",
+      "description": "Human-readable location name."
+    },
+    {
+      "name": "site_code",
+      "type": "VARCHAR(100)",
+      "key": "",
+      "null": "YES",
+      "description": "Site/branch code."
+    },
+    {
+      "name": "building",
+      "type": "VARCHAR(150)",
+      "key": "",
+      "null": "YES",
+      "description": "Building."
+    },
+    {
+      "name": "floor",
+      "type": "VARCHAR(50)",
+      "key": "",
+      "null": "YES",
+      "description": "Floor."
+    },
+    {
+      "name": "room_area",
+      "type": "VARCHAR(150)",
+      "key": "",
+      "null": "YES",
+      "description": "Room/area."
+    },
+    {
+      "name": "rack",
+      "type": "VARCHAR(100)",
+      "key": "",
+      "null": "YES",
+      "description": "Rack."
+    },
+    {
+      "name": "shelf",
+      "type": "VARCHAR(100)",
+      "key": "",
+      "null": "YES",
+      "description": "Shelf."
+    },
+    {
+      "name": "bin",
+      "type": "VARCHAR(100)",
+      "key": "",
+      "null": "YES",
+      "description": "Bin."
+    },
+    {
+      "name": "workstation",
+      "type": "VARCHAR(100)",
+      "key": "",
+      "null": "YES",
+      "description": "Seat/workstation."
+    },
+    {
+      "name": "rack_unit",
+      "type": "VARCHAR(50)",
+      "key": "",
+      "null": "YES",
+      "description": "Data center U position."
+    },
+    {
+      "name": "city",
+      "type": "VARCHAR(100)",
+      "key": "",
+      "null": "YES",
+      "description": "City."
+    },
+    {
+      "name": "province",
+      "type": "VARCHAR(100)",
+      "key": "",
+      "null": "YES",
+      "description": "Province/state."
+    },
+    {
+      "name": "country",
+      "type": "VARCHAR(100)",
+      "key": "",
+      "null": "YES",
+      "description": "Country."
+    },
+    {
+      "name": "vendor_id",
+      "type": "BIGINT",
+      "key": "FK",
+      "null": "YES",
+      "description": "Third-party/repair/vendor location owner.",
+      "references": [
+        "vendors",
+        "vendor_id"
+      ]
+    },
+    {
+      "name": "is_active",
+      "type": "BOOLEAN",
+      "key": "",
+      "null": "NO",
+      "description": "Availability flag."
+    },
+    {
+      "name": "created_at",
+      "type": "DATETIME",
+      "key": "",
+      "null": "NO",
+      "description": "Creation timestamp."
+    },
+    {
+      "name": "updated_at",
+      "type": "DATETIME",
+      "key": "",
+      "null": "NO",
+      "description": "Last update timestamp."
+    }
+  ],
+  "assets": [
+    {
+      "name": "asset_id",
+      "type": "BIGINT",
+      "key": "PK",
+      "null": "NO",
+      "description": "Internal immutable identifier."
+    },
+    {
+      "name": "asset_tag",
+      "type": "VARCHAR(100)",
+      "key": "UQ",
+      "null": "NO",
+      "description": "Business asset identifier."
+    },
+    {
+      "name": "barcode",
+      "type": "VARCHAR(150)",
+      "key": "UQ",
+      "null": "YES",
+      "description": "Scannable barcode value."
+    },
+    {
+      "name": "sku",
+      "type": "VARCHAR(150)",
+      "key": "",
+      "null": "YES",
+      "description": "Stock keeping unit."
+    },
+    {
+      "name": "serial_number",
+      "type": "VARCHAR(200)",
+      "key": "",
+      "null": "YES",
+      "description": "Manufacturer serial number. Unique when business rules require."
+    },
+    {
+      "name": "manufacturer_id",
+      "type": "BIGINT",
+      "key": "FK",
+      "null": "YES",
+      "description": "Manufacturer.",
+      "references": [
+        "manufacturers",
+        "manufacturer_id"
+      ]
+    },
+    {
+      "name": "model_id",
+      "type": "BIGINT",
+      "key": "FK",
+      "null": "YES",
+      "description": "Model.",
+      "references": [
+        "asset_models",
+        "model_id"
+      ]
+    },
+    {
+      "name": "category_id",
+      "type": "BIGINT",
+      "key": "FK",
+      "null": "NO",
+      "description": "Category.",
+      "references": [
+        "asset_categories",
+        "category_id"
+      ]
+    },
+    {
+      "name": "asset_type_id",
+      "type": "BIGINT",
+      "key": "FK",
+      "null": "NO",
+      "description": "Type.",
+      "references": [
+        "asset_types",
+        "asset_type_id"
+      ]
+    },
+    {
+      "name": "asset_class_id",
+      "type": "BIGINT",
+      "key": "FK",
+      "null": "NO",
+      "description": "Capital/trackable/consumable classification.",
+      "references": [
+        "asset_classes",
+        "asset_class_id"
+      ]
+    },
+    {
+      "name": "description",
+      "type": "VARCHAR(500)",
+      "key": "",
+      "null": "YES",
+      "description": "Short description."
+    },
+    {
+      "name": "status_id",
+      "type": "BIGINT",
+      "key": "FK",
+      "null": "NO",
+      "description": "Current lean status.",
+      "references": [
+        "asset_statuses",
+        "status_id"
+      ]
+    },
+    {
+      "name": "condition_id",
+      "type": "BIGINT",
+      "key": "FK",
+      "null": "NO",
+      "description": "Current physical condition.",
+      "references": [
+        "asset_conditions",
+        "condition_id"
+      ]
+    },
+    {
+      "name": "current_location_id",
+      "type": "BIGINT",
+      "key": "FK",
+      "null": "YES",
+      "description": "Current location.",
+      "references": [
+        "locations",
+        "location_id"
+      ]
+    },
+    {
+      "name": "quantity",
+      "type": "DECIMAL(12,2)",
+      "key": "",
+      "null": "NO",
+      "description": "Normally 1 for serialized assets."
+    },
+    {
+      "name": "unit_of_measure_id",
+      "type": "BIGINT",
+      "key": "FK",
+      "null": "YES",
+      "description": "Unit for quantity-based stock.",
+      "references": [
+        "units_of_measure",
+        "unit_of_measure_id"
+      ]
+    },
+    {
+      "name": "is_serialized",
+      "type": "BOOLEAN",
+      "key": "",
+      "null": "NO",
+      "description": "True when one physical item equals one asset row."
+    },
+    {
+      "name": "is_active",
+      "type": "BOOLEAN",
+      "key": "",
+      "null": "NO",
+      "description": "Logical active flag."
+    },
+    {
+      "name": "created_at",
+      "type": "DATETIME",
+      "key": "",
+      "null": "NO",
+      "description": "Creation timestamp."
+    },
+    {
+      "name": "created_by",
+      "type": "BIGINT",
+      "key": "FK",
+      "null": "NO",
+      "description": "System user who created the record.",
+      "references": [
+        "users",
+        "user_id"
+      ]
+    },
+    {
+      "name": "updated_at",
+      "type": "DATETIME",
+      "key": "",
+      "null": "NO",
+      "description": "Last update timestamp."
+    },
+    {
+      "name": "updated_by",
+      "type": "BIGINT",
+      "key": "FK",
+      "null": "NO",
+      "description": "Last updater.",
+      "references": [
+        "users",
+        "user_id"
+      ]
+    }
+  ],
+  "asset_technical_details": [
+    {
+      "name": "technical_id",
+      "type": "BIGINT",
+      "key": "PK",
+      "null": "NO",
+      "description": "Identifier."
+    },
+    {
+      "name": "asset_id",
+      "type": "BIGINT",
+      "key": "FK,UQ",
+      "null": "NO",
+      "description": "One-to-one link to assets.",
+      "references": [
+        "assets",
+        "asset_id"
+      ]
+    },
+    {
+      "name": "hostname",
+      "type": "VARCHAR(255)",
+      "key": "",
+      "null": "YES",
+      "description": "Device/host name."
+    },
+    {
+      "name": "mac_address",
+      "type": "VARCHAR(50)",
+      "key": "",
+      "null": "YES",
+      "description": "Primary MAC address."
+    },
+    {
+      "name": "ip_address",
+      "type": "VARCHAR(64)",
+      "key": "",
+      "null": "YES",
+      "description": "Current/last observed IP address."
+    },
+    {
+      "name": "operating_system",
+      "type": "VARCHAR(150)",
+      "key": "",
+      "null": "YES",
+      "description": "OS family/name."
+    },
+    {
+      "name": "os_version",
+      "type": "VARCHAR(100)",
+      "key": "",
+      "null": "YES",
+      "description": "OS version/build."
+    },
+    {
+      "name": "cpu",
+      "type": "VARCHAR(255)",
+      "key": "",
+      "null": "YES",
+      "description": "CPU description."
+    },
+    {
+      "name": "memory_gb",
+      "type": "DECIMAL(10,2)",
+      "key": "",
+      "null": "YES",
+      "description": "Installed memory."
+    },
+    {
+      "name": "storage_capacity_gb",
+      "type": "DECIMAL(12,2)",
+      "key": "",
+      "null": "YES",
+      "description": "Total storage."
+    },
+    {
+      "name": "storage_type",
+      "type": "VARCHAR(100)",
+      "key": "",
+      "null": "YES",
+      "description": "SSD/HDD/NVMe/etc."
+    },
+    {
+      "name": "bios_version",
+      "type": "VARCHAR(150)",
+      "key": "",
+      "null": "YES",
+      "description": "BIOS/firmware version."
+    },
+    {
+      "name": "bios_serial",
+      "type": "VARCHAR(200)",
+      "key": "",
+      "null": "YES",
+      "description": "Firmware-reported serial."
+    },
+    {
+      "name": "device_uuid",
+      "type": "VARCHAR(200)",
+      "key": "",
+      "null": "YES",
+      "description": "Hardware UUID when available."
+    },
+    {
+      "name": "architecture",
+      "type": "VARCHAR(50)",
+      "key": "",
+      "null": "YES",
+      "description": "x64, ARM64, etc."
+    },
+    {
+      "name": "last_inventory_scan",
+      "type": "DATETIME",
+      "key": "",
+      "null": "YES",
+      "description": "Last technical inventory collection."
+    },
+    {
+      "name": "source",
+      "type": "VARCHAR(50)",
+      "key": "",
+      "null": "YES",
+      "description": "Manual, Agent, MDM, Intune, Import, API."
+    },
+    {
+      "name": "raw_details",
+      "type": "JSON",
+      "key": "",
+      "null": "YES",
+      "description": "Extensible unstructured technical details."
+    },
+    {
+      "name": "updated_at",
+      "type": "DATETIME",
+      "key": "",
+      "null": "NO",
+      "description": "Timestamp."
+    },
+    {
+      "name": "updated_by",
+      "type": "BIGINT",
+      "key": "FK",
+      "null": "NO",
+      "description": "Updater.",
+      "references": [
+        "users",
+        "user_id"
+      ]
+    }
+  ],
+  "asset_financials": [
+    {
+      "name": "financial_id",
+      "type": "BIGINT",
+      "key": "PK",
+      "null": "NO",
+      "description": "Identifier."
+    },
+    {
+      "name": "asset_id",
+      "type": "BIGINT",
+      "key": "FK,UQ",
+      "null": "NO",
+      "description": "One-to-one link to assets.",
+      "references": [
+        "assets",
+        "asset_id"
+      ]
+    },
+    {
+      "name": "purchase_date",
+      "type": "DATE",
+      "key": "",
+      "null": "YES",
+      "description": "Purchase date."
+    },
+    {
+      "name": "purchase_price",
+      "type": "DECIMAL(18,2)",
+      "key": "",
+      "null": "YES",
+      "description": "Original purchase price."
+    },
+    {
+      "name": "currency_code",
+      "type": "CHAR(3)",
+      "key": "",
+      "null": "YES",
+      "description": "ISO currency code."
+    },
+    {
+      "name": "vendor_id",
+      "type": "BIGINT",
+      "key": "FK",
+      "null": "YES",
+      "description": "Supplier.",
+      "references": [
+        "vendors",
+        "vendor_id"
+      ]
+    },
+    {
+      "name": "purchase_order_id",
+      "type": "BIGINT",
+      "key": "FK",
+      "null": "YES",
+      "description": "Linked PO.",
+      "references": [
+        "purchase_orders",
+        "purchase_order_id"
+      ]
+    },
+    {
+      "name": "invoice_id",
+      "type": "BIGINT",
+      "key": "FK",
+      "null": "YES",
+      "description": "Linked invoice.",
+      "references": [
+        "invoices",
+        "invoice_id"
+      ]
+    },
+    {
+      "name": "cost_center_id",
+      "type": "BIGINT",
+      "key": "FK",
+      "null": "YES",
+      "description": "Finance allocation.",
+      "references": [
+        "cost_centers",
+        "cost_center_id"
+      ]
+    },
+    {
+      "name": "capitalization_date",
+      "type": "DATE",
+      "key": "",
+      "null": "YES",
+      "description": "Date depreciation begins when finance policy uses capitalization."
+    },
+    {
+      "name": "acquisition_cost",
+      "type": "DECIMAL(18,2)",
+      "key": "",
+      "null": "YES",
+      "description": "Capitalized/acquisition basis."
+    },
+    {
+      "name": "residual_value",
+      "type": "DECIMAL(18,2)",
+      "key": "",
+      "null": "YES",
+      "description": "Residual/salvage value."
+    },
+    {
+      "name": "current_book_value",
+      "type": "DECIMAL(18,2)",
+      "key": "",
+      "null": "YES",
+      "description": "Cached current book value."
+    },
+    {
+      "name": "depreciation_profile_id",
+      "type": "BIGINT",
+      "key": "FK",
+      "null": "YES",
+      "description": "Finance-controlled profile.",
+      "references": [
+        "depreciation_profiles",
+        "depreciation_profile_id"
+      ]
+    },
+    {
+      "name": "financial_classification",
+      "type": "VARCHAR(100)",
+      "key": "",
+      "null": "YES",
+      "description": "Finance classification."
+    },
+    {
+      "name": "created_at",
+      "type": "DATETIME",
+      "key": "",
+      "null": "NO",
+      "description": "Creation timestamp."
+    },
+    {
+      "name": "created_by",
+      "type": "BIGINT",
+      "key": "FK",
+      "null": "NO",
+      "description": "Creator.",
+      "references": [
+        "users",
+        "user_id"
+      ]
+    },
+    {
+      "name": "updated_at",
+      "type": "DATETIME",
+      "key": "",
+      "null": "NO",
+      "description": "Last update."
+    },
+    {
+      "name": "updated_by",
+      "type": "BIGINT",
+      "key": "FK",
+      "null": "NO",
+      "description": "Updater.",
+      "references": [
+        "users",
+        "user_id"
+      ]
+    }
+  ],
+  "asset_lifecycle": [
+    {
+      "name": "lifecycle_id",
+      "type": "BIGINT",
+      "key": "PK",
+      "null": "NO",
+      "description": "Identifier."
+    },
+    {
+      "name": "asset_id",
+      "type": "BIGINT",
+      "key": "FK,UQ",
+      "null": "NO",
+      "description": "Asset.",
+      "references": [
+        "assets",
+        "asset_id"
+      ]
+    },
+    {
+      "name": "acquisition_date",
+      "type": "DATE",
+      "key": "",
+      "null": "YES",
+      "description": "Acquisition date."
+    },
+    {
+      "name": "in_service_date",
+      "type": "DATE",
+      "key": "",
+      "null": "YES",
+      "description": "Placed-in-service date."
+    },
+    {
+      "name": "useful_life_months",
+      "type": "INT",
+      "key": "",
+      "null": "YES",
+      "description": "Effective useful life."
+    },
+    {
+      "name": "refresh_due_date",
+      "type": "DATE",
+      "key": "",
+      "null": "YES",
+      "description": "Calculated/planned refresh date."
+    },
+    {
+      "name": "end_of_life_date",
+      "type": "DATE",
+      "key": "",
+      "null": "YES",
+      "description": "Internal EOL."
+    },
+    {
+      "name": "end_of_support_date",
+      "type": "DATE",
+      "key": "",
+      "null": "YES",
+      "description": "Manufacturer/support EOL."
+    },
+    {
+      "name": "disposal_date",
+      "type": "DATE",
+      "key": "",
+      "null": "YES",
+      "description": "Final disposal date when completed."
+    },
+    {
+      "name": "lifecycle_stage",
+      "type": "VARCHAR(50)",
+      "key": "",
+      "null": "NO",
+      "description": "Acquired, In Service, Refresh Due, End of Life, Disposal Pending, Disposed."
+    },
+    {
+      "name": "calculated_at",
+      "type": "DATETIME",
+      "key": "",
+      "null": "YES",
+      "description": "Last automatic calculation."
+    },
+    {
+      "name": "updated_at",
+      "type": "DATETIME",
+      "key": "",
+      "null": "NO",
+      "description": "Last update."
+    }
+  ],
+  "asset_assignments": [
+    {
+      "name": "assignment_id",
+      "type": "BIGINT",
+      "key": "PK",
+      "null": "NO",
+      "description": "Identifier."
+    },
+    {
+      "name": "asset_id",
+      "type": "BIGINT",
+      "key": "FK",
+      "null": "NO",
+      "description": "Asset.",
+      "references": [
+        "assets",
+        "asset_id"
+      ]
+    },
+    {
+      "name": "employee_id",
+      "type": "BIGINT",
+      "key": "FK",
+      "null": "NO",
+      "description": "Custodian.",
+      "references": [
+        "employees",
+        "employee_id"
+      ]
+    },
+    {
+      "name": "department_id",
+      "type": "BIGINT",
+      "key": "FK",
+      "null": "YES",
+      "description": "Department at time of assignment.",
+      "references": [
+        "departments",
+        "department_id"
+      ]
+    },
+    {
+      "name": "cost_center_id",
+      "type": "BIGINT",
+      "key": "FK",
+      "null": "YES",
+      "description": "Cost center at time of assignment.",
+      "references": [
+        "cost_centers",
+        "cost_center_id"
+      ]
+    },
+    {
+      "name": "location_id",
+      "type": "BIGINT",
+      "key": "FK",
+      "null": "YES",
+      "description": "Assigned location.",
+      "references": [
+        "locations",
+        "location_id"
+      ]
+    },
+    {
+      "name": "assigned_date",
+      "type": "DATETIME",
+      "key": "",
+      "null": "NO",
+      "description": "Assignment start."
+    },
+    {
+      "name": "expected_return_date",
+      "type": "DATE",
+      "key": "",
+      "null": "YES",
+      "description": "Expected return."
+    },
+    {
+      "name": "returned_date",
+      "type": "DATETIME",
+      "key": "",
+      "null": "YES",
+      "description": "Actual return."
+    },
+    {
+      "name": "assignment_status",
+      "type": "VARCHAR(50)",
+      "key": "",
+      "null": "NO",
+      "description": "ACTIVE, RETURNED, CANCELLED."
+    },
+    {
+      "name": "assigned_by",
+      "type": "BIGINT",
+      "key": "FK",
+      "null": "NO",
+      "description": "System user.",
+      "references": [
+        "users",
+        "user_id"
+      ]
+    },
+    {
+      "name": "return_received_by",
+      "type": "BIGINT",
+      "key": "FK",
+      "null": "YES",
+      "description": "User receiving return.",
+      "references": [
+        "users",
+        "user_id"
+      ]
+    },
+    {
+      "name": "assignment_notes",
+      "type": "TEXT",
+      "key": "",
+      "null": "YES",
+      "description": "Notes."
+    },
+    {
+      "name": "created_at",
+      "type": "DATETIME",
+      "key": "",
+      "null": "NO",
+      "description": "Creation timestamp."
+    },
+    {
+      "name": "updated_at",
+      "type": "DATETIME",
+      "key": "",
+      "null": "NO",
+      "description": "Last update."
+    }
+  ],
+  "asset_movements": [
+    {
+      "name": "movement_id",
+      "type": "BIGINT",
+      "key": "PK",
+      "null": "NO",
+      "description": "Identifier."
+    },
+    {
+      "name": "asset_id",
+      "type": "BIGINT",
+      "key": "FK",
+      "null": "NO",
+      "description": "Asset.",
+      "references": [
+        "assets",
+        "asset_id"
+      ]
+    },
+    {
+      "name": "movement_type_id",
+      "type": "BIGINT",
+      "key": "FK",
+      "null": "NO",
+      "description": "Movement type.",
+      "references": [
+        "movement_types",
+        "movement_type_id"
+      ]
+    },
+    {
+      "name": "from_location_id",
+      "type": "BIGINT",
+      "key": "FK",
+      "null": "YES",
+      "description": "Origin.",
+      "references": [
+        "locations",
+        "location_id"
+      ]
+    },
+    {
+      "name": "to_location_id",
+      "type": "BIGINT",
+      "key": "FK",
+      "null": "YES",
+      "description": "Destination.",
+      "references": [
+        "locations",
+        "location_id"
+      ]
+    },
+    {
+      "name": "from_employee_id",
+      "type": "BIGINT",
+      "key": "FK",
+      "null": "YES",
+      "description": "Previous custodian.",
+      "references": [
+        "employees",
+        "employee_id"
+      ]
+    },
+    {
+      "name": "to_employee_id",
+      "type": "BIGINT",
+      "key": "FK",
+      "null": "YES",
+      "description": "New custodian.",
+      "references": [
+        "employees",
+        "employee_id"
+      ]
+    },
+    {
+      "name": "movement_date",
+      "type": "DATETIME",
+      "key": "",
+      "null": "NO",
+      "description": "Effective movement time."
+    },
+    {
+      "name": "requested_by",
+      "type": "BIGINT",
+      "key": "FK",
+      "null": "YES",
+      "description": "Requester.",
+      "references": [
+        "users",
+        "user_id"
+      ]
+    },
+    {
+      "name": "approved_by",
+      "type": "BIGINT",
+      "key": "FK",
+      "null": "YES",
+      "description": "Approver when required.",
+      "references": [
+        "users",
+        "user_id"
+      ]
+    },
+    {
+      "name": "released_by",
+      "type": "BIGINT",
+      "key": "FK",
+      "null": "YES",
+      "description": "Person/user releasing item.",
+      "references": [
+        "users",
+        "user_id"
+      ]
+    },
+    {
+      "name": "received_by",
+      "type": "BIGINT",
+      "key": "FK",
+      "null": "YES",
+      "description": "Person/user receiving item.",
+      "references": [
+        "users",
+        "user_id"
+      ]
+    },
+    {
+      "name": "vendor_id",
+      "type": "BIGINT",
+      "key": "FK",
+      "null": "YES",
+      "description": "Courier/vendor when applicable.",
+      "references": [
+        "vendors",
+        "vendor_id"
+      ]
+    },
+    {
+      "name": "tracking_number",
+      "type": "VARCHAR(200)",
+      "key": "",
+      "null": "YES",
+      "description": "Courier reference."
+    },
+    {
+      "name": "reference_number",
+      "type": "VARCHAR(200)",
+      "key": "",
+      "null": "YES",
+      "description": "Transfer/transaction reference."
+    },
+    {
+      "name": "movement_status",
+      "type": "VARCHAR(50)",
+      "key": "",
+      "null": "NO",
+      "description": "REQUESTED, APPROVED, IN_TRANSIT, COMPLETED, CANCELLED."
+    },
+    {
+      "name": "remarks",
+      "type": "TEXT",
+      "key": "",
+      "null": "YES",
+      "description": "Notes."
+    },
+    {
+      "name": "completed_at",
+      "type": "DATETIME",
+      "key": "",
+      "null": "YES",
+      "description": "Completion time."
+    },
+    {
+      "name": "created_at",
+      "type": "DATETIME",
+      "key": "",
+      "null": "NO",
+      "description": "Creation timestamp."
+    }
+  ],
+  "depreciation_profiles": [
+    {
+      "name": "depreciation_profile_id",
+      "type": "BIGINT",
+      "key": "PK",
+      "null": "NO",
+      "description": "Identifier."
+    },
+    {
+      "name": "profile_name",
+      "type": "VARCHAR(150)",
+      "key": "",
+      "null": "NO",
+      "description": "Profile name."
+    },
+    {
+      "name": "asset_category_id",
+      "type": "BIGINT",
+      "key": "FK",
+      "null": "YES",
+      "description": "Optional category.",
+      "references": [
+        "asset_categories",
+        "category_id"
+      ]
+    },
+    {
+      "name": "depreciation_method_id",
+      "type": "BIGINT",
+      "key": "FK",
+      "null": "NO",
+      "description": "Method.",
+      "references": [
+        "depreciation_methods",
+        "depreciation_method_id"
+      ]
+    },
+    {
+      "name": "useful_life_months",
+      "type": "INT",
+      "key": "",
+      "null": "NO",
+      "description": "Policy life."
+    },
+    {
+      "name": "residual_percentage",
+      "type": "DECIMAL(7,4)",
+      "key": "",
+      "null": "NO",
+      "description": "Residual % where applicable."
+    },
+    {
+      "name": "convention",
+      "type": "VARCHAR(50)",
+      "key": "",
+      "null": "YES",
+      "description": "Monthly, half-month, etc."
+    },
+    {
+      "name": "effective_from",
+      "type": "DATE",
+      "key": "",
+      "null": "NO",
+      "description": "Policy start."
+    },
+    {
+      "name": "effective_to",
+      "type": "DATE",
+      "key": "",
+      "null": "YES",
+      "description": "Policy end."
+    },
+    {
+      "name": "created_by",
+      "type": "BIGINT",
+      "key": "FK",
+      "null": "NO",
+      "description": "Finance/system user.",
+      "references": [
+        "users",
+        "user_id"
+      ]
+    },
+    {
+      "name": "is_active",
+      "type": "BOOLEAN",
+      "key": "",
+      "null": "NO",
+      "description": "Availability."
+    }
+  ],
+  "asset_depreciation": [
+    {
+      "name": "depreciation_id",
+      "type": "BIGINT",
+      "key": "PK",
+      "null": "NO",
+      "description": "Identifier."
+    },
+    {
+      "name": "asset_id",
+      "type": "BIGINT",
+      "key": "FK",
+      "null": "NO",
+      "description": "Asset.",
+      "references": [
+        "assets",
+        "asset_id"
+      ]
+    },
+    {
+      "name": "period_date",
+      "type": "DATE",
+      "key": "",
+      "null": "NO",
+      "description": "Accounting period."
+    },
+    {
+      "name": "opening_value",
+      "type": "DECIMAL(18,2)",
+      "key": "",
+      "null": "NO",
+      "description": "Opening NBV."
+    },
+    {
+      "name": "depreciation_amount",
+      "type": "DECIMAL(18,2)",
+      "key": "",
+      "null": "NO",
+      "description": "Period depreciation."
+    },
+    {
+      "name": "accumulated_depreciation",
+      "type": "DECIMAL(18,2)",
+      "key": "",
+      "null": "NO",
+      "description": "Accumulated amount."
+    },
+    {
+      "name": "closing_book_value",
+      "type": "DECIMAL(18,2)",
+      "key": "",
+      "null": "NO",
+      "description": "Closing NBV."
+    },
+    {
+      "name": "calculation_source",
+      "type": "VARCHAR(50)",
+      "key": "",
+      "null": "NO",
+      "description": "SYSTEM, IMPORT, MANUAL_ADJUSTMENT."
+    },
+    {
+      "name": "calculated_at",
+      "type": "DATETIME",
+      "key": "",
+      "null": "NO",
+      "description": "Calculation timestamp."
+    }
+  ],
+  "vendors": [
+    {
+      "name": "vendor_id",
+      "type": "BIGINT",
+      "key": "PK",
+      "null": "NO",
+      "description": "Identifier."
+    },
+    {
+      "name": "vendor_code",
+      "type": "VARCHAR(50)",
+      "key": "UQ",
+      "null": "YES",
+      "description": "Optional code."
+    },
+    {
+      "name": "vendor_name",
+      "type": "VARCHAR(200)",
+      "key": "",
+      "null": "NO",
+      "description": "Name."
+    },
+    {
+      "name": "vendor_type",
+      "type": "VARCHAR(50)",
+      "key": "",
+      "null": "NO",
+      "description": "SUPPLIER, REPAIR_PROVIDER, WARRANTY_PROVIDER, DISPOSAL_PROVIDER, COURIER, OTHER."
+    },
+    {
+      "name": "contact_name",
+      "type": "VARCHAR(150)",
+      "key": "",
+      "null": "YES",
+      "description": "Contact."
+    },
+    {
+      "name": "contact_email",
+      "type": "VARCHAR(255)",
+      "key": "",
+      "null": "YES",
+      "description": "Email."
+    },
+    {
+      "name": "contact_phone",
+      "type": "VARCHAR(100)",
+      "key": "",
+      "null": "YES",
+      "description": "Phone."
+    },
+    {
+      "name": "address",
+      "type": "TEXT",
+      "key": "",
+      "null": "YES",
+      "description": "Address."
+    },
+    {
+      "name": "website",
+      "type": "VARCHAR(500)",
+      "key": "",
+      "null": "YES",
+      "description": "Website."
+    },
+    {
+      "name": "support_url",
+      "type": "VARCHAR(500)",
+      "key": "",
+      "null": "YES",
+      "description": "Support link."
+    },
+    {
+      "name": "is_active",
+      "type": "BOOLEAN",
+      "key": "",
+      "null": "NO",
+      "description": "Availability."
+    }
+  ],
+  "purchase_orders": [
+    {
+      "name": "purchase_order_id",
+      "type": "BIGINT",
+      "key": "PK",
+      "null": "NO",
+      "description": "Identifier."
+    },
+    {
+      "name": "po_number",
+      "type": "VARCHAR(100)",
+      "key": "UQ",
+      "null": "NO",
+      "description": "PO number."
+    },
+    {
+      "name": "vendor_id",
+      "type": "BIGINT",
+      "key": "FK",
+      "null": "NO",
+      "description": "Supplier.",
+      "references": [
+        "vendors",
+        "vendor_id"
+      ]
+    },
+    {
+      "name": "order_date",
+      "type": "DATE",
+      "key": "",
+      "null": "NO",
+      "description": "Order date."
+    },
+    {
+      "name": "total_amount",
+      "type": "DECIMAL(18,2)",
+      "key": "",
+      "null": "YES",
+      "description": "PO total."
+    },
+    {
+      "name": "currency_code",
+      "type": "CHAR(3)",
+      "key": "",
+      "null": "YES",
+      "description": "Currency."
+    },
+    {
+      "name": "status",
+      "type": "VARCHAR(50)",
+      "key": "",
+      "null": "NO",
+      "description": "OPEN, PARTIAL, RECEIVED, CANCELLED, CLOSED."
+    },
+    {
+      "name": "created_at",
+      "type": "DATETIME",
+      "key": "",
+      "null": "NO",
+      "description": "Timestamp."
+    }
+  ],
+  "purchase_order_items": [
+    {
+      "name": "po_item_id",
+      "type": "BIGINT",
+      "key": "PK",
+      "null": "NO",
+      "description": "Identifier."
+    },
+    {
+      "name": "purchase_order_id",
+      "type": "BIGINT",
+      "key": "FK",
+      "null": "NO",
+      "description": "PO header.",
+      "references": [
+        "purchase_orders",
+        "purchase_order_id"
+      ]
+    },
+    {
+      "name": "asset_model_id",
+      "type": "BIGINT",
+      "key": "FK",
+      "null": "YES",
+      "description": "Expected model.",
+      "references": [
+        "asset_models",
+        "model_id"
+      ]
+    },
+    {
+      "name": "description",
+      "type": "VARCHAR(500)",
+      "key": "",
+      "null": "YES",
+      "description": "Line description."
+    },
+    {
+      "name": "quantity",
+      "type": "DECIMAL(12,2)",
+      "key": "",
+      "null": "NO",
+      "description": "Ordered quantity."
+    },
+    {
+      "name": "unit_price",
+      "type": "DECIMAL(18,2)",
+      "key": "",
+      "null": "YES",
+      "description": "Unit price."
+    },
+    {
+      "name": "total_price",
+      "type": "DECIMAL(18,2)",
+      "key": "",
+      "null": "YES",
+      "description": "Line total."
+    }
+  ],
+  "invoices": [
+    {
+      "name": "invoice_id",
+      "type": "BIGINT",
+      "key": "PK",
+      "null": "NO",
+      "description": "Identifier."
+    },
+    {
+      "name": "invoice_number",
+      "type": "VARCHAR(150)",
+      "key": "",
+      "null": "NO",
+      "description": "Invoice number."
+    },
+    {
+      "name": "vendor_id",
+      "type": "BIGINT",
+      "key": "FK",
+      "null": "NO",
+      "description": "Vendor.",
+      "references": [
+        "vendors",
+        "vendor_id"
+      ]
+    },
+    {
+      "name": "purchase_order_id",
+      "type": "BIGINT",
+      "key": "FK",
+      "null": "YES",
+      "description": "Related PO.",
+      "references": [
+        "purchase_orders",
+        "purchase_order_id"
+      ]
+    },
+    {
+      "name": "invoice_date",
+      "type": "DATE",
+      "key": "",
+      "null": "NO",
+      "description": "Invoice date."
+    },
+    {
+      "name": "amount",
+      "type": "DECIMAL(18,2)",
+      "key": "",
+      "null": "YES",
+      "description": "Invoice amount."
+    },
+    {
+      "name": "currency_code",
+      "type": "CHAR(3)",
+      "key": "",
+      "null": "YES",
+      "description": "Currency."
+    },
+    {
+      "name": "file_id",
+      "type": "BIGINT",
+      "key": "FK",
+      "null": "YES",
+      "description": "Scanned invoice/document.",
+      "references": [
+        "files",
+        "file_id"
+      ]
+    },
+    {
+      "name": "created_at",
+      "type": "DATETIME",
+      "key": "",
+      "null": "NO",
+      "description": "Timestamp."
+    }
+  ],
+  "asset_warranties": [
+    {
+      "name": "warranty_id",
+      "type": "BIGINT",
+      "key": "PK",
+      "null": "NO",
+      "description": "Identifier."
+    },
+    {
+      "name": "asset_id",
+      "type": "BIGINT",
+      "key": "FK",
+      "null": "NO",
+      "description": "Asset.",
+      "references": [
+        "assets",
+        "asset_id"
+      ]
+    },
+    {
+      "name": "provider_id",
+      "type": "BIGINT",
+      "key": "FK",
+      "null": "YES",
+      "description": "Warranty provider/vendor.",
+      "references": [
+        "vendors",
+        "vendor_id"
+      ]
+    },
+    {
+      "name": "warranty_start_date",
+      "type": "DATE",
+      "key": "",
+      "null": "YES",
+      "description": "Start."
+    },
+    {
+      "name": "warranty_end_date",
+      "type": "DATE",
+      "key": "",
+      "null": "YES",
+      "description": "End."
+    },
+    {
+      "name": "warranty_type",
+      "type": "VARCHAR(100)",
+      "key": "",
+      "null": "YES",
+      "description": "Coverage type."
+    },
+    {
+      "name": "support_contract",
+      "type": "VARCHAR(200)",
+      "key": "",
+      "null": "YES",
+      "description": "Contract/reference."
+    },
+    {
+      "name": "warranty_status",
+      "type": "VARCHAR(50)",
+      "key": "",
+      "null": "NO",
+      "description": "ACTIVE, EXPIRED, UNKNOWN, VOID."
+    },
+    {
+      "name": "checked_online_at",
+      "type": "DATETIME",
+      "key": "",
+      "null": "YES",
+      "description": "Last online verification."
+    },
+    {
+      "name": "verification_source",
+      "type": "VARCHAR(255)",
+      "key": "",
+      "null": "YES",
+      "description": "Vendor/API/source."
+    },
+    {
+      "name": "notes",
+      "type": "TEXT",
+      "key": "",
+      "null": "YES",
+      "description": "Notes."
+    }
+  ],
+  "asset_repairs": [
+    {
+      "name": "repair_id",
+      "type": "BIGINT",
+      "key": "PK",
+      "null": "NO",
+      "description": "Identifier."
+    },
+    {
+      "name": "asset_id",
+      "type": "BIGINT",
+      "key": "FK",
+      "null": "NO",
+      "description": "Asset.",
+      "references": [
+        "assets",
+        "asset_id"
+      ]
+    },
+    {
+      "name": "repair_type",
+      "type": "VARCHAR(100)",
+      "key": "",
+      "null": "YES",
+      "description": "Repair/maintenance classification."
+    },
+    {
+      "name": "repair_source",
+      "type": "VARCHAR(50)",
+      "key": "",
+      "null": "NO",
+      "description": "IN_HOUSE or THIRD_PARTY."
+    },
+    {
+      "name": "vendor_id",
+      "type": "BIGINT",
+      "key": "FK",
+      "null": "YES",
+      "description": "Required for third-party repair.",
+      "references": [
+        "vendors",
+        "vendor_id"
+      ]
+    },
+    {
+      "name": "issue_description",
+      "type": "TEXT",
+      "key": "",
+      "null": "NO",
+      "description": "Reported issue."
+    },
+    {
+      "name": "diagnosis",
+      "type": "TEXT",
+      "key": "",
+      "null": "YES",
+      "description": "Diagnosis."
+    },
+    {
+      "name": "repair_action",
+      "type": "TEXT",
+      "key": "",
+      "null": "YES",
+      "description": "Work performed."
+    },
+    {
+      "name": "repair_cost",
+      "type": "DECIMAL(18,2)",
+      "key": "",
+      "null": "YES",
+      "description": "Cost."
+    },
+    {
+      "name": "sent_date",
+      "type": "DATETIME",
+      "key": "",
+      "null": "YES",
+      "description": "Sent out."
+    },
+    {
+      "name": "repair_start_date",
+      "type": "DATETIME",
+      "key": "",
+      "null": "YES",
+      "description": "Start."
+    },
+    {
+      "name": "repair_complete_date",
+      "type": "DATETIME",
+      "key": "",
+      "null": "YES",
+      "description": "Complete."
+    },
+    {
+      "name": "returned_date",
+      "type": "DATETIME",
+      "key": "",
+      "null": "YES",
+      "description": "Returned to ITAM/user."
+    },
+    {
+      "name": "repair_status",
+      "type": "VARCHAR(50)",
+      "key": "",
+      "null": "NO",
+      "description": "OPEN, IN_PROGRESS, WAITING_PARTS, COMPLETED, CANCELLED."
+    },
+    {
+      "name": "technician",
+      "type": "VARCHAR(150)",
+      "key": "",
+      "null": "YES",
+      "description": "Technician."
+    },
+    {
+      "name": "notes",
+      "type": "TEXT",
+      "key": "",
+      "null": "YES",
+      "description": "Notes."
+    },
+    {
+      "name": "created_by",
+      "type": "BIGINT",
+      "key": "FK",
+      "null": "NO",
+      "description": "Creator.",
+      "references": [
+        "users",
+        "user_id"
+      ]
+    },
+    {
+      "name": "created_at",
+      "type": "DATETIME",
+      "key": "",
+      "null": "NO",
+      "description": "Timestamp."
+    }
+  ],
+  "asset_refreshes": [
+    {
+      "name": "refresh_id",
+      "type": "BIGINT",
+      "key": "PK",
+      "null": "NO",
+      "description": "Identifier."
+    },
+    {
+      "name": "asset_id",
+      "type": "BIGINT",
+      "key": "FK",
+      "null": "NO",
+      "description": "Old/current asset.",
+      "references": [
+        "assets",
+        "asset_id"
+      ]
+    },
+    {
+      "name": "recommended_date",
+      "type": "DATE",
+      "key": "",
+      "null": "YES",
+      "description": "Recommended refresh."
+    },
+    {
+      "name": "approved_date",
+      "type": "DATE",
+      "key": "",
+      "null": "YES",
+      "description": "Approval."
+    },
+    {
+      "name": "completed_date",
+      "type": "DATE",
+      "key": "",
+      "null": "YES",
+      "description": "Completion."
+    },
+    {
+      "name": "refresh_reason",
+      "type": "TEXT",
+      "key": "",
+      "null": "YES",
+      "description": "Reason."
+    },
+    {
+      "name": "replacement_asset_id",
+      "type": "BIGINT",
+      "key": "FK",
+      "null": "YES",
+      "description": "New replacement asset.",
+      "references": [
+        "assets",
+        "asset_id"
+      ]
+    },
+    {
+      "name": "approved_by",
+      "type": "BIGINT",
+      "key": "FK",
+      "null": "YES",
+      "description": "Approver.",
+      "references": [
+        "users",
+        "user_id"
+      ]
+    },
+    {
+      "name": "status",
+      "type": "VARCHAR(50)",
+      "key": "",
+      "null": "NO",
+      "description": "RECOMMENDED, APPROVED, ORDERED, COMPLETED, CANCELLED."
+    },
+    {
+      "name": "notes",
+      "type": "TEXT",
+      "key": "",
+      "null": "YES",
+      "description": "Notes."
+    }
+  ],
+  "asset_disposals": [
+    {
+      "name": "disposal_id",
+      "type": "BIGINT",
+      "key": "PK",
+      "null": "NO",
+      "description": "Identifier."
+    },
+    {
+      "name": "asset_id",
+      "type": "BIGINT",
+      "key": "FK",
+      "null": "NO",
+      "description": "Asset.",
+      "references": [
+        "assets",
+        "asset_id"
+      ]
+    },
+    {
+      "name": "disposal_method_id",
+      "type": "BIGINT",
+      "key": "FK",
+      "null": "NO",
+      "description": "Approved method.",
+      "references": [
+        "disposal_methods",
+        "disposal_method_id"
+      ]
+    },
+    {
+      "name": "vendor_id",
+      "type": "BIGINT",
+      "key": "FK",
+      "null": "YES",
+      "description": "Disposal vendor.",
+      "references": [
+        "vendors",
+        "vendor_id"
+      ]
+    },
+    {
+      "name": "requested_date",
+      "type": "DATE",
+      "key": "",
+      "null": "YES",
+      "description": "Request date."
+    },
+    {
+      "name": "approved_date",
+      "type": "DATE",
+      "key": "",
+      "null": "YES",
+      "description": "Approval date."
+    },
+    {
+      "name": "disposal_date",
+      "type": "DATE",
+      "key": "",
+      "null": "YES",
+      "description": "Completion date."
+    },
+    {
+      "name": "disposal_value",
+      "type": "DECIMAL(18,2)",
+      "key": "",
+      "null": "YES",
+      "description": "Proceeds/salvage."
+    },
+    {
+      "name": "data_wipe_required",
+      "type": "BOOLEAN",
+      "key": "",
+      "null": "NO",
+      "description": "Wipe requirement."
+    },
+    {
+      "name": "data_wipe_confirmed",
+      "type": "BOOLEAN",
+      "key": "",
+      "null": "NO",
+      "description": "Wipe completion."
+    },
+    {
+      "name": "wiped_by",
+      "type": "VARCHAR(150)",
+      "key": "",
+      "null": "YES",
+      "description": "Person/process."
+    },
+    {
+      "name": "wipe_date",
+      "type": "DATETIME",
+      "key": "",
+      "null": "YES",
+      "description": "Wipe time."
+    },
+    {
+      "name": "certificate_file_id",
+      "type": "BIGINT",
+      "key": "FK",
+      "null": "YES",
+      "description": "Disposal/wipe certificate.",
+      "references": [
+        "files",
+        "file_id"
+      ]
+    },
+    {
+      "name": "approved_by",
+      "type": "BIGINT",
+      "key": "FK",
+      "null": "YES",
+      "description": "Approver.",
+      "references": [
+        "users",
+        "user_id"
+      ]
+    },
+    {
+      "name": "status",
+      "type": "VARCHAR(50)",
+      "key": "",
+      "null": "NO",
+      "description": "REQUESTED, APPROVED, SCHEDULED, COMPLETED, CANCELLED."
+    },
+    {
+      "name": "notes",
+      "type": "TEXT",
+      "key": "",
+      "null": "YES",
+      "description": "Notes."
+    },
+    {
+      "name": "created_at",
+      "type": "DATETIME",
+      "key": "",
+      "null": "NO",
+      "description": "Timestamp."
+    }
+  ],
+  "users": [
+    {
+      "name": "user_id",
+      "type": "BIGINT",
+      "key": "PK",
+      "null": "NO",
+      "description": "Identifier."
+    },
+    {
+      "name": "employee_id",
+      "type": "BIGINT",
+      "key": "FK",
+      "null": "YES",
+      "description": "Optional employee link.",
+      "references": [
+        "employees",
+        "employee_id"
+      ]
+    },
+    {
+      "name": "username",
+      "type": "VARCHAR(100)",
+      "key": "UQ",
+      "null": "NO",
+      "description": "Login name."
+    },
+    {
+      "name": "email",
+      "type": "VARCHAR(255)",
+      "key": "UQ",
+      "null": "NO",
+      "description": "Login/contact email."
+    },
+    {
+      "name": "password_hash",
+      "type": "VARCHAR(255)",
+      "key": "",
+      "null": "NO",
+      "description": "Password hash only; never plaintext."
+    },
+    {
+      "name": "is_active",
+      "type": "BOOLEAN",
+      "key": "",
+      "null": "NO",
+      "description": "Login enabled."
+    },
+    {
+      "name": "last_login_at",
+      "type": "DATETIME",
+      "key": "",
+      "null": "YES",
+      "description": "Last successful login."
+    },
+    {
+      "name": "failed_login_count",
+      "type": "INT",
+      "key": "",
+      "null": "NO",
+      "description": "Failure counter."
+    },
+    {
+      "name": "locked_until",
+      "type": "DATETIME",
+      "key": "",
+      "null": "YES",
+      "description": "Temporary lock."
+    },
+    {
+      "name": "mfa_enabled",
+      "type": "BOOLEAN",
+      "key": "",
+      "null": "NO",
+      "description": "MFA flag."
+    },
+    {
+      "name": "created_at",
+      "type": "DATETIME",
+      "key": "",
+      "null": "NO",
+      "description": "Creation."
+    },
+    {
+      "name": "created_by",
+      "type": "BIGINT",
+      "key": "FK",
+      "null": "YES",
+      "description": "Creator.",
+      "references": [
+        "users",
+        "user_id"
+      ]
+    },
+    {
+      "name": "updated_at",
+      "type": "DATETIME",
+      "key": "",
+      "null": "NO",
+      "description": "Update."
+    }
+  ],
+  "roles": [
+    {
+      "name": "role_id",
+      "type": "BIGINT",
+      "key": "PK",
+      "null": "NO",
+      "description": "Identifier."
+    },
+    {
+      "name": "role_code",
+      "type": "VARCHAR(50)",
+      "key": "UQ",
+      "null": "NO",
+      "description": "SUPER_ADMIN, IT_ADMIN, FINANCE_ADMIN, ITAM_TEAM, SECURITY, MANAGEMENT_VIEWER, GENERAL_USER."
+    },
+    {
+      "name": "role_name",
+      "type": "VARCHAR(100)",
+      "key": "",
+      "null": "NO",
+      "description": "Display name."
+    },
+    {
+      "name": "description",
+      "type": "VARCHAR(500)",
+      "key": "",
+      "null": "YES",
+      "description": "Role purpose."
+    },
+    {
+      "name": "is_active",
+      "type": "BOOLEAN",
+      "key": "",
+      "null": "NO",
+      "description": "Availability."
+    }
+  ],
+  "permissions": [
+    {
+      "name": "permission_id",
+      "type": "BIGINT",
+      "key": "PK",
+      "null": "NO",
+      "description": "Identifier."
+    },
+    {
+      "name": "permission_code",
+      "type": "VARCHAR(100)",
+      "key": "UQ",
+      "null": "NO",
+      "description": "Stable machine code."
+    },
+    {
+      "name": "module",
+      "type": "VARCHAR(100)",
+      "key": "",
+      "null": "NO",
+      "description": "ASSET, FINANCE, SECURITY, USER, REPORT, etc."
+    },
+    {
+      "name": "action",
+      "type": "VARCHAR(100)",
+      "key": "",
+      "null": "NO",
+      "description": "VIEW, CREATE, UPDATE, ASSIGN, TRANSFER, APPROVE, EXPORT, etc."
+    },
+    {
+      "name": "description",
+      "type": "VARCHAR(500)",
+      "key": "",
+      "null": "YES",
+      "description": "Meaning."
+    }
+  ],
+  "user_roles": [
+    {
+      "name": "user_id",
+      "type": "BIGINT",
+      "key": "PK,FK",
+      "null": "NO",
+      "description": "User.",
+      "references": [
+        "users",
+        "user_id"
+      ]
+    },
+    {
+      "name": "role_id",
+      "type": "BIGINT",
+      "key": "PK,FK",
+      "null": "NO",
+      "description": "Role.",
+      "references": [
+        "roles",
+        "role_id"
+      ]
+    },
+    {
+      "name": "effective_from",
+      "type": "DATETIME",
+      "key": "",
+      "null": "YES",
+      "description": "Start."
+    },
+    {
+      "name": "effective_to",
+      "type": "DATETIME",
+      "key": "",
+      "null": "YES",
+      "description": "End."
+    }
+  ],
+  "role_permissions": [
+    {
+      "name": "role_id",
+      "type": "BIGINT",
+      "key": "PK,FK",
+      "null": "NO",
+      "description": "Role.",
+      "references": [
+        "roles",
+        "role_id"
+      ]
+    },
+    {
+      "name": "permission_id",
+      "type": "BIGINT",
+      "key": "PK,FK",
+      "null": "NO",
+      "description": "Permission.",
+      "references": [
+        "permissions",
+        "permission_id"
+      ]
+    }
+  ],
+  "user_scopes": [
+    {
+      "name": "user_scope_id",
+      "type": "BIGINT",
+      "key": "PK",
+      "null": "NO",
+      "description": "Identifier."
+    },
+    {
+      "name": "user_id",
+      "type": "BIGINT",
+      "key": "FK",
+      "null": "NO",
+      "description": "User.",
+      "references": [
+        "users",
+        "user_id"
+      ]
+    },
+    {
+      "name": "scope_type",
+      "type": "VARCHAR(50)",
+      "key": "",
+      "null": "NO",
+      "description": "ENTERPRISE, BUSINESS_UNIT, SITE, DEPARTMENT, COST_CENTER, TEAM, SELF."
+    },
+    {
+      "name": "scope_reference_id",
+      "type": "BIGINT",
+      "key": "",
+      "null": "YES",
+      "description": "ID in the appropriate scope domain; NULL for ENTERPRISE/SELF when not needed."
+    },
+    {
+      "name": "access_level",
+      "type": "VARCHAR(50)",
+      "key": "",
+      "null": "NO",
+      "description": "VIEW or MANAGE as policy permits."
+    },
+    {
+      "name": "effective_from",
+      "type": "DATETIME",
+      "key": "",
+      "null": "YES",
+      "description": "Start."
+    },
+    {
+      "name": "effective_to",
+      "type": "DATETIME",
+      "key": "",
+      "null": "YES",
+      "description": "End."
+    }
+  ],
+  "dashboard_types": [
+    {
+      "name": "dashboard_type_id",
+      "type": "BIGINT",
+      "key": "PK",
+      "null": "NO",
+      "description": "Identifier."
+    },
+    {
+      "name": "dashboard_code",
+      "type": "VARCHAR(50)",
+      "key": "UQ",
+      "null": "NO",
+      "description": "IT, FINANCE, ITAM, OPERATIONS, HR, SECURITY, GENERAL, EXECUTIVE."
+    },
+    {
+      "name": "dashboard_name",
+      "type": "VARCHAR(100)",
+      "key": "",
+      "null": "NO",
+      "description": "Display name."
+    }
+  ],
+  "user_dashboards": [
+    {
+      "name": "user_id",
+      "type": "BIGINT",
+      "key": "PK,FK",
+      "null": "NO",
+      "description": "User.",
+      "references": [
+        "users",
+        "user_id"
+      ]
+    },
+    {
+      "name": "dashboard_type_id",
+      "type": "BIGINT",
+      "key": "PK,FK",
+      "null": "NO",
+      "description": "Dashboard.",
+      "references": [
+        "dashboard_types",
+        "dashboard_type_id"
+      ]
+    },
+    {
+      "name": "is_default",
+      "type": "BOOLEAN",
+      "key": "",
+      "null": "NO",
+      "description": "Default landing dashboard."
+    }
+  ],
+  "gate_passes": [
+    {
+      "name": "gate_pass_id",
+      "type": "BIGINT",
+      "key": "PK",
+      "null": "NO",
+      "description": "Identifier."
+    },
+    {
+      "name": "gate_pass_number",
+      "type": "VARCHAR(100)",
+      "key": "UQ",
+      "null": "NO",
+      "description": "Gate pass reference."
+    },
+    {
+      "name": "requester_id",
+      "type": "BIGINT",
+      "key": "FK",
+      "null": "NO",
+      "description": "Requesting user/employee reference according to implementation.",
+      "references": [
+        "users",
+        "user_id"
+      ]
+    },
+    {
+      "name": "approved_by",
+      "type": "BIGINT",
+      "key": "FK",
+      "null": "YES",
+      "description": "Approving user.",
+      "references": [
+        "users",
+        "user_id"
+      ]
+    },
+    {
+      "name": "valid_from",
+      "type": "DATETIME",
+      "key": "",
+      "null": "NO",
+      "description": "Validity start."
+    },
+    {
+      "name": "valid_until",
+      "type": "DATETIME",
+      "key": "",
+      "null": "NO",
+      "description": "Validity end."
+    },
+    {
+      "name": "purpose",
+      "type": "VARCHAR(500)",
+      "key": "",
+      "null": "YES",
+      "description": "Purpose."
+    },
+    {
+      "name": "destination",
+      "type": "VARCHAR(255)",
+      "key": "",
+      "null": "YES",
+      "description": "Destination."
+    },
+    {
+      "name": "status",
+      "type": "VARCHAR(50)",
+      "key": "",
+      "null": "NO",
+      "description": "PENDING, APPROVED, USED, EXPIRED, CANCELLED."
+    },
+    {
+      "name": "created_at",
+      "type": "DATETIME",
+      "key": "",
+      "null": "NO",
+      "description": "Timestamp."
+    }
+  ],
+  "gate_pass_assets": [
+    {
+      "name": "gate_pass_id",
+      "type": "BIGINT",
+      "key": "PK,FK",
+      "null": "NO",
+      "description": "Gate pass.",
+      "references": [
+        "gate_passes",
+        "gate_pass_id"
+      ]
+    },
+    {
+      "name": "asset_id",
+      "type": "BIGINT",
+      "key": "PK,FK",
+      "null": "NO",
+      "description": "Asset.",
+      "references": [
+        "assets",
+        "asset_id"
+      ]
+    }
+  ],
+  "security_movements": [
+    {
+      "name": "security_movement_id",
+      "type": "BIGINT",
+      "key": "PK",
+      "null": "NO",
+      "description": "Identifier."
+    },
+    {
+      "name": "asset_id",
+      "type": "BIGINT",
+      "key": "FK",
+      "null": "NO",
+      "description": "Asset.",
+      "references": [
+        "assets",
+        "asset_id"
+      ]
+    },
+    {
+      "name": "movement_type",
+      "type": "VARCHAR(20)",
+      "key": "",
+      "null": "NO",
+      "description": "ENTRY or EXIT."
+    },
+    {
+      "name": "employee_id",
+      "type": "BIGINT",
+      "key": "FK",
+      "null": "YES",
+      "description": "Person carrying/associated with asset.",
+      "references": [
+        "employees",
+        "employee_id"
+      ]
+    },
+    {
+      "name": "location_id",
+      "type": "BIGINT",
+      "key": "FK",
+      "null": "NO",
+      "description": "Gate/site.",
+      "references": [
+        "locations",
+        "location_id"
+      ]
+    },
+    {
+      "name": "gate_pass_id",
+      "type": "BIGINT",
+      "key": "FK",
+      "null": "YES",
+      "description": "Gate pass if applicable.",
+      "references": [
+        "gate_passes",
+        "gate_pass_id"
+      ]
+    },
+    {
+      "name": "scanned_by",
+      "type": "BIGINT",
+      "key": "FK",
+      "null": "NO",
+      "description": "Security system user.",
+      "references": [
+        "users",
+        "user_id"
+      ]
+    },
+    {
+      "name": "scan_time",
+      "type": "DATETIME",
+      "key": "",
+      "null": "NO",
+      "description": "Scan timestamp."
+    },
+    {
+      "name": "verification_result",
+      "type": "VARCHAR(50)",
+      "key": "",
+      "null": "NO",
+      "description": "AUTHORIZED, DENIED, REVIEW_REQUIRED."
+    },
+    {
+      "name": "flagged",
+      "type": "BOOLEAN",
+      "key": "",
+      "null": "NO",
+      "description": "Security flag."
+    },
+    {
+      "name": "remarks",
+      "type": "TEXT",
+      "key": "",
+      "null": "YES",
+      "description": "Remarks."
+    },
+    {
+      "name": "created_at",
+      "type": "DATETIME",
+      "key": "",
+      "null": "NO",
+      "description": "Timestamp."
+    }
+  ],
+  "inventory_sessions": [
+    {
+      "name": "inventory_session_id",
+      "type": "BIGINT",
+      "key": "PK",
+      "null": "NO",
+      "description": "Identifier."
+    },
+    {
+      "name": "session_name",
+      "type": "VARCHAR(200)",
+      "key": "",
+      "null": "NO",
+      "description": "Campaign name."
+    },
+    {
+      "name": "location_id",
+      "type": "BIGINT",
+      "key": "FK",
+      "null": "YES",
+      "description": "Target location.",
+      "references": [
+        "locations",
+        "location_id"
+      ]
+    },
+    {
+      "name": "started_at",
+      "type": "DATETIME",
+      "key": "",
+      "null": "NO",
+      "description": "Start."
+    },
+    {
+      "name": "completed_at",
+      "type": "DATETIME",
+      "key": "",
+      "null": "YES",
+      "description": "End."
+    },
+    {
+      "name": "started_by",
+      "type": "BIGINT",
+      "key": "FK",
+      "null": "NO",
+      "description": "ITAM user.",
+      "references": [
+        "users",
+        "user_id"
+      ]
+    },
+    {
+      "name": "status",
+      "type": "VARCHAR(50)",
+      "key": "",
+      "null": "NO",
+      "description": "PLANNED, ACTIVE, COMPLETED, CANCELLED."
+    },
+    {
+      "name": "notes",
+      "type": "TEXT",
+      "key": "",
+      "null": "YES",
+      "description": "Notes."
+    }
+  ],
+  "inventory_scan_results": [
+    {
+      "name": "inventory_scan_id",
+      "type": "BIGINT",
+      "key": "PK",
+      "null": "NO",
+      "description": "Identifier."
+    },
+    {
+      "name": "inventory_session_id",
+      "type": "BIGINT",
+      "key": "FK",
+      "null": "NO",
+      "description": "Session.",
+      "references": [
+        "inventory_sessions",
+        "inventory_session_id"
+      ]
+    },
+    {
+      "name": "asset_id",
+      "type": "BIGINT",
+      "key": "FK",
+      "null": "YES",
+      "description": "Matched asset; may be null for unresolved scans.",
+      "references": [
+        "assets",
+        "asset_id"
+      ]
+    },
+    {
+      "name": "scanned_barcode",
+      "type": "VARCHAR(150)",
+      "key": "",
+      "null": "YES",
+      "description": "Raw scan."
+    },
+    {
+      "name": "scanned_at",
+      "type": "DATETIME",
+      "key": "",
+      "null": "NO",
+      "description": "Scan time."
+    },
+    {
+      "name": "scanned_by",
+      "type": "BIGINT",
+      "key": "FK",
+      "null": "NO",
+      "description": "ITAM user.",
+      "references": [
+        "users",
+        "user_id"
+      ]
+    },
+    {
+      "name": "expected_location_id",
+      "type": "BIGINT",
+      "key": "FK",
+      "null": "YES",
+      "description": "Expected location.",
+      "references": [
+        "locations",
+        "location_id"
+      ]
+    },
+    {
+      "name": "actual_location_id",
+      "type": "BIGINT",
+      "key": "FK",
+      "null": "YES",
+      "description": "Observed location.",
+      "references": [
+        "locations",
+        "location_id"
+      ]
+    },
+    {
+      "name": "result",
+      "type": "VARCHAR(50)",
+      "key": "",
+      "null": "NO",
+      "description": "MATCH, LOCATION_MISMATCH, UNEXPECTED_ASSET, MISSING, DUPLICATE, DAMAGED, UNKNOWN."
+    },
+    {
+      "name": "remarks",
+      "type": "TEXT",
+      "key": "",
+      "null": "YES",
+      "description": "Notes."
+    }
+  ],
+  "barcode_scan_logs": [
+    {
+      "name": "scan_id",
+      "type": "BIGINT",
+      "key": "PK",
+      "null": "NO",
+      "description": "Identifier."
+    },
+    {
+      "name": "barcode",
+      "type": "VARCHAR(150)",
+      "key": "",
+      "null": "NO",
+      "description": "Raw barcode value."
+    },
+    {
+      "name": "asset_id",
+      "type": "BIGINT",
+      "key": "FK",
+      "null": "YES",
+      "description": "Resolved asset.",
+      "references": [
+        "assets",
+        "asset_id"
+      ]
+    },
+    {
+      "name": "scan_type",
+      "type": "VARCHAR(50)",
+      "key": "",
+      "null": "NO",
+      "description": "LOOKUP, INVENTORY, ASSIGNMENT, TRANSFER, SECURITY, etc."
+    },
+    {
+      "name": "scanned_by",
+      "type": "BIGINT",
+      "key": "FK",
+      "null": "YES",
+      "description": "System user.",
+      "references": [
+        "users",
+        "user_id"
+      ]
+    },
+    {
+      "name": "device_type",
+      "type": "VARCHAR(50)",
+      "key": "",
+      "null": "YES",
+      "description": "PHONE, TABLET, DESKTOP."
+    },
+    {
+      "name": "scan_timestamp",
+      "type": "DATETIME",
+      "key": "",
+      "null": "NO",
+      "description": "Scan time."
+    },
+    {
+      "name": "location_id",
+      "type": "BIGINT",
+      "key": "FK",
+      "null": "YES",
+      "description": "Location if known.",
+      "references": [
+        "locations",
+        "location_id"
+      ]
+    },
+    {
+      "name": "result",
+      "type": "VARCHAR(50)",
+      "key": "",
+      "null": "NO",
+      "description": "MATCH, NOT_FOUND, ERROR."
+    },
+    {
+      "name": "metadata",
+      "type": "JSON",
+      "key": "",
+      "null": "YES",
+      "description": "Browser/camera or other scan metadata."
+    }
+  ],
+  "files": [
+    {
+      "name": "file_id",
+      "type": "BIGINT",
+      "key": "PK",
+      "null": "NO",
+      "description": "Identifier."
+    },
+    {
+      "name": "original_filename",
+      "type": "VARCHAR(255)",
+      "key": "",
+      "null": "NO",
+      "description": "Original filename."
+    },
+    {
+      "name": "stored_filename",
+      "type": "VARCHAR(255)",
+      "key": "",
+      "null": "NO",
+      "description": "Internal filename/object key."
+    },
+    {
+      "name": "storage_path",
+      "type": "VARCHAR(1000)",
+      "key": "",
+      "null": "NO",
+      "description": "Storage pointer."
+    },
+    {
+      "name": "mime_type",
+      "type": "VARCHAR(150)",
+      "key": "",
+      "null": "YES",
+      "description": "MIME type."
+    },
+    {
+      "name": "file_size",
+      "type": "BIGINT",
+      "key": "",
+      "null": "YES",
+      "description": "Bytes."
+    },
+    {
+      "name": "checksum",
+      "type": "VARCHAR(128)",
+      "key": "",
+      "null": "YES",
+      "description": "Integrity hash."
+    },
+    {
+      "name": "uploaded_by",
+      "type": "BIGINT",
+      "key": "FK",
+      "null": "NO",
+      "description": "User.",
+      "references": [
+        "users",
+        "user_id"
+      ]
+    },
+    {
+      "name": "uploaded_at",
+      "type": "DATETIME",
+      "key": "",
+      "null": "NO",
+      "description": "Timestamp."
+    }
+  ],
+  "asset_files": [
+    {
+      "name": "asset_file_id",
+      "type": "BIGINT",
+      "key": "PK",
+      "null": "NO",
+      "description": "Identifier."
+    },
+    {
+      "name": "asset_id",
+      "type": "BIGINT",
+      "key": "FK",
+      "null": "NO",
+      "description": "Asset.",
+      "references": [
+        "assets",
+        "asset_id"
+      ]
+    },
+    {
+      "name": "file_id",
+      "type": "BIGINT",
+      "key": "FK",
+      "null": "NO",
+      "description": "File.",
+      "references": [
+        "files",
+        "file_id"
+      ]
+    },
+    {
+      "name": "document_type",
+      "type": "VARCHAR(50)",
+      "key": "",
+      "null": "NO",
+      "description": "INVOICE, PO, WARRANTY, PHOTO, REPAIR_REPORT, DATA_WIPE_CERT, DISPOSAL_CERT, ASSIGNMENT_FORM, GATE_PASS, OTHER."
+    },
+    {
+      "name": "description",
+      "type": "VARCHAR(500)",
+      "key": "",
+      "null": "YES",
+      "description": "Description."
+    }
+  ],
+  "notifications": [
+    {
+      "name": "notification_id",
+      "type": "BIGINT",
+      "key": "PK",
+      "null": "NO",
+      "description": "Identifier."
+    },
+    {
+      "name": "user_id",
+      "type": "BIGINT",
+      "key": "FK",
+      "null": "NO",
+      "description": "Recipient.",
+      "references": [
+        "users",
+        "user_id"
+      ]
+    },
+    {
+      "name": "notification_type",
+      "type": "VARCHAR(50)",
+      "key": "",
+      "null": "NO",
+      "description": "WARRANTY_EXPIRING, REFRESH_DUE, RETURN_DUE, REPAIR_COMPLETE, TRANSFER_RECEIPT, DISPOSAL_APPROVAL, MISSING_ASSET, UNAUTHORIZED_MOVEMENT."
+    },
+    {
+      "name": "title",
+      "type": "VARCHAR(200)",
+      "key": "",
+      "null": "NO",
+      "description": "Title."
+    },
+    {
+      "name": "message",
+      "type": "TEXT",
+      "key": "",
+      "null": "NO",
+      "description": "Message."
+    },
+    {
+      "name": "reference_type",
+      "type": "VARCHAR(50)",
+      "key": "",
+      "null": "YES",
+      "description": "ASSET, MOVEMENT, REPAIR, etc."
+    },
+    {
+      "name": "reference_id",
+      "type": "BIGINT",
+      "key": "",
+      "null": "YES",
+      "description": "Related record ID."
+    },
+    {
+      "name": "is_read",
+      "type": "BOOLEAN",
+      "key": "",
+      "null": "NO",
+      "description": "Read flag."
+    },
+    {
+      "name": "created_at",
+      "type": "DATETIME",
+      "key": "",
+      "null": "NO",
+      "description": "Created."
+    },
+    {
+      "name": "read_at",
+      "type": "DATETIME",
+      "key": "",
+      "null": "YES",
+      "description": "Read time."
+    }
+  ],
+  "audit_logs": [
+    {
+      "name": "audit_id",
+      "type": "BIGINT",
+      "key": "PK",
+      "null": "NO",
+      "description": "Identifier."
+    },
+    {
+      "name": "user_id",
+      "type": "BIGINT",
+      "key": "FK",
+      "null": "YES",
+      "description": "Actor; nullable for system jobs.",
+      "references": [
+        "users",
+        "user_id"
+      ]
+    },
+    {
+      "name": "event_type",
+      "type": "VARCHAR(100)",
+      "key": "",
+      "null": "NO",
+      "description": "Business event."
+    },
+    {
+      "name": "module",
+      "type": "VARCHAR(100)",
+      "key": "",
+      "null": "NO",
+      "description": "Module."
+    },
+    {
+      "name": "table_name",
+      "type": "VARCHAR(128)",
+      "key": "",
+      "null": "YES",
+      "description": "Affected table."
+    },
+    {
+      "name": "record_id",
+      "type": "BIGINT",
+      "key": "",
+      "null": "YES",
+      "description": "Affected record."
+    },
+    {
+      "name": "action",
+      "type": "VARCHAR(50)",
+      "key": "",
+      "null": "NO",
+      "description": "CREATE, UPDATE, DELETE, LOGIN, EXPORT, APPROVE, etc."
+    },
+    {
+      "name": "old_values",
+      "type": "JSON",
+      "key": "",
+      "null": "YES",
+      "description": "Before snapshot/diff."
+    },
+    {
+      "name": "new_values",
+      "type": "JSON",
+      "key": "",
+      "null": "YES",
+      "description": "After snapshot/diff."
+    },
+    {
+      "name": "ip_address",
+      "type": "VARCHAR(64)",
+      "key": "",
+      "null": "YES",
+      "description": "Source IP."
+    },
+    {
+      "name": "user_agent",
+      "type": "VARCHAR(1000)",
+      "key": "",
+      "null": "YES",
+      "description": "Client user agent."
+    },
+    {
+      "name": "session_id",
+      "type": "VARCHAR(255)",
+      "key": "",
+      "null": "YES",
+      "description": "Session correlation."
+    },
+    {
+      "name": "event_timestamp",
+      "type": "DATETIME",
+      "key": "",
+      "null": "NO",
+      "description": "Event time."
+    },
+    {
+      "name": "remarks",
+      "type": "TEXT",
+      "key": "",
+      "null": "YES",
+      "description": "Additional context."
+    }
+  ],
+  "app_sessions": [
+    {
+      "name": "session_hash",
+      "type": "VARCHAR(64)",
+      "key": "PK",
+      "null": "NO",
+      "description": "SHA256 of opaque cookie"
+    },
+    {
+      "name": "user_id",
+      "type": "BIGINT",
+      "key": "FK",
+      "null": "NO",
+      "description": "User",
+      "references": [
+        "users",
+        "user_id"
+      ]
+    },
+    {
+      "name": "expires_at",
+      "type": "DATETIME",
+      "key": "",
+      "null": "NO",
+      "description": "Expiry"
+    }
+  ]
+}

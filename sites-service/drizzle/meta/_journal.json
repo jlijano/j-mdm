@@ -1,0 +1,34 @@
+{
+  "version": "7",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1791303562434,
+      "tag": "0000_red_screwball",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1791303793474,
+      "tag": "0001_brave_nocturne",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1791303962244,
+      "tag": "0002_wooden_the_professor",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1791303963401,
+      "tag": "0003_audit_protection",
+      "breakpoints": true
+    }
+  ]
+}
