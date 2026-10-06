@@ -1,4 +1,5 @@
 import http from 'node:http';
+import { createAuth } from './auth.js';
 import { createReadStream } from 'node:fs';
 import { realpath, stat } from 'node:fs/promises';
 import path from 'node:path';
@@ -27,14 +28,13 @@ function reply(res, status, text, headers = {}) {
   res.end(text);
 }
 
-export function createServer() {
+export function createServer(options = {}) {
+  const auth = createAuth(options);
   return http.createServer(async (req, res) => {
     res.setHeader('X-Content-Type-Options', 'nosniff');
-    res.setHeader('Cache-Control', 'no-cache');
-    if (!['GET', 'HEAD'].includes(req.method)) {
-      reply(res, 405, 'Method not allowed\n', { Allow: 'GET, HEAD' });
-      return;
-    }
+    res.setHeader('Cache-Control', 'no-store');
+    res.setHeader('X-Frame-Options', 'DENY');
+    res.setHeader('Referrer-Policy', 'same-origin');
     let pathname;
     try {
       pathname = decodeURIComponent(req.url.split('?')[0]);
@@ -49,6 +49,10 @@ export function createServer() {
       });
       return;
     }
+    if (await auth.handle(req, res, pathname)) return;
+    if (!['GET', 'HEAD'].includes(req.method)) {
+      reply(res, 405, 'Method not allowed\n', { Allow: 'GET, HEAD' }); return;
+    }
     // Reject hidden files, traversal, Windows separators and alternate streams.
     if (!pathname.startsWith('/') || /[\\\u0000:]/.test(pathname) ||
         pathname.split('/').some(part => part.startsWith('.'))) {
@@ -57,7 +61,7 @@ export function createServer() {
     }
     try {
       const root = await realpath(dist);
-      const filename = await realpath(path.join(root, pathname === '/' ? 'index.html' : pathname));
+      const filename = await realpath(path.join(root, ['/dashboard', '/index.html'].includes(pathname) ? 'index.html' : pathname === '/login' ? 'login.html' : pathname));
       const relative = path.relative(root, filename);
       if (relative.startsWith('..') || path.isAbsolute(relative)) {
         reply(res, 404, 'Not found\n');
@@ -68,6 +72,7 @@ export function createServer() {
         reply(res, 404, 'Not found\n');
         return;
       }
+      if (auth.deny(req, res, pathname)) return;
       res.writeHead(200, {
         'Content-Type': types[path.extname(filename).toLowerCase()] || 'text/plain; charset=utf-8',
         'Content-Length': info.size

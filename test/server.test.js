@@ -3,13 +3,16 @@ import assert from 'node:assert/strict';
 import http from 'node:http';
 import { readFile, symlink, unlink } from 'node:fs/promises';
 import { createServer } from '../server.js';
+import { hashPassword } from '../auth.js';
 
-let server, base;
+let server, base, cookie;
 before(async () => {
-  server = createServer();
+  server = createServer({ adminEmail: 'test@example.com', passwordHash: await hashPassword('test-password'), secureCookies: false });
   await new Promise(resolve => server.listen(0, '0.0.0.0', resolve));
   assert.equal(server.address().address, '0.0.0.0');
   base = `http://127.0.0.1:${server.address().port}`;
+  const login = await fetch(base + '/api/auth/login', {method:'POST', headers:{Origin:base,'Content-Type':'application/json'},body:JSON.stringify({email:'test@example.com',password:'test-password'})});
+  assert.equal(login.status,200);cookie=login.headers.get('set-cookie').split(';')[0];
 });
 after(async () => { await new Promise(resolve => server.close(resolve)); });
 
@@ -18,7 +21,7 @@ test('health and scanner assets return their original bytes and correct MIME typ
   assert.equal(health.status, 200);
   assert.deepEqual(await health.json(), { status: 'ok' });
   const files = {
-    '/': ['index.html', 'text/html'],
+    '/dashboard': ['index.html', 'text/html'],
     '/app.js': ['app.js', 'text/javascript'],
     '/style.css': ['style.css', 'text/css'],
     '/icon.svg': ['icon.svg', 'image/svg+xml'],
@@ -26,7 +29,7 @@ test('health and scanner assets return their original bytes and correct MIME typ
     '/vendor/zxing.min.js': ['vendor/zxing.min.js', 'text/javascript']
   };
   for (const [url, [file, type]] of Object.entries(files)) {
-    const response = await fetch(base + url);
+    const response = await fetch(base + url, {headers:{Cookie:cookie}});
     assert.equal(response.status, 200, url);
     assert.ok(response.headers.get('content-type').startsWith(type), url);
     assert.equal(response.headers.get('permissions-policy'), null);
@@ -46,8 +49,8 @@ test('missing assets, configuration and traversal are inaccessible', async () =>
     assert.equal(await rawRequest(url), 404, url);
   }
   assert.equal(await rawRequest('/%ZZ'), 400);
-  assert.equal((await fetch(base + '/', { method: 'POST', body: 'no uploads' })).status, 405);
-  const head = await fetch(base + '/app.js', { method: 'HEAD' });
+  assert.equal((await fetch(base + '/app.js', { method: 'POST', body: 'no uploads' })).status, 405);
+  const head = await fetch(base + '/app.js', { method: 'HEAD',headers:{Cookie:cookie} });
   assert.equal(head.status, 200);
   assert.equal(await head.text(), '');
 });
