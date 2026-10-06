@@ -28,7 +28,9 @@ export function createRemoteAuth(options={}){
      let body;if(req.method!=='GET'){if(!(req.headers['content-type']||'').startsWith('application/json')){send(res,400,{message:'JSON request required.'});return true;}body='';for await(const c of req){body+=c;if(Buffer.byteLength(body)>7500000){send(res,413,{message:'Request too large.'});return true;}}}
      const upstream=await remote(req,req.url,{body});if(upstream.status>=300&&upstream.status<400)throw new Error('Sites gateway unavailable');
      if(pathname==='/api/auth/login'&&upstream.ok){const ip=String(req.headers['x-forwarded-for']||req.socket.remoteAddress).split(',').at(-1).trim();attempts.delete(ip);}
-     res.writeHead(upstream.status,{'content-type':upstream.headers.get('content-type')||'application/json',...(upstream.headers.get('set-cookie')?{'set-cookie':upstream.headers.get('set-cookie')}:{}),...(upstream.headers.get('content-disposition')?{'content-disposition':upstream.headers.get('content-disposition')}:{} )});res.end(Buffer.from(await upstream.arrayBuffer()));
+     const sessionCookies=upstream.headers.getSetCookie().filter(cookie=>/^mdm_session=/.test(cookie)&&!/(?:^|;)\s*Domain=/i.test(cookie));
+     if(pathname==='/api/auth/login'&&upstream.ok&&!sessionCookies.length)throw new Error('Session cookie missing');
+     res.writeHead(upstream.status,{'content-type':upstream.headers.get('content-type')||'application/json',...(sessionCookies.length?{'set-cookie':sessionCookies}:{}),...(upstream.headers.get('content-disposition')?{'content-disposition':upstream.headers.get('content-disposition')}:{} )});res.end(Buffer.from(await upstream.arrayBuffer()));
     }catch{send(res,503,{message:'Shared database is unavailable. Please try again.'});}return true;
    }
    if(pathname==='/'||pathname==='/login'){try{const logged=await authenticated(req);if(pathname==='/'||logged){redirect(res,logged?'/dashboard':'/login');return true;}}catch{if(pathname==='/'){redirect(res,'/login');return true;}}}return false;
