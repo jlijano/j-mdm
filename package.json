@@ -1,0 +1,12 @@
+{
+  "name": "jlijano-mdm",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Smart Barcode Scanner with on-device storage",
+  "type": "module",
+  "engines": { "node": "24.x" },
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test test/server.test.js"
+  }
+}

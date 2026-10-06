@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: jlijano-mdm
+    runtime: node
+    plan: free
+    repo: https://github.com/jlijano/j-mdm
+    branch: main
+    buildCommand: npm ci
+    startCommand: npm start
+    healthCheckPath: /health
+    autoDeployTrigger: commit
