@@ -194,7 +194,6 @@ body.app-shell{background:var(--j-bg);color:var(--j-text)}
 #frame-tip{bottom:18px;padding:7px 10px;border-radius:7px;background:#07111fcc;color:#fff}
 .camera-actions{justify-content:center;padding:12px 16px}
 .camera-actions button{min-width:120px}
-.camera-actions #manual-open{display:none}
 .privacy{padding:0 16px 14px;margin:0;font-size:11px}
 .scan-local-result{margin-top:16px}
 .scan-result-title{font-size:12px;font-weight:800;letter-spacing:.06em;color:#475569}
