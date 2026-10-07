@@ -432,3 +432,94 @@ button.recent-scan-row:hover{background:#F8FAFC;border-color:#E2E8F0}
     background:#FFFFFF !important;
   }
 }
+
+
+/* Mobile navigation hardening: always provide a visible navigation path */
+@media(max-width:650px){
+  .menu-toggle{
+    display:inline-flex !important;
+    align-items:center;
+    justify-content:center;
+    width:42px;
+    height:42px;
+    min-width:42px;
+    padding:0;
+    border:1px solid #CBD5E1 !important;
+    border-radius:10px;
+    background:#FFFFFF !important;
+    color:#0F172A !important;
+    font-size:21px;
+    line-height:1;
+  }
+
+  #main-nav{
+    display:flex !important;
+    position:fixed !important;
+    top:60px !important;
+    bottom:0 !important;
+    left:0 !important;
+    width:min(300px,86vw) !important;
+    height:auto !important;
+    z-index:90 !important;
+    padding:18px 14px calc(84px + env(safe-area-inset-bottom)) !important;
+    flex-direction:column !important;
+    background:linear-gradient(180deg,#082247,#0A2B56) !important;
+    border-right:1px solid rgba(255,255,255,.08) !important;
+    transform:translateX(-102%) !important;
+    visibility:hidden !important;
+    opacity:0 !important;
+    transition:transform .18s ease,opacity .18s ease,visibility .18s !important;
+    overflow-y:auto !important;
+  }
+
+  .app-shell.navigation-open #main-nav{
+    transform:translateX(0) !important;
+    visibility:visible !important;
+    opacity:1 !important;
+  }
+
+  #menu-backdrop:not([hidden]){
+    display:block !important;
+    position:fixed !important;
+    inset:60px 0 64px 0 !important;
+    z-index:80 !important;
+    width:100% !important;
+    height:auto !important;
+    padding:0 !important;
+    border:0 !important;
+    border-radius:0 !important;
+    background:rgba(2,6,23,.48) !important;
+  }
+
+  #mobile-nav{
+    display:grid !important;
+    position:fixed !important;
+    left:0 !important;
+    right:0 !important;
+    bottom:0 !important;
+    top:auto !important;
+    z-index:100 !important;
+    width:100% !important;
+    min-height:64px !important;
+    grid-template-columns:repeat(5,minmax(0,1fr)) !important;
+    background:#FFFFFF !important;
+    border-top:1px solid #E2E8F0 !important;
+    box-shadow:0 -8px 24px rgba(15,23,42,.08) !important;
+  }
+
+  #mobile-nav button{
+    display:flex !important;
+    visibility:visible !important;
+    opacity:1 !important;
+  }
+
+  .app-shell>header.app-header{
+    display:flex !important;
+    align-items:center !important;
+  }
+
+  .app-header .brand{
+    flex:1 1 auto !important;
+    min-width:0 !important;
+  }
+}
