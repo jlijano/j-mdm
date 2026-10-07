@@ -523,3 +523,94 @@ button.recent-scan-row:hover{background:#F8FAFC;border-color:#E2E8F0}
     min-width:0 !important;
   }
 }
+
+
+/* Mobile navigation selected-state contrast fix */
+@media(max-width:650px){
+  /* Drawer navigation must keep dark-sidebar styling despite generic mobile button rules. */
+  #main-nav button,
+  .app-shell #main-nav button:not(.primary):not(.mobile-scan-action){
+    background:transparent !important;
+    color:#CBD8E8 !important;
+    border-color:transparent !important;
+    -webkit-text-fill-color:#CBD8E8 !important;
+  }
+
+  #main-nav button span,
+  .app-shell #main-nav button:not(.primary):not(.mobile-scan-action) span{
+    color:#CBD8E8 !important;
+    -webkit-text-fill-color:#CBD8E8 !important;
+  }
+
+  #main-nav button:hover,
+  #main-nav button:focus-visible{
+    background:rgba(255,255,255,.08) !important;
+    color:#FFFFFF !important;
+    -webkit-text-fill-color:#FFFFFF !important;
+  }
+
+  #main-nav button:hover span,
+  #main-nav button:focus-visible span{
+    color:#FFFFFF !important;
+    -webkit-text-fill-color:#FFFFFF !important;
+  }
+
+  #main-nav button.active,
+  .app-shell #main-nav button.active:not(.primary):not(.mobile-scan-action){
+    background:linear-gradient(90deg,#0891B2,#0EA5E9) !important;
+    color:#FFFFFF !important;
+    border-color:transparent !important;
+    -webkit-text-fill-color:#FFFFFF !important;
+    box-shadow:none !important;
+  }
+
+  #main-nav button.active span,
+  .app-shell #main-nav button.active:not(.primary):not(.mobile-scan-action) span{
+    color:#FFFFFF !important;
+    -webkit-text-fill-color:#FFFFFF !important;
+    font-weight:700 !important;
+  }
+
+  /* Bottom navigation: selected labels/icons always remain readable. */
+  #mobile-nav button,
+  .app-shell #mobile-nav button:not(.primary):not(.mobile-scan-action){
+    background:transparent !important;
+    color:#475569 !important;
+    border-color:transparent !important;
+    -webkit-text-fill-color:#475569 !important;
+  }
+
+  #mobile-nav button span{
+    color:inherit !important;
+    -webkit-text-fill-color:currentColor !important;
+    font-weight:600 !important;
+  }
+
+  #mobile-nav button.active:not(.mobile-scan-action){
+    background:#ECFEFF !important;
+    color:#087A94 !important;
+    -webkit-text-fill-color:#087A94 !important;
+    box-shadow:inset 3px 0 0 #0891B2 !important;
+  }
+
+  #mobile-nav button.active:not(.mobile-scan-action) span{
+    color:#087A94 !important;
+    -webkit-text-fill-color:#087A94 !important;
+    font-weight:700 !important;
+  }
+
+  #mobile-nav .mobile-scan-action,
+  #mobile-nav .mobile-scan-action.active{
+    background:linear-gradient(145deg,#0891B2,#0EA5E9) !important;
+    color:#FFFFFF !important;
+    -webkit-text-fill-color:#FFFFFF !important;
+    border-color:transparent !important;
+  }
+
+  #mobile-nav .mobile-scan-action span,
+  #mobile-nav .mobile-scan-action.active span{
+    color:#FFFFFF !important;
+    -webkit-text-fill-color:#FFFFFF !important;
+    font-weight:700 !important;
+  }
+}
