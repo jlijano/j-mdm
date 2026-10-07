@@ -33,7 +33,7 @@ export function scopeSQL(u,write=false,alias='a'){
 export async function visibleAsset(db,u,id,write=false){const s=scopeSQL(u,write);const a=await one(db,`SELECT a.* FROM assets a WHERE a.asset_id=? AND ${s.sql}`,id,...s.args);if(!a)throw Object.assign(new Error('Asset not found in your permitted scope.'),{status:404});return a;}
 export const fail=(message,status=400)=>{throw Object.assign(new Error(message),{status});};
 export async function seed(db,env){
- const existing=await one(db,'SELECT user_id FROM users WHERE username=?','superadmin');if(existing)return;
+ const existing=await one(db,'SELECT user_id FROM users LIMIT 1');if(existing)return;
  if(!env.SUPER_ADMIN_PASSWORD_HASH?.startsWith('pbkdf2:'))fail('Administrator sign-in is not configured.',503);
  const statements=[];const add=(t,d)=>statements.push(insert(db,t,d));
  const codes={asset_statuses:['IN_STOCK','ASSIGNED','FOR_REPAIR','FOR_REFRESH','FOR_DISPOSAL','DISPOSED','LOST','STOLEN'],asset_conditions:['NEW','GOOD','FAIR','DAMAGED'],roles:['SUPER_ADMIN','IT_ADMIN','FINANCE_ADMIN','ITAM_TEAM','SECURITY','MANAGEMENT_VIEWER','GENERAL_USER'],dashboard_types:['IT','FINANCE','ITAM','OPERATIONS','HR','SECURITY','GENERAL','EXECUTIVE'],movement_types:['STOCK_IN','STOCK_OUT','ASSIGNMENT','RETURN','TRANSFER','REPAIR_SEND_OUT','REPAIR_RETURN','REFRESH','DISPOSAL','GATE_ENTRY','GATE_EXIT'],location_types:['STORAGE','OFFICE','WFH','DATA_CENTER','REPAIR_CENTER','TRANSIT','DISPOSAL_AREA','THIRD_PARTY'],depreciation_methods:['STRAIGHT_LINE','DECLINING_BALANCE','NONE'],disposal_methods:['RECYCLE','RESALE','DONATION','RETURN_VENDOR','DESTROYED','TRADE_IN','OTHER']};
