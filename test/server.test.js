@@ -22,6 +22,7 @@ test('health and scanner assets return their original bytes and correct MIME typ
   assert.deepEqual(await health.json(), { status: 'ok' });
   const files = {
     '/dashboard': ['index.html', 'text/html'],
+    '/assets/scanner': ['index.html', 'text/html'],
     '/app.js': ['app.js', 'text/javascript'],
     '/style.css': ['style.css', 'text/css'],
     '/icon.svg': ['icon.svg', 'image/svg+xml'],
