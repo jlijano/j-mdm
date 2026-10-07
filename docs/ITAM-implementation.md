@@ -12,14 +12,14 @@ Assignment, return, transfer request/receipt, repair send/return, refresh recomm
 
 ## Access and operation
 
-Functional permissions come from active, effective-dated user roles. Record access also requires active user scopes. ENTERPRISE, BUSINESS_UNIT, DEPARTMENT, COST_CENTER, SITE and SELF are supported. SITE refers to a root location ID and includes descendant locations. Scoped organization/procurement/security administration requires enterprise scope, avoiding indirect disclosure through related records. SUPER_ADMIN has enterprise management access. A newly created user has no roles or scopes until explicitly assigned.
+Functional permissions come from active, effective-dated user roles. Record access also requires active user scopes. ENTERPRISE, BUSINESS_UNIT, DEPARTMENT, COST_CENTER, SITE, TEAM and SELF are supported. SITE refers to a root location ID and includes descendant locations. Scoped organization/procurement/security administration requires enterprise scope, avoiding indirect disclosure through related records. SUPER_ADMIN has enterprise management access. A newly created user has no roles or scopes until explicitly assigned.
 
 The Asset Management module exposes permission-aware forms for master, organization, financial, procurement, warranty, inventory, identity and dashboard records. History tables are read-only; asset details provide lifecycle actions and evidence uploads. Device inventory remains explicitly local, with an optional import into shared assets. Device records are retained if any import fails.
 
 ## Explicit limits and follow-up work
 
-- TEAM scopes are rejected: the supplied document does not define teams or membership tables.
-- MFA enrollment is not implemented; the application rejects enabling the flag.
+- TEAM scopes now use dedicated teams and employee membership tables.
+- MFA enrollment is implemented through authenticator TOTP; enrollment is verified before marking MFA enabled.
 - Straight-line depreciation is implemented. Declining balance, convention-specific proration and scheduled posting remain future work; unsupported calculations fail rather than fabricate values.
 - Refresh recommendations are stored; replacement approval and completion are not automated.
 - Inventory supports active-session scans, match/mismatch/unknown/duplicate classification. Full missing-asset reconciliation and damaged-item workflows require a further workflow.
@@ -40,3 +40,18 @@ Deploy the Sites service first, then deploy Render. The backend source is mirror
 ## Validation
 
 Automated tests cover schema creation, gateway authorization, login/logout, server credential isolation, CSRF rejection, session expiration, account/role restrictions, asset uniqueness/quantity rules, repeated custody history, delayed transfer location updates, duplicate depreciation rejection and exact decimal calculation. Hardware-camera recognition still requires a supported mobile browser and physical barcode.
+
+
+## Users & Roles module
+
+The dedicated Super Admin page provides paginated user accounts, search and status filters, profile editing, activation/deactivation, password reset, forced password changes, unlocking, one or more roles, access scopes, per-user ALLOW/DENY overrides, effective permission preview, role definitions, team membership, and account/access audit history.
+
+The five active built-in roles are Super Admin, IT Administrator, ITAM / Asset Manager, Security, and Service Desk / Technician. Legacy Finance/Viewer/General role definitions are retained inactive; Super Admin may explicitly reactivate or create custom roles. Technical, warranty, repair, refresh, disposal, custody, movement, financial, security, scan, inventory and export access are checked independently on the server. A DENY override removes the permission from the union of ordinary role grants. Super Admin retains full access regardless of scope/override configuration.
+
+Access changes, role permission changes, deactivation, password reset, MFA reset and unlocking revoke affected sessions immediately. Accounts use five failed attempts followed by a 15-minute lockout. The gateway also limits login attempts by IP. Session duration is configurable from 5 to 1,440 minutes (absolute timeout). Forced password-change and MFA sessions cannot access business or administrative APIs until security is completed. MFA uses authenticator TOTP with encrypted secrets, code replay protection and an administrative enrollment reset. Temporary passwords are never emailed automatically; share them through an approved secure channel. Password hashes, MFA keys and submitted passwords are excluded from all account reads and audit payloads.
+
+Scope checks apply to reads, actions, related records, scan matching and server-generated CSV exports. TEAM scope covers assets currently assigned to employee team members; SELF scope requires an employee link and active custody. Scope lookup selectors return only authorized employee/location choices. Security cannot edit asset masters or technical/financial records by default; Service Desk cannot administer users or approve disposal. Scoped destination checks prevent unauthorized transfers and assignments.
+
+System Settings provides session duration and feature switches. Purging is limited to inactive, unreferenced classification/master records and is logged. Users, assets, lifecycle history and audit records are retained. This module grants roles access to existing workflows; it does not add device-agent telemetry, automated reconciliation, or a full specialized report suite.
+
+Verification includes the original gateway/login tests and database integration tests for multi-role unions, permission overrides, session revocation, inactive accounts, lockout/unlock, resets, forced password changes, TOTP enrollment/replay, team/site/department/business-unit/self scopes, scoped exports, final-admin protection, feature switches and session expiration.

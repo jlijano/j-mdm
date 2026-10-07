@@ -8,11 +8,11 @@ export function createRemoteAuth(options={}){
  const publicPaths=new Set(['/login','/login.js','/login.css','/style.css','/icon.svg']);const attempts=new Map();
  async function remote(req,pathname,{method=req.method,body}={}){
   const url=new URL(pathname,origin);if(url.origin!==origin.origin)throw new Error('Invalid API path');
-  return fetch(url,{method,headers:{'OAI-Sites-Authorization':`Bearer ${bearer}`,'x-mdm-api-secret':secret,'content-type':'application/json',cookie:req.headers.cookie||'','user-agent':req.headers['user-agent']||'mdm-render-gateway'},body,redirect:'manual',signal:AbortSignal.timeout(25000)});
+  return fetch(url,{method,headers:{'OAI-Sites-Authorization':`Bearer ${bearer}`,'x-mdm-api-secret':secret,'content-type':'application/json',cookie:req.headers.cookie||'','x-mdm-client-ip':String(req.headers['x-forwarded-for']||req.socket.remoteAddress||'').split(',').at(-1).trim(),'user-agent':req.headers['user-agent']||'mdm-render-gateway'},body,redirect:'manual',signal:AbortSignal.timeout(25000)});
  }
  const send=(res,code,data)=>{res.writeHead(code,{'content-type':'application/json'});res.end(JSON.stringify(data));};
  const redirect=(res,url)=>{res.writeHead(303,{location:url});res.end();};
- async function authenticated(req){const r=await remote(req,'/api/auth/me',{method:'GET'});if(r.status===401)return false;if(!r.ok)throw new Error('Database sign-in unavailable');return true;}
+ async function authenticated(req){const r=await remote(req,'/api/auth/me',{method:'GET'});if(r.status===401)return false;if(!r.ok)throw new Error('Database sign-in unavailable');return r.json();}
  return{
   async handle(req,res,pathname){
    if(pathname.startsWith('/api/')){
@@ -33,8 +33,8 @@ export function createRemoteAuth(options={}){
      res.writeHead(upstream.status,{'content-type':upstream.headers.get('content-type')||'application/json',...(sessionCookies.length?{'set-cookie':sessionCookies}:{}),...(upstream.headers.get('content-disposition')?{'content-disposition':upstream.headers.get('content-disposition')}:{} )});res.end(Buffer.from(await upstream.arrayBuffer()));
     }catch{send(res,503,{message:'Shared database is unavailable. Please try again.'});}return true;
    }
-   if(pathname==='/'||pathname==='/login'){try{const logged=await authenticated(req);if(pathname==='/'||logged){redirect(res,logged?'/dashboard':'/login');return true;}}catch{if(pathname==='/'){redirect(res,'/login');return true;}}}return false;
+   if(pathname==='/'||pathname==='/login'){try{const logged=await authenticated(req);if(pathname==='/'||logged){redirect(res,logged?(logged.user.requires_password_change||logged.user.requires_mfa?'/account-security':'/dashboard'):'/login');return true;}}catch{if(pathname==='/'){redirect(res,'/login');return true;}}}return false;
   },
-  async deny(req,res,pathname){if(publicPaths.has(pathname))return false;try{if(await authenticated(req))return false;redirect(res,'/login');}catch{send(res,503,{message:'Shared database unavailable. Please try again.'});}return true;}
+  async deny(req,res,pathname){if(publicPaths.has(pathname))return false;try{const session=await authenticated(req);if(session){if((session.user.requires_password_change||session.user.requires_mfa)&&!['/account-security','/account-security.js','/users.css'].includes(pathname)){redirect(res,'/account-security');return true;}return false;}redirect(res,'/login');}catch{send(res,503,{message:'Shared database unavailable. Please try again.'});}return true;}
  };
 }

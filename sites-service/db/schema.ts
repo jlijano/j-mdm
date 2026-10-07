@@ -395,6 +395,17 @@ export const asset_disposals = sqliteTable("asset_disposals", {
 export const users = sqliteTable("users", {
   user_id: integer("user_id").primaryKey({ autoIncrement: true }),
   employee_id: integer("employee_id").references((): AnySQLiteColumn => employees.employee_id, { onDelete: "restrict" }),
+  first_name: text("first_name"),
+  last_name: text("last_name"),
+  department_id: integer("department_id").references(() => departments.department_id),
+  business_unit_id: integer("business_unit_id").references(() => business_units.business_unit_id),
+  site_id: integer("site_id").references(() => locations.location_id),
+  force_password_change: integer("force_password_change").notNull().default(0),
+  mfa_required: integer("mfa_required").notNull().default(0),
+  mfa_secret: text("mfa_secret"),
+  mfa_pending_secret: text("mfa_pending_secret"),
+  mfa_last_step: integer("mfa_last_step").notNull().default(-1),
+  revision: integer("revision").notNull().default(0),
   username: text("username").notNull().unique(),
   email: text("email").notNull().unique(),
   password_hash: text("password_hash").notNull(),
@@ -562,6 +573,26 @@ export const audit_logs = sqliteTable("audit_logs", {
 }, (t) => [index("idx_audit_logs_user_id").on(t.user_id)]);
 export const app_sessions = sqliteTable("app_sessions", {
   session_hash: text("session_hash").primaryKey(),
+  mfa_verified: integer("mfa_verified").notNull().default(0),
   user_id: integer("user_id").notNull().references((): AnySQLiteColumn => users.user_id, { onDelete: "restrict" }),
   expires_at: text("expires_at").notNull(),
 }, (t) => [index("idx_app_sessions_user_id").on(t.user_id)]);export const operation_guards=sqliteTable('operation_guards',{guard_id:text('guard_id').primaryKey(),passed:integer('passed').notNull()},t=>[check('operation_changed_one_row',sql`passed = 1`)]);
+
+export const teams = sqliteTable("teams", {
+ team_id: integer("team_id").primaryKey({autoIncrement:true}),
+ team_name: text("team_name").notNull().unique(),
+ department_id: integer("department_id").references(() => departments.department_id),
+ is_active: integer("is_active").notNull().default(1)
+});
+export const team_members = sqliteTable("team_members", {
+ team_id: integer("team_id").notNull().references(() => teams.team_id),
+ employee_id: integer("employee_id").notNull().references(() => employees.employee_id)
+}, t=>[primaryKey({columns:[t.team_id,t.employee_id]})]);
+export const user_permission_overrides = sqliteTable("user_permission_overrides", {
+ user_id: integer("user_id").notNull().references(() => users.user_id),
+ permission_id: integer("permission_id").notNull().references(() => permissions.permission_id),
+ effect: text("effect").notNull()
+},t=>[primaryKey({columns:[t.user_id,t.permission_id]}),check("valid_permission_effect",sql`effect IN ('ALLOW','DENY')`)]);
+export const system_settings = sqliteTable("system_settings",{
+ setting_key:text("setting_key").primaryKey(),setting_value:text("setting_value").notNull()
+});

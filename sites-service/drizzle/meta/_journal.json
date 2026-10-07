@@ -29,6 +29,13 @@
       "when": 1791303963401,
       "tag": "0003_audit_protection",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1791331540976,
+      "tag": "0004_short_hedge_knight",
+      "breakpoints": true
     }
   ]
 }
