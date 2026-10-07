@@ -1,7 +1,101 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#155eef"><meta name="description" content="Scan barcodes with your camera. Manage inventory and export history privately on your device."><title>Dashboard · jlijano-mdm</title><link rel="icon" href="/icon.svg"><link rel="manifest" href="/manifest.webmanifest"><link rel="stylesheet" href="/style.css"><script defer src="/vendor/zxing.min.js"></script><script defer src="/app.js"></script><script defer src="/itam.js"></script><script defer src="/navigation.js"></script><script defer src="/users.js"></script><link rel="stylesheet" href="/users.css"><link rel="stylesheet" href="/itam.css"></head><body class="app-shell">
-<header><button id="menu-toggle" class="menu-toggle" type="button" aria-label="Open navigation" aria-controls="main-nav" aria-expanded="false">☰</button><div class="brand"><span class="brand-icon">▥</span><div><strong>jlijano-mdm</strong><p>Hardware asset management</p></div></div><div class="account-area"><span id="account-role" class="badge">Workspace</span><span id="account-email"></span><button id="logout">Sign Out</button></div></header>
-<button id="menu-backdrop" class="menu-backdrop" type="button" aria-label="Close navigation" tabindex="-1" hidden></button><nav id="main-nav" aria-label="Main navigation"><button data-page="dashboard" class="active">▦ <span>Dashboard</span></button><button data-page="records">▤ <span>Asset Management</span></button><button data-page="scanner">▣ <span>Scanner</span></button><button data-page="history">◷ <span>Device History</span></button><button data-page="inventory">▤ <span>Device Inventory</span></button><button data-page="settings">⚙ <span>Settings</span></button><button data-page="users" id="users-nav" hidden>♙ <span>Users &amp; Roles</span></button></nav>
-<main><div id="notice" role="status" aria-live="polite" hidden></div><section id="dashboard" class="page"><div class="page-heading"><div><div class="eyebrow">ITAM WORKSPACE</div><h1>Main Dashboard</h1><p class="small">Shared asset records and lifecycle activity.</p></div><button class="primary" data-page="records">Manage Assets</button></div><div id="cloud-stats" class="stats card">Loading shared records…</div><article class="card"><h2>Recently updated assets</h2><div id="cloud-recent"></div></article><div hidden><div id="dashboard-stats"></div><span id="dashboard-items"></span><div id="dashboard-recent"></div></div></section><section id="records" class="page" hidden><div class="page-heading"><div><div class="eyebrow">SHARED RECORDS</div><h1 id="module-title">Asset Management</h1></div><button id="new-record" class="primary">New Record</button></div><div class="toolbar"><label>Module <select id="module-select" aria-label="Record module"></select></label><input id="cloud-search" type="search" placeholder="Search records"><button id="refresh-records">Refresh</button><button id="cloud-export" hidden>Export CSV</button></div><div class="card" id="records-table">Loading…</div><p class="small">Showing up to 100 records. Search to find specific identifiers. Historical records are retained.</p><button id="import-local">Import device inventory as assets</button></section><section id="scanner" class="page" hidden><div class="page-heading"><div><div class="eyebrow">YOUR SCANNING WORKSPACE</div><h1>Ready when you are.</h1></div><span id="camera-state" class="badge">Camera off</span></div><div class="workspace"><div><article class="card scanner-card"><div class="toolbar"><label>Inventory session <select id="scan-session"><option value="">Asset lookup</option></select></label><label>Observed location <select id="scan-location"><option value="">Session location</option></select></label></div><div id="cloud-scan-result" role="status"></div><div class="camera" id="camera"><video id="video" muted playsinline autoplay></video><div id="idle"><span class="scan-symbol">▥</span><h2>Scan a barcode</h2><p>Camera access is required to scan barcodes.</p><p class="small">Use your rear camera for the best results.</p></div><div class="guide" hidden><div class="scan-line"></div></div><span id="frame-tip" hidden>Position barcode inside the frame</span></div><div class="camera-actions"><button id="start" class="primary">Start Scanner</button><button id="stop" hidden>Stop Camera</button><button id="switch" hidden>Switch Camera</button><button id="torch" hidden>Flashlight</button><select id="camera-select" aria-label="Active camera" hidden></select></div><p class="privacy">▣ Camera processing happens locally on your device. Camera footage is not uploaded.</p></article><button id="manual-open" class="manual-button">＋ Enter Barcode Manually</button><article id="result" class="card" hidden></article><article class="card tips"><h3>A clearer scan, every time</h3><p>Keep the barcode flat, well lit and fully inside the frame. Move your camera slowly until the code comes into focus.</p><div class="formats"><span>1D barcodes</span><span>QR codes</span><span>Data Matrix</span></div></article></div><aside><article class="card"><div class="section-heading"><h2>Today at a glance</h2><span class="badge">Local</span></div><div class="stats" id="scanner-stats"></div></article><article class="card"><div class="section-heading"><h2>Recent scans</h2><button data-page="history" class="text-button">View history</button></div><div id="recent"></div></article><p class="aside-note">Your records stay in this browser on this device. Export regularly to keep a backup.</p></aside></div></section>
+<header class="app-header">
+<button id="menu-toggle" class="menu-toggle" type="button" aria-label="Open navigation" aria-controls="main-nav" aria-expanded="false">☰</button>
+<div class="brand"><span class="brand-icon">J</span><div><strong>J-MDM</strong><p>Asset &amp; Device Management</p></div></div>
+<div class="global-search-wrap"><span class="global-search-icon" aria-hidden="true">⌕</span><input id="global-search" type="search" placeholder="Search assets, devices, users, serials..." aria-label="Global search"><kbd>Ctrl K</kbd></div>
+<div class="account-area">
+<details class="profile-menu"><summary><span class="avatar" aria-hidden="true">JL</span><span class="account-copy"><strong id="account-name">Account</strong><small id="account-role">Workspace</small></span><span aria-hidden="true">⌄</span></summary>
+<div class="profile-popover"><span id="account-email"></span><button type="button" data-page="settings">Account Settings</button><button id="logout" type="button">Sign Out</button></div></details>
+</div>
+</header>
+<button id="menu-backdrop" class="menu-backdrop" type="button" aria-label="Close navigation" tabindex="-1" hidden></button>
+<nav id="main-nav" aria-label="Main navigation">
+<div class="nav-section"><span class="nav-section-label">OVERVIEW</span><button data-page="dashboard" class="active">▦ <span>Dashboard</span></button></div>
+<div class="nav-section"><span class="nav-section-label">ASSET MANAGEMENT</span><button data-page="records">▤ <span>Assets</span></button><button data-page="scanner">▣ <span>Scan Asset</span></button><button data-page="inventory">▤ <span>Inventory</span></button><button data-page="history">◷ <span>Asset History</span></button></div>
+<div class="nav-section"><span class="nav-section-label">ADMINISTRATION</span><button data-page="users" id="users-nav" hidden>♙ <span>Users &amp; Roles</span></button><button data-page="settings">⚙ <span>Settings</span></button></div>
+</nav>
+<main><div id="notice" role="status" aria-live="polite" hidden></div><section id="dashboard" class="page"><div class="page-heading"><div><div class="eyebrow">ITAM WORKSPACE</div><h1>Main Dashboard</h1><p class="small">Shared asset records and lifecycle activity.</p></div><button class="primary" data-page="records">Manage Assets</button></div><div id="cloud-stats" class="stats card">Loading shared records…</div><article class="card"><h2>Recently updated assets</h2><div id="cloud-recent"></div></article><div hidden><div id="dashboard-stats"></div><span id="dashboard-items"></span><div id="dashboard-recent"></div></div></section><section id="records" class="page" hidden><div class="page-heading"><div><div class="eyebrow">SHARED RECORDS</div><h1 id="module-title">Asset Management</h1></div><button id="new-record" class="primary">New Record</button></div><div class="toolbar"><label>Module <select id="module-select" aria-label="Record module"></select></label><input id="cloud-search" type="search" placeholder="Search records"><button id="refresh-records">Refresh</button><button id="cloud-export" hidden>Export CSV</button></div><div class="card" id="records-table">Loading…</div><p class="small">Showing up to 100 records. Search to find specific identifiers. Historical records are retained.</p><button id="import-local">Import device inventory as assets</button></section><section id="scanner" class="page" hidden>
+<div id="offline-banner" class="offline-banner" role="status" hidden><strong>Offline Mode</strong><span>Local scan history remains available. Shared asset sync requires a connection.</span></div>
+<div class="scanner-page-header">
+<div>
+<nav class="breadcrumb" aria-label="Breadcrumb"><button type="button" data-page="records">Assets</button><span aria-hidden="true">›</span><span aria-current="page">Scanner</span></nav>
+<h1>Asset Scanner</h1>
+<p class="page-subtitle">Scan, identify, verify, and update company assets.</p>
+</div>
+<span id="camera-state" class="camera-status" data-state="off"><span class="status-dot" aria-hidden="true"></span><span>Camera Off</span></span>
+</div>
+
+<article class="card scan-config-card">
+<div class="scan-config-title"><h2>Scan Configuration</h2></div>
+<div class="scan-config-fields">
+<label>Scan Mode
+<select id="scan-mode">
+<option value="quick">Quick Scan</option>
+<option value="inventory">Inventory Audit</option>
+<option value="assign">Asset Assignment</option>
+<option value="return">Asset Return</option>
+<option value="transfer">Asset Transfer</option>
+<option value="verify">Asset Verification</option>
+<option value="maintenance">Maintenance</option>
+<option value="retire">Asset Retirement</option>
+</select>
+</label>
+<label>Observed Location
+<select id="scan-location"><option value="">Session location</option></select>
+<span class="field-hint">Location will be recorded with each scan.</span>
+</label>
+<label id="scan-session-wrap" hidden>Inventory Session
+<select id="scan-session"><option value="">Select an active session</option></select>
+<span id="scan-session-helper" class="field-hint">Select an active inventory session.</span>
+</label>
+</div>
+</article>
+
+<div class="workspace scanner-workspace">
+<div>
+<article class="card scanner-card">
+<div id="cloud-scan-result" class="scan-result-shell" role="status" aria-live="polite"></div>
+<div class="camera" id="camera">
+<video id="video" muted playsinline autoplay></video>
+<div id="idle" class="scanner-idle">
+<div class="scanner-illustration" aria-hidden="true"><span class="scanner-glyph">▥</span><span class="scanner-beam"></span></div>
+<h2>Scan an Asset</h2>
+<p>Scan a barcode, QR code, or asset label using your device camera.</p>
+<button id="start" class="primary scanner-start" type="button">▣ Start Scanner</button>
+<div class="or-divider"><span>OR</span></div>
+<div class="inline-manual-search">
+<input id="manual-inline" type="search" placeholder="Asset tag, barcode, or serial number" aria-label="Asset tag, barcode, or serial number">
+<button id="manual-inline-search" type="button" class="primary">Search</button>
+</div>
+<div id="external-scanner-state" class="external-scanner-state"><span class="status-dot" aria-hidden="true"></span> External Scanner Ready</div>
+</div>
+<div class="guide" hidden><div class="scan-line"></div></div>
+<span id="frame-tip" hidden>Align the barcode inside the frame.</span>
+</div>
+<div class="camera-actions">
+<button id="stop" hidden>Stop Camera</button>
+<button id="switch" hidden>Switch Camera</button>
+<button id="torch" hidden>Flash</button>
+<button id="manual-open" type="button">Manual Entry</button>
+<select id="camera-select" aria-label="Active camera" hidden></select>
+</div>
+<p class="privacy">▣ Camera processing happens locally on your device. Camera footage is not uploaded.</p>
+</article>
+<article id="result" class="card scan-local-result" hidden></article>
+</div>
+<aside>
+<article class="card session-card">
+<div class="section-heading"><h2>Today's Session</h2><span id="session-mode-label" class="badge">Quick Scan</span></div>
+<div class="session-metrics" id="scanner-stats"></div>
+<div id="inventory-progress" class="inventory-progress" hidden><div><span>Inventory Progress</span><strong id="inventory-progress-label">0 of 0 assets</strong></div><div class="progress-track"><span id="inventory-progress-bar"></span></div></div>
+</article>
+<article class="card recent-card">
+<div class="section-heading"><h2>Recent Scans</h2><button data-page="history" class="text-button">View history</button></div>
+<div id="recent"></div>
+</article>
+</aside>
+</div>
+</section>
 <section id="history" class="page" hidden><div class="page-heading"><div class="eyebrow">SCAN LOG</div><h1>Scan History</h1></div><div id="history-stats" class="stats card"></div><div class="toolbar"><input id="history-search" type="search" placeholder="Search barcode, item, asset tag or serial number" aria-label="Search scan history"><button id="export">Export CSV</button><button id="clear" class="danger">Clear history</button></div><div id="history-list" class="card"></div></section>
 <section id="inventory" class="page" hidden><div class="page-heading"><div><div class="eyebrow">SAVED ITEMS</div><h1>Inventory</h1></div><span id="inventory-count" class="badge"></span></div><div class="toolbar"><input id="inventory-search" type="search" placeholder="Search barcode, item, asset tag or serial number" aria-label="Search inventory"></div><div id="inventory-list" class="card"></div></section>
 <section id="settings" class="page" hidden><div class="eyebrow">MAKE IT YOURS</div><h1>Settings</h1><article class="card settings-card"><h2>Scanning preferences</h2><label class="setting">Sound Confirmation<input id="sound" type="checkbox" role="switch"></label><label class="setting">Vibration<input id="vibration" type="checkbox" role="switch"></label><label class="setting">Continuous Scan Mode<input id="continuous" type="checkbox" role="switch"></label><p class="small">Keep the camera running after each scan.</p><label class="setting">Prevent Duplicate Scan<input id="duplicates" type="checkbox" role="switch"></label><p class="small">Repeated detections are ignored while the code remains in view. A 2-second cooldown applies.</p><label class="setting">Preferred Camera<select id="preferred"><option value="">Rear camera (automatic)</option></select></label><label class="setting">Theme<select id="theme"><option value="system">System</option><option value="light">Light</option><option value="dark">Dark</option></select></label></article><article class="card settings-card"><h2>Your data</h2><p>History and inventory are saved locally in this browser using IndexedDB. They do not sync across devices. Clearing browser data removes these records.</p><p class="small">Smart Barcode Scanner · Version 1.0</p></article></section><section id="users" class="page" hidden><div class="page-heading"><div><div class="eyebrow">ACCESS ADMINISTRATION</div><h1>Users &amp; Roles</h1><p class="small">Manage accounts, permissions, and where each user can work.</p></div><button id="create-user" class="primary">Create User</button></div><div class="admin-tabs" role="tablist" aria-label="Access administration"><button role="tab" aria-selected="true" data-admin-tab="accounts">Users</button><button role="tab" aria-selected="false" data-admin-tab="roles">Roles &amp; Permissions</button><button role="tab" aria-selected="false" data-admin-tab="teams">Teams</button><button role="tab" aria-selected="false" data-admin-tab="audit">Audit Log</button><button role="tab" aria-selected="false" data-admin-tab="settings">System Settings</button></div><div id="admin-message" role="status" hidden></div><div id="admin-content" class="card"></div></section></main>
