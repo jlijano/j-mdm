@@ -290,3 +290,145 @@ button.recent-scan-row:hover{background:#F8FAFC;border-color:#E2E8F0}
  #asset-dialog[open]{animation:none}
  .progress-track span{transition:none}
 }
+
+
+/* Mobile color/contrast hardening */
+@media(max-width:650px){
+  html,body,.app-shell,.app-shell>main{
+    background:#F4F7FB !important;
+    color:#0F172A !important;
+    color-scheme:light !important;
+  }
+
+  .app-shell>header.app-header,
+  #mobile-nav,
+  .card,
+  dialog,
+  #cloud-dialog,
+  #asset-dialog{
+    background:#FFFFFF !important;
+    color:#0F172A !important;
+  }
+
+  .app-shell input,
+  .app-shell textarea,
+  .app-shell select,
+  .app-shell input[type="search"],
+  .app-shell .toolbar input,
+  .app-shell .toolbar select,
+  .app-shell .cloud-fields input,
+  .app-shell .cloud-fields select,
+  .app-shell .cloud-fields textarea{
+    background:#FFFFFF !important;
+    color:#0F172A !important;
+    border:1px solid #CBD5E1 !important;
+    -webkit-text-fill-color:#0F172A !important;
+    caret-color:#0F172A !important;
+    box-shadow:none !important;
+    opacity:1 !important;
+  }
+
+  .app-shell input::placeholder,
+  .app-shell textarea::placeholder{
+    color:#94A3B8 !important;
+    opacity:1 !important;
+    -webkit-text-fill-color:#94A3B8 !important;
+  }
+
+  .app-shell select option{
+    background:#FFFFFF !important;
+    color:#0F172A !important;
+  }
+
+  .app-shell button:not(.primary):not(.mobile-scan-action){
+    background:#FFFFFF !important;
+    color:#0F172A !important;
+    border-color:#CBD5E1 !important;
+  }
+
+  .app-shell button:not(.primary):not(.mobile-scan-action):hover,
+  .app-shell button:not(.primary):not(.mobile-scan-action):focus-visible{
+    background:#F8FAFC !important;
+    color:#0F172A !important;
+  }
+
+  .app-shell .primary,
+  .app-shell .mobile-scan-action,
+  #new-record{
+    background:#155EEF !important;
+    color:#FFFFFF !important;
+    -webkit-text-fill-color:#FFFFFF !important;
+    border-color:#155EEF !important;
+  }
+
+  .app-shell .text-button{
+    background:transparent !important;
+    color:#0891B2 !important;
+    border-color:transparent !important;
+  }
+
+  .page-heading,
+  .toolbar,
+  #records,
+  #history,
+  #inventory,
+  #settings,
+  #users{
+    color:#0F172A !important;
+  }
+
+  .page-heading h1,
+  #module-title,
+  label,
+  .records-data-table td,
+  .records-data-table td>span,
+  .empty b{
+    color:#0F172A !important;
+  }
+
+  .small,
+  .field-hint,
+  .empty,
+  .empty p,
+  .records-data-table td::before{
+    color:#64748B !important;
+  }
+
+  .records-data-table tr{
+    background:#FFFFFF !important;
+    border-color:#E2E8F0 !important;
+  }
+
+  #records-table{
+    background:#FFFFFF !important;
+  }
+
+  .toolbar{
+    gap:10px;
+  }
+
+  .toolbar > input[type="search"],
+  .toolbar > label,
+  .toolbar > button{
+    width:100%;
+    flex:1 1 100%;
+  }
+
+  .toolbar > button{
+    min-height:48px;
+  }
+
+  .page-heading{
+    gap:14px;
+  }
+
+  #new-record{
+    min-width:132px;
+    min-height:48px;
+  }
+
+  .profile-popover{
+    color:#0F172A !important;
+    background:#FFFFFF !important;
+  }
+}
