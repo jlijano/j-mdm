@@ -61,7 +61,7 @@ export function createServer(options = {}) {
     }
     try {
       const root = await realpath(dist);
-      const filename = await realpath(path.join(root, ['/dashboard', '/index.html'].includes(pathname) ? 'index.html' : pathname === '/login' ? 'login.html' : pathname === '/account-security' ? 'account-security.html' : pathname));
+      const filename = await realpath(path.join(root, ['/dashboard', '/index.html', '/assets/scanner'].includes(pathname) ? 'index.html' : pathname === '/login' ? 'login.html' : pathname === '/account-security' ? 'account-security.html' : pathname));
       const relative = path.relative(root, filename);
       if (relative.startsWith('..') || path.isAbsolute(relative)) {
         reply(res, 404, 'Not found\n');
