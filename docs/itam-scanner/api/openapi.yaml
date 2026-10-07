@@ -1,0 +1,126 @@
+openapi: 3.1.0
+info:
+  title: ITAM Scanner API
+  version: 0.1.0
+servers:
+  - url: /api/v1
+paths:
+  /scanner/resolve:
+    post:
+      summary: Resolve a scanned identifier
+      operationId: resolveScan
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScanResolveRequest'
+      responses:
+        '200':
+          description: Scan resolved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScanResolveResponse'
+        '401': { description: Unauthenticated }
+        '403': { description: Forbidden }
+        '422': { description: Validation failure }
+  /assets/{assetId}:
+    get:
+      summary: Get an asset
+      parameters:
+        - in: path
+          name: assetId
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200': { description: Asset returned }
+    patch:
+      summary: Update an asset
+      parameters:
+        - in: path
+          name: assetId
+          required: true
+          schema: { type: string, format: uuid }
+        - in: header
+          name: If-Match
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object, additionalProperties: true }
+      responses:
+        '200': { description: Updated }
+        '409': { description: Version conflict }
+  /inventory-sessions:
+    post:
+      summary: Create an inventory session
+      responses:
+        '201': { description: Session created }
+  /inventory-sessions/{sessionId}/complete:
+    post:
+      summary: Complete an inventory session
+      parameters:
+        - in: path
+          name: sessionId
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200': { description: Session completed }
+  /sync/operations:
+    post:
+      summary: Sync queued offline operations
+      parameters:
+        - in: header
+          name: Idempotency-Key
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SyncBatchRequest'
+      responses:
+        '200': { description: Batch processed }
+components:
+  schemas:
+    ScanResolveRequest:
+      type: object
+      required: [code, mode, capturedAt, clientOperationId]
+      properties:
+        code: { type: string }
+        codeType: { type: string }
+        mode: { type: string }
+        locationId: { type: [string, 'null'], format: uuid }
+        sessionId: { type: [string, 'null'], format: uuid }
+        capturedAt: { type: string, format: date-time }
+        clientOperationId: { type: string, format: uuid }
+    ScanResolveResponse:
+      type: object
+      properties:
+        matched: { type: boolean }
+        asset: { type: [object, 'null'], additionalProperties: true }
+        availableActions:
+          type: array
+          items: { type: string }
+        exceptions:
+          type: array
+          items: { type: object, additionalProperties: true }
+    SyncBatchRequest:
+      type: object
+      required: [deviceSessionId, operations]
+      properties:
+        deviceSessionId: { type: string, format: uuid }
+        operations:
+          type: array
+          items:
+            type: object
+            required: [clientOperationId, operationType, createdAt, payload]
+            properties:
+              clientOperationId: { type: string, format: uuid }
+              operationType: { type: string }
+              entityId: { type: [string, 'null'], format: uuid }
+              baseVersion: { type: [integer, 'null'] }
+              createdAt: { type: string, format: date-time }
+              payload: { type: object, additionalProperties: true }
