@@ -28,7 +28,7 @@ export function clean(table,input,creating,user){
 async function assertClassifications(db,d){if(d.asset_type_id&&d.category_id){const t=await one(db,'SELECT category_id FROM asset_types WHERE asset_type_id=? AND is_active=1',d.asset_type_id);if(!t||t.category_id!==d.category_id)fail('The asset type must belong to the selected category.');}if(d.model_id){const m=await one(db,'SELECT * FROM asset_models WHERE model_id=? AND is_active=1',d.model_id);if(!m||['manufacturer_id','category_id','asset_type_id'].some(k=>d[k]&&d[k]!==m[k]))fail('Asset classification must match its model.');}}
 export async function recordAPI(req,db,u,table,key,input){
  if(adminTables.has(table))fail('Use Users & Roles to manage accounts and access.',403);
- if(!metadata[table]||table==='app_sessions')fail('Not found.',404);const write=req.method!=='GET';if(!allowed(u,moduleFor(table),write))fail('Permission denied.',403);
+ if(!metadata[table]||table==='app_sessions')fail('Not found.',404);const write=req.method!=='GET',assetModelCreate=table==='asset_models'&&req.method==='POST'&&allowed(u,'assets',true);if(!allowed(u,moduleFor(table),write)&&!assetModelCreate)fail('Permission denied.',403);
  // Only enterprise administrators can manage organization-wide metadata. Narrow roles never gain indirect record access.
  const assetLinked=metadata[table].some(c=>c.name==='asset_id');
  if(!enterprise(u,write)&&!assetLinked&&!['asset_categories','asset_types','asset_classes','manufacturers','asset_models','asset_statuses','asset_conditions','units_of_measure','movement_types','location_types','depreciation_methods','disposal_methods'].includes(table))fail('Enterprise scope is required for this module.',403);
