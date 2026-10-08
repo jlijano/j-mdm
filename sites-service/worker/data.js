@@ -33,8 +33,24 @@ export function scopeSQL(u,write=false,alias='a'){
 export async function visibleAsset(db,u,id,write=false){const s=scopeSQL(u,write);const a=await one(db,`SELECT a.* FROM assets a WHERE a.asset_id=? AND ${s.sql}`,id,...s.args);if(!a)throw Object.assign(new Error('Asset not found in your permitted scope.'),{status:404});return a;}
 export const fail=(message,status=400)=>{throw Object.assign(new Error(message),{status});};
 export async function ensureDefaultMasterData(db){
+ // Self-healing, idempotent master-data seed.
+ // Do not trust the version marker alone: older/partial deployments can retain
+ // the marker even when one or more lookup tables were never populated or were cleared.
+ const required=[
+  ['manufacturers',11],
+  ['asset_categories',9],
+  ['asset_classes',4],
+  ['asset_conditions',6],
+  ['units_of_measure',4],
+  ['asset_types',16]
+ ];
+ let complete=true;
+ for(const [table,minimum] of required){
+  const row=await one(db,`SELECT COUNT(*) AS count FROM "${table}"`);
+  if(Number(row?.count||0)<minimum){complete=false;break;}
+ }
  const marker=await one(db,"SELECT setting_value FROM system_settings WHERE setting_key='default_master_data_v2'");
- if(marker)return;
+ if(marker&&complete)return;
  const st=[];
  const q=(sql,...args)=>st.push(query(db,sql,...args));
  const manufacturers=['Dell','HP','Lenovo','Apple','Acer','ASUS','Microsoft','Samsung','Cisco','Logitech','Other'];
