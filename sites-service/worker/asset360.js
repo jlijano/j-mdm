@@ -10,7 +10,7 @@ const num=v=>v==null||v===''?null:Number(v);
 async function base(db,u,id){
  const a=await visibleAsset(db,u,id);
  return one(db,`SELECT a.asset_id,a.asset_tag,a.barcode,a.serial_number,a.description,a.created_at,a.updated_at,
-  m.manufacturer_name,am.model_name,am.model_number,c.category_name,t.type_name,cl.class_name,
+  a.manufacturer_id,m.manufacturer_name,am.model_name,am.model_number,c.category_name,t.type_name,cl.class_name,
   s.status_name,co.condition_name,l.location_name
   FROM assets a
   LEFT JOIN manufacturers m ON m.manufacturer_id=a.manufacturer_id
