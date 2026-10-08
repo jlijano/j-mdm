@@ -876,3 +876,24 @@ button.recent-scan-row:hover{background:#F8FAFC;border-color:#E2E8F0}
   .crop-handle-sw{left:-13px;bottom:-13px}
   .crop-handle-se{right:-13px;bottom:-13px}
 }
+
+
+/* Upload source chooser */
+.upload-source-picker{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  margin:14px 0 6px;
+}
+.upload-source-picker button{
+  min-height:46px;
+  width:100%;
+}
+.upload-source-help{
+  margin:0 0 12px;
+}
+@media(max-width:650px){
+  .upload-source-picker{
+    grid-template-columns:1fr;
+  }
+}
