@@ -17,7 +17,7 @@ export function createRemoteAuth(options={}){
   async handle(req,res,pathname){
    if(pathname.startsWith('/api/')){
     try{
-     if(!['GET','POST','PATCH'].includes(req.method)){send(res,405,{message:'Method not allowed.'});return true;}
+     if(!['GET','POST','PATCH','DELETE'].includes(req.method)){send(res,405,{message:'Method not allowed.'});return true;}
      if(req.method!=='GET'){
       let same=false;try{const o=new URL(req.headers.origin);same=o.host===req.headers.host&&['https:','http:'].includes(o.protocol);}catch{}if(!same){send(res,403,{message:'This request is not allowed.'});return true;}
      }
