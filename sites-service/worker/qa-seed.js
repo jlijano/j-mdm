@@ -121,6 +121,11 @@ async function ensureRoles(db){
    role=await one(db,'SELECT * FROM roles WHERE role_code=?',code);
    await mark(db,MANAGED_ROLE_KEY(code));
    await qaAudit(db,'roles',role.role_id,'QA_SEED_CREATED',{role_code:code});
+  }else if(!role.is_active){
+   await run(db,'UPDATE roles SET role_name=?,description=?,is_active=1 WHERE role_id=?',def.name,'QA-supported least-privilege role',role.role_id);
+   await mark(db,MANAGED_ROLE_KEY(code));
+   await qaAudit(db,'roles',role.role_id,'QA_SEED_ADOPTED',{role_code:code});
+   role=await one(db,'SELECT * FROM roles WHERE role_id=?',role.role_id);
   }
   const missingPermissions=[];
   for(const codeName of def.permissions)if(!await one(db,'SELECT permission_id FROM permissions WHERE permission_code=?',codeName))missingPermissions.push(codeName);
