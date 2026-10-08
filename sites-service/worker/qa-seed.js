@@ -176,7 +176,7 @@ async function ensureAsset(db,{tag,barcode,category,type,location,creator,descri
  const uom=await one(db,"SELECT unit_of_measure_id FROM units_of_measure WHERE uom_code='EA' AND is_active=1");
  if(!cls||!cond||!status)throw new Error('QA seed requires Trackable Asset, GOOD, and IN_STOCK master data.');
  const c=await classification(db,category,type);
- await insert(db,'assets',{asset_tag:tag,barcode,description,${''}category_id:c.category_id,asset_type_id:c.asset_type_id,asset_class_id:cls.asset_class_id,status_id:status.status_id,condition_id:cond.condition_id,current_location_id:location.location_id,unit_of_measure_id:uom?.unit_of_measure_id??null,quantity:'1',is_serialized:1,is_active:1,created_by:creator.user_id,updated_by:creator.user_id}).run();
+ await insert(db,'assets',{asset_tag:tag,barcode,description,category_id:c.category_id,asset_type_id:c.asset_type_id,asset_class_id:cls.asset_class_id,status_id:status.status_id,condition_id:cond.condition_id,current_location_id:location.location_id,unit_of_measure_id:uom?.unit_of_measure_id??null,quantity:'1',is_serialized:1,is_active:1,created_by:creator.user_id,updated_by:creator.user_id}).run();
  row=await one(db,'SELECT * FROM assets WHERE asset_tag=?',tag);await qaAudit(db,'assets',row.asset_id,'QA_SEED_CREATED',{asset_tag:tag});return{row,created:true};
 }
 async function assignIfNew(db,assetResult,employee,location,actor){
