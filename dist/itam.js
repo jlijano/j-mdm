@@ -45,6 +45,70 @@ const idOf=row=>meta[currentTable].columns.filter(c=>c.key.includes('PK')).map(c
  async function recordForm(row,initial={}){const cols=meta[currentTable].columns.filter(c=>(currentTable!=='asset_repairs'||['diagnosis','repair_action','repair_status','technician','notes'].includes(c.name))&&!auto.has(c.name)&&!(c.key==='PK')&&!(row&&c.key.includes('PK'))&&!(currentTable==='assets'&&['status_id','current_location_id'].includes(c.name)&&row)&&!(currentTable==='assets'&&c.name==='status_id'));if(currentTable==='users')cols.push({name:'password',type:'VARCHAR(256)',null:row?'YES':'NO',description:row?'Leave blank to keep the existing password.':'Initial password.'});const t=currentTable,key=row?idOf(row):'';await dialog(row?'Edit '+title(t):'New '+title(t),cols,row||initial,async d=>{await api('/api/records/'+t+(row?'/'+key:''),row?'PATCH':'POST',d);cache={};await loadRecords();await dashboard();});}
  const f=(name,ref,required=true)=>({name,type:ref?'BIGINT':'VARCHAR(500)',null:required?'NO':'YES',references:ref});
  const actions={assign:[f('employee_id',['employees','employee_id']),f('location_id',['locations','location_id']),{name:'expected_return_date',type:'DATE',null:'YES'},f('notes',null,false)],return:[f('location_id',['locations','location_id']),f('notes',null,false)],transfer:[f('location_id',['locations','location_id']),f('notes',null,false)],receive:[],repair:[f('repair_source'),f('vendor_id',['vendors','vendor_id'],false),f('issue_description')],'repair-return':[f('location_id',['locations','location_id']),{name:'repair_cost',type:'DECIMAL(18,2)',null:'YES'},f('notes',null,false)],refresh:[f('notes')],'disposal-request':[f('disposal_method_id',['disposal_methods','disposal_method_id']),{name:'data_wipe_required',type:'BOOLEAN',null:'NO'},f('notes',null,false)],'disposal-approve':[],'disposal-complete':[f('certificate_file_id',['files','file_id']),{name:'data_wipe_confirmed',type:'BOOLEAN',null:'NO'}],depreciate:[{name:'period_date',type:'DATE',null:'NO',description:'First day of the month (YYYY-MM-01).'}]};
+ async function ensureClientMasterDefaults(){
+  if(!user?.super)return false;
+  const changed=[];
+  const ensure=async(table,key,defaults)=>{
+   const existing=(await api('/api/records/'+table+'?limit=500')).rows||[];
+   const have=new Set(existing.map(r=>String(r[key]||'').trim().toLowerCase()));
+   for(const row of defaults){
+    const value=String(row[key]||'').trim().toLowerCase();
+    if(!have.has(value)){await api('/api/records/'+table,'POST',row);changed.push(table+':'+row[key]);have.add(value);}
+   }
+  };
+  await ensure('manufacturers','manufacturer_name',[
+   {manufacturer_name:'Dell',is_active:1},{manufacturer_name:'HP',is_active:1},{manufacturer_name:'Lenovo',is_active:1},
+   {manufacturer_name:'Apple',is_active:1},{manufacturer_name:'Acer',is_active:1},{manufacturer_name:'ASUS',is_active:1},
+   {manufacturer_name:'Microsoft',is_active:1},{manufacturer_name:'Samsung',is_active:1},{manufacturer_name:'Cisco',is_active:1},
+   {manufacturer_name:'Logitech',is_active:1},{manufacturer_name:'Other',is_active:1}
+  ]);
+  await ensure('asset_categories','category_name',[
+   {category_name:'Computer',description:'Computers and workstations',is_active:1},
+   {category_name:'Mobile Device',description:'Phones and tablets',is_active:1},
+   {category_name:'Network Equipment',description:'Routers, switches, access points and related network hardware',is_active:1},
+   {category_name:'Peripheral',description:'Displays and computer peripherals',is_active:1},
+   {category_name:'Server',description:'Physical server hardware',is_active:1},
+   {category_name:'Storage',description:'Storage appliances and devices',is_active:1},
+   {category_name:'Printer',description:'Printers and multifunction devices',is_active:1},
+   {category_name:'Accessory',description:'IT accessories and supporting equipment',is_active:1},
+   {category_name:'Other',description:'Other trackable technology assets',is_active:1}
+  ]);
+  await ensure('asset_classes','class_name',[
+   {class_name:'Capital Asset',description:'Capitalized asset tracked through its lifecycle'},
+   {class_name:'Trackable Asset',description:'Individually tracked operational asset'},
+   {class_name:'Non-Capital Asset',description:'Tracked asset below capitalization threshold'},
+   {class_name:'Consumable',description:'Quantity-based item normally consumed through use'}
+  ]);
+  await ensure('asset_conditions','condition_code',[
+   {condition_code:'NEW',condition_name:'New',description:'New or unused asset'},
+   {condition_code:'GOOD',condition_name:'Good',description:'Operational and in good physical condition'},
+   {condition_code:'FAIR',condition_name:'Fair',description:'Operational with visible wear or minor issues'},
+   {condition_code:'DAMAGED',condition_name:'Damaged',description:'Damaged or not fully operational'},
+   {condition_code:'FOR_REPAIR',condition_name:'For Repair',description:'Awaiting or undergoing repair'},
+   {condition_code:'FOR_DISPOSAL',condition_name:'For Disposal',description:'Approved or queued for disposal processing'}
+  ]);
+  await ensure('units_of_measure','uom_code',[
+   {uom_code:'EA',uom_name:'Each',is_active:1},{uom_code:'BOX',uom_name:'Box',is_active:1},
+   {uom_code:'PACK',uom_name:'Pack',is_active:1},{uom_code:'SET',uom_name:'Set',is_active:1}
+  ]);
+  const categories=(await api('/api/records/asset_categories?limit=500')).rows||[];
+  const byName=Object.fromEntries(categories.map(r=>[String(r.category_name).toLowerCase(),r.category_id]));
+  const typeDefaults=[
+   ['Computer','Laptop'],['Computer','Desktop'],['Computer','Workstation'],['Peripheral','Monitor'],
+   ['Mobile Device','Smartphone'],['Mobile Device','Tablet'],['Server','Server'],['Printer','Printer'],
+   ['Network Equipment','Router'],['Network Equipment','Switch'],['Network Equipment','Access Point'],
+   ['Accessory','UPS'],['Accessory','Keyboard'],['Accessory','Mouse'],['Accessory','Headset'],['Other','Other']
+  ];
+  const existingTypes=(await api('/api/records/asset_types?limit=500')).rows||[];
+  const typeKeys=new Set(existingTypes.map(r=>String(r.category_id)+':'+String(r.type_name).toLowerCase()));
+  for(const [category,type_name] of typeDefaults){
+   const category_id=byName[category.toLowerCase()];
+   if(!category_id)continue;
+   const key=String(category_id)+':'+type_name.toLowerCase();
+   if(!typeKeys.has(key)){await api('/api/records/asset_types','POST',{category_id,type_name,is_active:1});changed.push('asset_types:'+type_name);typeKeys.add(key);}
+  }
+  return changed;
+ }
  window.mdmCanCreateAsset=()=>!!meta.assets?.editable;
  window.mdmCreateAssetFromScan=async barcode=>{currentTable='assets';q('#module-select').value='assets';await recordForm(null,{barcode,asset_tag:barcode});};
  window.mdmCanAction=name=>{if(!user)return false;if(name==='disposal-approve')return !!user.super;const permission=name==='depreciate'?'finance':name.startsWith('repair')?'repairs':name==='refresh'?'refresh':name.startsWith('disposal')?'disposal':['assign','return'].includes(name)?'custody':'movements';return !!user.super||user.permissions.includes(permission+'.manage');};
@@ -66,5 +130,5 @@ let timer;q('#cloud-search').oninput=()=>{clearTimeout(timer);timer=setTimeout(l
  }catch(error){alert(error.message);}});
  document.addEventListener('jmdm:pagechange',async ev=>{try{if(ev.detail?.page==='records')await loadRecords();if(ev.detail?.page==='dashboard')await dashboard();}catch(error){q('#cloud-error').textContent=error.message;q('#cloud-error').hidden=false;}});
  q('#import-local').onclick=async()=>{const records=typeof inventory!=='undefined'?inventory:[];if(!records.length){alert('No device inventory to import.');return;}await dialog('Import '+records.length+' device items',[f('category_id',['asset_categories','category_id']),f('asset_type_id',['asset_types','asset_type_id']),f('asset_class_id',['asset_classes','asset_class_id']),f('condition_id',['asset_conditions','condition_id']),f('current_location_id',['locations','location_id'],false)],{},async d=>{let count=0;for(const r of records){try{await api('/api/records/assets','POST',{...d,asset_tag:r.assetTag||r.barcode,barcode:r.barcode,serial_number:r.serialNumber||null,description:r.itemName||r.description||null,quantity:String(r.quantity||1),is_serialized:Number(r.quantity||1)===1?1:0});count++;}catch(e){throw Error(`${count} imported. Item ${r.barcode}: ${e.message}. Device records remain available.`);}}cache={};await loadRecords();await dashboard();});};
- (async()=>{try{const result=await api('/api/metadata');meta=result.tables;user=result.user;q('#account-role').textContent=user.roles.join(', ').replaceAll('_',' ');if(q('#account-name'))q('#account-name').textContent=user.name||user.display_name||user.username||q('#account-email')?.textContent?.split('@')[0]||'Account';q('#module-select').innerHTML=Object.entries(meta).sort(([a],[b])=>a==='assets'?-1:b==='assets'?1:a.localeCompare(b)).map(([t,m])=>`<option value="${t}">${title(m.module)} · ${title(t)}</option>`).join('');q('#module-select').value='assets';q('#cloud-export').hidden=!(user.super||user.permissions.includes('exports.view'));q('#import-local').hidden=!user.super;q('#users-nav').hidden=!user.super;document.querySelectorAll('[data-page="scanner"]').forEach(el=>el.hidden=!(user.super||user.permissions.includes('barcode.manage')));if(!q('#records').hidden)await loadRecords();else await dashboard();if(meta.inventory_sessions){const sessions=await data('inventory_sessions');q('#scan-session').innerHTML+=sessions.filter(s=>s.status==='ACTIVE').map(s=>{const expected=s.expected_count??s.expected_assets??s.total_expected??s.asset_count??'';return `<option value="${s.inventory_session_id}" data-expected="${escape(expected)}">${escape(s.session_name)}</option>`}).join('');}if(meta.locations){q('#scan-location').innerHTML+=(await data('locations')).map(l=>`<option value="${l.location_id}">${escape(l.location_name)}</option>`).join('');} }catch(e){q('#cloud-stats').textContent=e.message;}})();
+ (async()=>{try{const result=await api('/api/metadata');meta=result.tables;user=result.user;q('#account-role').textContent=user.roles.join(', ').replaceAll('_',' ');if(q('#account-name'))q('#account-name').textContent=user.name||user.display_name||user.username||q('#account-email')?.textContent?.split('@')[0]||'Account';q('#module-select').innerHTML=Object.entries(meta).sort(([a],[b])=>a==='assets'?-1:b==='assets'?1:a.localeCompare(b)).map(([t,m])=>`<option value="${t}">${title(m.module)} · ${title(t)}</option>`).join('');q('#module-select').value='assets';q('#cloud-export').hidden=!(user.super||user.permissions.includes('exports.view'));q('#import-local').hidden=!user.super;q('#users-nav').hidden=!user.super;document.querySelectorAll('[data-page="scanner"]').forEach(el=>el.hidden=!(user.super||user.permissions.includes('barcode.manage')));if(!q('#records').hidden)await loadRecords();else const restored=await ensureClientMasterDefaults();if(restored.length){cache={};if(!q('#records').hidden)await loadRecords();console.info('Restored default master data:',restored.length);}await dashboard();if(meta.inventory_sessions){const sessions=await data('inventory_sessions');q('#scan-session').innerHTML+=sessions.filter(s=>s.status==='ACTIVE').map(s=>{const expected=s.expected_count??s.expected_assets??s.total_expected??s.asset_count??'';return `<option value="${s.inventory_session_id}" data-expected="${escape(expected)}">${escape(s.session_name)}</option>`}).join('');}if(meta.locations){q('#scan-location').innerHTML+=(await data('locations')).map(l=>`<option value="${l.location_id}">${escape(l.location_name)}</option>`).join('');} }catch(e){q('#cloud-stats').textContent=e.message;}})();
 })();
