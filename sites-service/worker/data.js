@@ -32,13 +32,72 @@ export function scopeSQL(u,write=false,alias='a'){
 }
 export async function visibleAsset(db,u,id,write=false){const s=scopeSQL(u,write);const a=await one(db,`SELECT a.* FROM assets a WHERE a.asset_id=? AND ${s.sql}`,id,...s.args);if(!a)throw Object.assign(new Error('Asset not found in your permitted scope.'),{status:404});return a;}
 export const fail=(message,status=400)=>{throw Object.assign(new Error(message),{status});};
+export async function ensureDefaultMasterData(db){
+ const marker=await one(db,"SELECT setting_value FROM system_settings WHERE setting_key='default_master_data_v1'");
+ if(marker)return;
+ const st=[];
+ const q=(sql,...args)=>st.push(query(db,sql,...args));
+ const manufacturers=['Dell','HP','Lenovo','Apple','Acer','ASUS','Microsoft','Samsung','Cisco','Logitech','Other'];
+ for(const name of manufacturers)q('INSERT OR IGNORE INTO manufacturers(manufacturer_name,is_active) VALUES (?,1)',name);
+ const categories=[
+  ['Computer','Computers and workstations'],
+  ['Mobile Device','Phones and tablets'],
+  ['Network Equipment','Routers, switches, access points and related network hardware'],
+  ['Peripheral','Displays and computer peripherals'],
+  ['Server','Physical server hardware'],
+  ['Storage','Storage appliances and devices'],
+  ['Printer','Printers and multifunction devices'],
+  ['Accessory','IT accessories and supporting equipment'],
+  ['Other','Other trackable technology assets']
+ ];
+ for(const [name,description] of categories)q('INSERT OR IGNORE INTO asset_categories(category_name,description,is_active) VALUES (?,?,1)',name,description);
+ const classes=[
+  ['Capital Asset','Capitalized asset tracked through its lifecycle'],
+  ['Trackable Asset','Individually tracked operational asset'],
+  ['Non-Capital Asset','Tracked asset below capitalization threshold'],
+  ['Consumable','Quantity-based item normally consumed through use']
+ ];
+ for(const [name,description] of classes)q('INSERT OR IGNORE INTO asset_classes(class_name,description) VALUES (?,?)',name,description);
+ const conditions=[
+  ['NEW','New','New or unused asset'],
+  ['GOOD','Good','Operational and in good physical condition'],
+  ['FAIR','Fair','Operational with visible wear or minor issues'],
+  ['DAMAGED','Damaged','Damaged or not fully operational'],
+  ['FOR_REPAIR','For Repair','Awaiting or undergoing repair'],
+  ['FOR_DISPOSAL','For Disposal','Approved or queued for disposal processing']
+ ];
+ for(const [code,name,description] of conditions)q('INSERT OR IGNORE INTO asset_conditions(condition_code,condition_name,description) VALUES (?,?,?)',code,name,description);
+ const uoms=[
+  ['EA','Each'],['BOX','Box'],['PACK','Pack'],['SET','Set']
+ ];
+ for(const [code,name] of uoms)q('INSERT OR IGNORE INTO units_of_measure(uom_code,uom_name,is_active) VALUES (?,?,1)',code,name);
+ const types=[
+  ['Computer','Laptop'],['Computer','Desktop'],['Computer','Workstation'],
+  ['Peripheral','Monitor'],
+  ['Mobile Device','Smartphone'],['Mobile Device','Tablet'],
+  ['Server','Server'],
+  ['Printer','Printer'],
+  ['Network Equipment','Router'],['Network Equipment','Switch'],['Network Equipment','Access Point'],
+  ['Accessory','UPS'],['Accessory','Keyboard'],['Accessory','Mouse'],['Accessory','Headset'],
+  ['Other','Other']
+ ];
+ for(const [category,type] of types)q(`INSERT INTO asset_types(category_id,type_name,is_active)
+  SELECT c.category_id,?,1 FROM asset_categories c
+  WHERE c.category_name=? AND NOT EXISTS (
+   SELECT 1 FROM asset_types t WHERE lower(t.type_name)=lower(?) AND t.category_id=c.category_id
+  )`,type,category,type);
+ q("INSERT OR REPLACE INTO system_settings(setting_key,setting_value) VALUES ('default_master_data_v1','1')");
+ await db.batch(st);
+}
+
 export async function seed(db,env){
+ await ensureDefaultMasterData(db);
  const existing=await one(db,'SELECT user_id FROM users LIMIT 1');if(existing)return;
  if(!env.SUPER_ADMIN_PASSWORD_HASH?.startsWith('pbkdf2:'))fail('Administrator sign-in is not configured.',503);
  const statements=[];const add=(t,d)=>statements.push(insert(db,t,d));
  const codes={asset_statuses:['IN_STOCK','ASSIGNED','FOR_REPAIR','FOR_REFRESH','FOR_DISPOSAL','DISPOSED','LOST','STOLEN'],asset_conditions:['NEW','GOOD','FAIR','DAMAGED'],roles:['SUPER_ADMIN','IT_ADMIN','FINANCE_ADMIN','ITAM_TEAM','SECURITY','MANAGEMENT_VIEWER','GENERAL_USER'],dashboard_types:['IT','FINANCE','ITAM','OPERATIONS','HR','SECURITY','GENERAL','EXECUTIVE'],movement_types:['STOCK_IN','STOCK_OUT','ASSIGNMENT','RETURN','TRANSFER','REPAIR_SEND_OUT','REPAIR_RETURN','REFRESH','DISPOSAL','GATE_ENTRY','GATE_EXIT'],location_types:['STORAGE','OFFICE','WFH','DATA_CENTER','REPAIR_CENTER','TRANSIT','DISPOSAL_AREA','THIRD_PARTY'],depreciation_methods:['STRAIGHT_LINE','DECLINING_BALANCE','NONE'],disposal_methods:['RECYCLE','RESALE','DONATION','RETURN_VENDOR','DESTROYED','TRADE_IN','OTHER']};
  for(const [t,values]of Object.entries(codes)){const cs=metadata[t];const code=cs.find(c=>c.name.endsWith('_code')).name,name=cs.find(c=>c.name.endsWith('_name')).name;for(const v of values){const d={[code]:v,[name]:v.replaceAll('_',' ')};if(t==='asset_statuses'){d.lifecycle_stage=v==='DISPOSED'?'DISPOSED':'ACTIVE';d.is_terminal=['DISPOSED','LOST','STOLEN'].includes(v)?1:0;}if(t==='movement_types'){d.changes_location=1;d.changes_custody=['ASSIGNMENT','RETURN'].includes(v)?1:0;}if(t==='disposal_methods')d.requires_certificate=1;add(t,d);}}
- add('asset_categories',{category_name:'Computer'});add('asset_types',{category_id:1,type_name:'Laptop'});add('asset_classes',{class_name:'Trackable Asset'});add('units_of_measure',{uom_code:'EA',uom_name:'Each'});
+
  add('users',{username:'superadmin',email:env.SUPER_ADMIN_EMAIL||'a@a.a.com',password_hash:env.SUPER_ADMIN_PASSWORD_HASH});
  let permissionId=0;for(const mod of modules)for(const action of ['view','manage']){permissionId++;add('permissions',{permission_code:`${mod}.${action}`,module:mod,action});for(let role=1;role<=7;role++){
  const grants={1:modules,2:['assets','organization','support','inventory','master','files'],3:['finance','procurement'],4:['assets','inventory','support','files'],5:['security'],6:modules.filter(x=>!['users','audit'].includes(x)),7:['assets']};
