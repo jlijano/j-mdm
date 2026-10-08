@@ -12,11 +12,39 @@ export async function manufacturerLogoAPI(req,db,u,path,d,env){
  if(!await one(db,'SELECT manufacturer_id FROM manufacturers WHERE manufacturer_id=?',id))fail('Manufacturer not found.',404);
  if(req.method==='GET'){
    const f=await one(db,'SELECT f.mime_type,f.storage_path FROM manufacturer_logos ml JOIN files f ON f.file_id=ml.file_id WHERE ml.manufacturer_id=?',id);
-   if(!f)fail('Manufacturer logo not found.',404);
-   if(!env.BUCKET)fail('File storage unavailable.',503);
-   const obj=await env.BUCKET.get(f.storage_path);
-   if(!obj)fail('Logo file unavailable.',404);
-   return new Response(obj.body,{headers:{'content-type':f.mime_type,'cache-control':'private, max-age=300','x-content-type-options':'nosniff','content-security-policy':"default-src 'none'; sandbox"}});
+   if(f){
+     if(!env.BUCKET)fail('File storage unavailable.',503);
+     const obj=await env.BUCKET.get(f.storage_path);
+     if(!obj)fail('Logo file unavailable.',404);
+     return new Response(obj.body,{headers:{'content-type':f.mime_type,'cache-control':'private, max-age=300','x-content-type-options':'nosniff','content-security-policy':"default-src 'none'; sandbox"}});
+   }
+   // Public manufacturer marks are a fallback only: never override a custom-uploaded logo.
+   const m=await one(db,'SELECT manufacturer_name FROM manufacturers WHERE manufacturer_id=?',id);
+   const canonical=String(m?.manufacturer_name||'').normalize('NFKD').toLowerCase().replace(/[^a-z0-9]/g,'');
+   const iconNames=Object.freeze({
+     dell:'dell',delltechnologies:'dell',hp:'hp',hpinc:'hp',hewlettpackard:'hp',
+     lenovo:'lenovo',apple:'apple',acer:'acer',asus:'asus',microsoft:'microsoft',
+     samsung:'samsung',samsungelectronics:'samsung',cisco:'cisco',ciscosystems:'cisco',
+     logitech:'logitech',logitechinternational:'logitech',
+     intel:'intel',amd:'amd',advancedmicrodevices:'amd',epson:'epson',canon:'canon',
+     brother:'brother',brotherindustries:'brother',huawei:'huawei',tplink:'tplink',
+     jbl:'jbl',lg:'lg',lgelectronics:'lg',sony:'sony',ibm:'ibm',
+     panasonic:'panasonic',toshiba:'toshiba',razer:'razer',msi:'msi',
+     nvidia:'nvidia',westernDigital:'westerndigital',westerndigital:'westerndigital',
+     seagate:'seagate',kingston:'kingstontechnology',kingstontechnology:'kingstontechnology',
+     sandisk:'sandisk',belkin:'belkin',anker:'anker',ubiquiti:'ubiquiti',
+     netgear:'netgear',dlink:'dlink',hikvision:'hikvision',xerox:'xerox',
+     sharp:'sharp',ricoh:'ricoh',fujitsu:'fujitsu',fortinet:'fortinet'
+   });
+   const slug=iconNames[canonical];
+   if(!slug)fail('Manufacturer logo not found.',404);
+   try{
+     const upstream=await fetch('https://cdn.jsdelivr.net/npm/simple-icons@v15/icons/'+slug+'.svg',{signal:AbortSignal.timeout(3500)});
+     if(!upstream.ok)fail('Manufacturer logo unavailable.',404);
+     const svg=await upstream.text();
+     if(svg.length>20000||!/^<svg\\s[^>]*xmlns="http:\/\/www.w3.org\/2000\/svg"/.test(svg))fail('Invalid manufacturer logo.',502);
+     return new Response(svg,{headers:{'content-type':'image/svg+xml; charset=utf-8','cache-control':'public, max-age=86400','x-content-type-options':'nosniff','content-security-policy':"default-src 'none'; sandbox"}});
+   }catch(error){if(error?.status)throw error;fail('Manufacturer logo temporarily unavailable.',503);}
  }
  if(!['POST','DELETE'].includes(req.method))fail('Method not allowed.',405);
  if(!allowed(u,'master',true)||!allowed(u,'files',true)||!enterprise(u,true))fail('Manufacturer logo management permission required.',403);
