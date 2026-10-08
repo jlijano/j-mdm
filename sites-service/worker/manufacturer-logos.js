@@ -42,7 +42,7 @@ export async function manufacturerLogoAPI(req,db,u,path,d,env){
      const upstream=await fetch('https://cdn.jsdelivr.net/npm/simple-icons@v15/icons/'+slug+'.svg',{signal:AbortSignal.timeout(3500)});
      if(!upstream.ok)fail('Manufacturer logo unavailable.',404);
      const svg=await upstream.text();
-     if(svg.length>20000||!/^<svg\\s[^>]*xmlns="http:\/\/www.w3.org\/2000\/svg"/.test(svg))fail('Invalid manufacturer logo.',502);
+     if(svg.length>20000||!svg.startsWith('<svg')||!svg.includes('xmlns="http://www.w3.org/2000/svg"'))fail('Invalid manufacturer logo.',502);
      return new Response(svg,{headers:{'content-type':'image/svg+xml; charset=utf-8','cache-control':'public, max-age=86400','x-content-type-options':'nosniff','content-security-policy':"default-src 'none'; sandbox"}});
    }catch(error){if(error?.status)throw error;fail('Manufacturer logo temporarily unavailable.',503);}
  }
