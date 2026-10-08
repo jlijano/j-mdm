@@ -58,7 +58,7 @@ async function section(db,u,id,name){
   const [table,order]=map[name];
   if(name==='security')return{rows:await rows(db,`SELECT gp.* FROM gate_pass_assets ga JOIN gate_passes gp ON gp.gate_pass_id=ga.gate_pass_id WHERE ga.asset_id=? ORDER BY gp.created_at DESC LIMIT 100`,id)};
   if(name==='inventory')return{rows:await rows(db,`SELECT r.*,s.session_name,el.location_name expected_location,al.location_name actual_location FROM inventory_scan_results r JOIN inventory_sessions s ON s.inventory_session_id=r.inventory_session_id LEFT JOIN locations el ON el.location_id=r.expected_location_id LEFT JOIN locations al ON al.location_id=r.actual_location_id WHERE r.asset_id=? ORDER BY r.scanned_at DESC LIMIT 100`,id)};
-  return{rows:await rows(db,`SELECT * FROM ${table} WHERE asset_id=? ORDER BY ${order} DESC LIMIT 100`,id)};
+  const list=await rows(db,`SELECT * FROM ${table} WHERE asset_id=? ORDER BY ${order} DESC LIMIT 100`,id);if(name==='repairs'&&!finance)for(const r of list)delete r.repair_cost;return{rows:list};
  }
  if(name==='audit'){
   if(!allowed(u,'audit'))fail('Audit permission is required.',403);
@@ -106,7 +106,7 @@ export async function asset360API(req,db,u,path,d,env){
   await insert(db,'locations',{location_type_id:lt.location_type_id,location_name:name,building:cleanText(d.building,100),floor:cleanText(d.floor,100),room_area:cleanText(d.room_area,100),city:cleanText(d.city,100),province:cleanText(d.province,100),country:cleanText(d.country,100),is_active:1}).run();
   existing=await one(db,'SELECT * FROM locations WHERE location_id=last_insert_rowid()');return{location:existing,created:true};
  }
- const m=/^\/api\/assets\/(\d+)\/360(?:\/([a-z-]+))?$/.exec(path);if(!m)fail('Not found.',404);const id=Number(m[1]);await visibleAsset(db,u,id,req.method!=='GET');
+ const m=/^\/api\/assets\/(\d+)\/360(?:\/([a-z-]+))?$/.exec(path);if(!m)fail('Not found.',404);const id=Number(m[1]);if(!allowed(u,'assets'))fail('Asset access is required.',403);await visibleAsset(db,u,id,req.method!=='GET');
  const part=m[2];
  if(!part&&req.method==='GET'){const a=await base(db,u,id),current=await assignment(db,id);return{asset:a,current_assignment:current,permissions:{finance:allowed(u,'finance'),procurement:allowed(u,'procurement'),files:allowed(u,'files'),audit:allowed(u,'audit'),manage_evidence:allowed(u,'files',true)},completeness:null};}
  if(part==='timeline'&&req.method==='GET')return timeline(db,u,id);
