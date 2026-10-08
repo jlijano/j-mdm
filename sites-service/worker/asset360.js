@@ -102,7 +102,7 @@ export async function asset360API(req,db,u,path,d,env){
   const name=cleanText(d.location_name,255);if(!name)fail('Enter a location.');const normalized=name.toLowerCase().replace(/\s+/g,' ').trim();
   let existing=await one(db,`SELECT * FROM locations WHERE lower(trim(replace(replace(location_name,'  ',' '),'  ',' ')))=? LIMIT 1`,normalized);if(existing)return{location:existing,created:false};
   if(!enterprise(u,true))fail('Enterprise management scope is required to create a new location.',403);
-  const lt=await one(db,`SELECT location_type_id FROM location_types WHERE is_active=1 ORDER BY CASE WHEN upper(type_name) LIKE '%OFFICE%' THEN 0 ELSE 1 END,location_type_id LIMIT 1`);if(!lt)fail('Configure a location type first.');
+  const lt=await one(db,`SELECT location_type_id FROM location_types ORDER BY location_type_id LIMIT 1`);if(!lt)fail('Configure a location type first.');
   await insert(db,'locations',{location_type_id:lt.location_type_id,location_name:name,building:cleanText(d.building,100),floor:cleanText(d.floor,100),room_area:cleanText(d.room_area,100),city:cleanText(d.city,100),province:cleanText(d.province,100),country:cleanText(d.country,100),is_active:1}).run();
   existing=await one(db,'SELECT * FROM locations WHERE location_id=last_insert_rowid()');return{location:existing,created:true};
  }
