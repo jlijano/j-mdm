@@ -7,7 +7,7 @@
  function open(){document.body.classList.add('navigation-open');setBackgroundInert(true);toggle.setAttribute('aria-expanded','true');toggle.setAttribute('aria-label','Close navigation');backdrop.hidden=false;setTimeout(()=>nav.querySelector('button.active:not([hidden])')?.focus(),0);}
  function route(page){
   close(false);
-  if(typeof window.jmdmSetPage==='function'){window.jmdmSetPage(page);return;}
+  if(typeof window.jmdmSetPage==='function'){window.jmdmSetPage(page);markCurrent();return;}
   const target=page==='scanner'?'/assets/scanner':page==='dashboard'?'/dashboard':'/dashboard#'+encodeURIComponent(page);
   location.assign(target);
  }
