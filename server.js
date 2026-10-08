@@ -72,10 +72,15 @@ export function createServer(options = {}) {
         reply(res, 404, 'Not found\n');
         return;
       }
-      if (await auth.deny(req, res, pathname)) return;
+      const ext = path.extname(filename).toLowerCase();
+      // API authorization remains authoritative. Static JS/CSS/images contain no user data,
+      // so avoid a remote /api/auth/me round trip for every protected page asset.
+      const staticAsset = ext && ext !== '.html';
+      if (!staticAsset && await auth.deny(req, res, pathname)) return;
       res.writeHead(200, {
-        'Content-Type': types[path.extname(filename).toLowerCase()] || 'text/plain; charset=utf-8',
-        'Content-Length': info.size
+        'Content-Type': types[ext] || 'text/plain; charset=utf-8',
+        'Content-Length': info.size,
+        'Cache-Control': staticAsset ? 'private, max-age=300, must-revalidate' : 'no-store'
       });
       if (req.method === 'HEAD') res.end();
       else await pipeline(createReadStream(filename), res);
