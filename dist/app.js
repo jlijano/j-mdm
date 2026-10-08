@@ -31,27 +31,211 @@ function friendly(error){return ({NotAllowedError:'Camera access was blocked. Pl
 async function startCamera(device){stopCamera();if(!window.isSecureContext){setCameraState('error','Camera Unavailable');notify('Camera scanning requires a secure HTTPS connection. Open the secure site link or enter a barcode manually.',true);return}if(!navigator.mediaDevices?.getUserMedia){setCameraState('error','Camera Unavailable');notify('This browser does not support camera access. Use a recent browser or enter the barcode manually.',true);return}$('#start').disabled=true;$('#start').textContent='Starting camera…';const token=generation;try{if(settings.sound){audio??=new (window.AudioContext||window.webkitAudioContext)();audio.resume().catch(()=>{})}await engines();const videoConstraints={width:{ideal:1280},height:{ideal:720},...(device||settings.preferred?{deviceId:{exact:device||settings.preferred}}:{facingMode:{ideal:'environment'}})};let acquired;try{acquired=await navigator.mediaDevices.getUserMedia({audio:false,video:videoConstraints})}catch(error){if(error.name==='OverconstrainedError'&&!device)acquired=await navigator.mediaDevices.getUserMedia({audio:false,video:{facingMode:{ideal:'environment'}}});else throw error}if(token!==generation){acquired.getTracks().forEach(t=>t.stop());return}stream=acquired;$('#video').srcObject=stream;await $('#video').play();if(token!==generation)return;running=true;lastSeen='';lastDetected=0;await listCameras();cameraUI(true);const track=stream.getVideoTracks()[0];$('#torch').hidden=!track.getCapabilities?.().torch;$('#notice').hidden=true;scanLoop(token);setTimeout(()=>{if(running&&token===generation&&!current)notify('No barcode recognized yet. Improve the lighting and bring the full code into focus.')},12000)}catch(error){if(token===generation){stopCamera();setCameraState(error.name==='NotAllowedError'?'permission':'error',error.name==='NotAllowedError'?'Camera Permission Required':'Camera Unavailable');notify(friendly(error),true);if(error.name==='NotAllowedError')$('#start').textContent='Allow Camera Access'}}finally{$('#start').disabled=false;if($('#start').textContent==='Starting camera…')$('#start').textContent='Start Scanner'}}
 async function decodeFrame(){if($('#video').readyState<2)return null;if(detector){try{const hits=await detector.detect($('#video'));if(hits.length)return {barcode:hits[0].rawValue,format:hits[0].format.replaceAll('_',' ').toUpperCase()}}catch{detector=null}}if(reader){try{const result=reader.decode($('#video'));return {barcode:result.getText(),format:ZXing.BarcodeFormat[result.getBarcodeFormat()].replaceAll('_',' ')}}catch(error){if(!['NotFoundException','ChecksumException','FormatException'].includes(error.name)&&!detector){/* Frames without a valid code are expected. */}}}return null}
 async function scanLoop(token){if(!running||generation!==token)return;const found=await decodeFrame();if(!running||generation!==token)return;const now=Date.now();if(found&&found.barcode){const sameInView=lastSeen===found.barcode&&now-lastDetected<900;lastSeen=found.barcode;lastDetected=now;const cooldown=now-(lastSaved.get(found.barcode)||0)<2000;if(!(settings.duplicates&&(sameInView||cooldown))){lastSaved.set(found.barcode,now);const staged=await record(found.barcode,found.format,'Camera');if(staged){return}}}if(running&&generation===token)timer=setTimeout(()=>scanLoop(token),150)}
-function normalizeIdentifier(value){return String(value||'').toUpperCase().replace(/[^A-Z0-9-]/g,'').replace(/^-+|-+$/g,'')}
-function extractIdentifierCandidates(text){const clean=String(text||'').replace(/\r/g,'\n').replace(/[|]/g,'I');const rules=[
- {key:'serviceTag',weight:120,re:/(?:service\s*tag|svc\s*tag|tag\s*\/\s*sn|tag\s*[-:]?\s*s\/n|tag\s*sn)\s*[:#-]?\s*([A-Z0-9-]{5,24})/i},
- {key:'serialNumber',weight:110,re:/(?:serial(?:\s*number|\s*no\.?|\s*#)?|s\s*\/\s*n|sn)\s*[:#-]?\s*([A-Z0-9-]{5,32})/i}
-];const out={candidates:[]};for(const rule of rules){const m=clean.match(rule.re);if(m){const value=normalizeIdentifier(m[1]);if(value.length>=5){out[rule.key]=value;out.candidates.push({value,type:rule.key,score:rule.weight})}}}
- const labelNear=clean.match(/(?:TAG\s*\/\s*SN|SERVICE\s*TAG|SERIAL(?:\s*(?:NO|NUMBER|#))?|S\s*\/\s*N|\bSN\b)[^A-Z0-9]{0,8}([A-Z0-9-]{5,24})/i);if(labelNear){const value=normalizeIdentifier(labelNear[1]);if(value.length>=5&&!out.candidates.some(c=>c.value===value))out.candidates.push({value,type:'label',score:105})}
- const tokens=(clean.toUpperCase().match(/[A-Z0-9-]{5,20}/g)||[]).map(normalizeIdentifier).filter(v=>/[A-Z]/.test(v)&&/\d/.test(v));for(const value of tokens){if(!out.candidates.some(c=>c.value===value)){let score=20;if(value.length>=6&&value.length<=10)score+=12;if(/^[A-Z0-9]{7}$/.test(value))score+=8;out.candidates.push({value,type:'token',score})}}
- out.candidates.sort((a,b)=>b.score-a.score);return out}
-function makeRotatedCanvas(img,degrees){const width=img.naturalWidth||img.width,height=img.naturalHeight||img.height,rad=degrees*Math.PI/180,swap=degrees%180!==0,canvas=document.createElement('canvas');canvas.width=swap?height:width;canvas.height=swap?width:height;const ctx=canvas.getContext('2d',{willReadFrequently:true});ctx.translate(canvas.width/2,canvas.height/2);ctx.rotate(rad);ctx.drawImage(img,-width/2,-height/2);ctx.setTransform(1,0,0,1,0,0);const data=ctx.getImageData(0,0,canvas.width,canvas.height),p=data.data;for(let i=0;i<p.length;i+=4){const gray=.299*p[i]+.587*p[i+1]+.114*p[i+2];const boosted=gray<128?Math.max(0,gray*.72):Math.min(255,128+(gray-128)*1.35);p[i]=p[i+1]=p[i+2]=boosted}ctx.putImageData(data,0,0);return canvas}
-async function decodeUploadedBarcode(source){if('BarcodeDetector'in window){try{const supported=await BarcodeDetector.getSupportedFormats();const formats=nativeFormats.filter(f=>supported.includes(f));if(formats.length){const d=new BarcodeDetector({formats});const hits=await d.detect(source);if(hits.length)return {barcode:hits[0].rawValue,format:hits[0].format.replaceAll('_',' ').toUpperCase()}}}catch{}}if(window.ZXing){try{const canvas=source instanceof HTMLCanvasElement?source:(()=>{const c=document.createElement('canvas');c.width=source.naturalWidth;c.height=source.naturalHeight;c.getContext('2d').drawImage(source,0,0);return c})();const url=canvas.toDataURL('image/png'),r=new ZXing.BrowserMultiFormatReader(),result=await r.decodeFromImage(undefined,url);return {barcode:result.getText(),format:ZXing.BarcodeFormat[result.getBarcodeFormat()].replaceAll('_',' ')}}catch{}}return null}
-async function runOcrOnCanvas(canvas,rotation,status){if(!window.Tesseract)return {text:'',confidence:0,error:'Text recognition library is unavailable.'};try{const result=await Tesseract.recognize(canvas,'eng',{logger:m=>{if(m.status==='recognizing text')status.textContent='Reading label text ('+rotation+'°)… '+Math.round((m.progress||0)*100)+'%'}});return {text:result?.data?.text||'',confidence:Number(result?.data?.confidence||0)}}catch(e){return {text:'',confidence:0,error:e?.message||'Text recognition failed.'}}
-function cropElements(){return{stage:$('#crop-stage'),canvas:$('#crop-canvas'),selection:$('#crop-selection'),angle:$('#crop-angle')}}
-function rotatedDimensions(img,rotation){const swap=Math.abs(rotation%180)===90;return{w:swap?img.naturalHeight:img.naturalWidth,h:swap?img.naturalWidth:img.naturalHeight}}
-function renderCropEditor(){const {stage,canvas,selection,angle}=cropElements(),img=uploadImageState.image;if(!stage||!canvas||!selection||!img)return;const rect=stage.getBoundingClientRect(),dims=rotatedDimensions(img,uploadImageState.rotation),scale=Math.min(rect.width/dims.w,rect.height/dims.h);canvas.width=Math.max(1,Math.round(dims.w*scale));canvas.height=Math.max(1,Math.round(dims.h*scale));canvas.style.width=canvas.width+'px';canvas.style.height=canvas.height+'px';const ctx=canvas.getContext('2d');ctx.clearRect(0,0,canvas.width,canvas.height);ctx.save();ctx.translate(canvas.width/2,canvas.height/2);ctx.rotate(uploadImageState.rotation*Math.PI/180);ctx.drawImage(img,-img.naturalWidth*scale/2,-img.naturalHeight*scale/2,img.naturalWidth*scale,img.naturalHeight*scale);ctx.restore();stage.style.height=canvas.height+'px';selection.style.left=(uploadImageState.crop.x*canvas.width)+'px';selection.style.top=(uploadImageState.crop.y*canvas.height)+'px';selection.style.width=(uploadImageState.crop.w*canvas.width)+'px';selection.style.height=(uploadImageState.crop.h*canvas.height)+'px';angle.textContent=((uploadImageState.rotation%360)+360)%360+'°'}
-function resetCrop(){uploadImageState.crop={x:.08,y:.08,w:.84,h:.84};renderCropEditor()}
-function rotateCrop(delta){uploadImageState.rotation=(uploadImageState.rotation+delta+360)%360;resetCrop()}
-function croppedCanvas(){const {canvas}=cropElements();const c=uploadImageState.crop,out=document.createElement('canvas');const sx=Math.round(c.x*canvas.width),sy=Math.round(c.y*canvas.height),sw=Math.max(1,Math.round(c.w*canvas.width)),sh=Math.max(1,Math.round(c.h*canvas.height));out.width=sw;out.height=sh;out.getContext('2d').drawImage(canvas,sx,sy,sw,sh,0,0,sw,sh);return out}
-function bindCropInteractions(){const {stage,selection,canvas}=cropElements();if(!stage||stage.dataset.bound)return;stage.dataset.bound='1';const start=(e)=>{if(!uploadImageState.image)return;const point=e.touches?.[0]||e,rect=canvas.getBoundingClientRect(),handle=e.target?.dataset?.handle||'move';uploadImageState.drag={handle,startX:point.clientX,startY:point.clientY,start:{...uploadImageState.crop},rect};e.preventDefault()};const move=(e)=>{const d=uploadImageState.drag;if(!d)return;const point=e.touches?.[0]||e,dx=(point.clientX-d.startX)/d.rect.width,dy=(point.clientY-d.startY)/d.rect.height,min=.08;let{x,y,w,h}=d.start;if(d.handle==='move'){x=Math.min(1-w,Math.max(0,x+dx));y=Math.min(1-h,Math.max(0,y+dy))}else{if(d.handle.includes('e'))w=Math.max(min,Math.min(1-x,w+dx));if(d.handle.includes('s'))h=Math.max(min,Math.min(1-y,h+dy));if(d.handle.includes('w')){const nx=Math.min(x+w-min,Math.max(0,x+dx));w=w+(x-nx);x=nx}if(d.handle.includes('n')){const ny=Math.min(y+h-min,Math.max(0,y+dy));h=h+(y-ny);y=ny}}uploadImageState.crop={x,y,w,h};renderCropEditor();e.preventDefault()};const end=()=>uploadImageState.drag=null;selection.addEventListener('pointerdown',start);selection.addEventListener('touchstart',start,{passive:false});window.addEventListener('pointermove',move,{passive:false});window.addEventListener('touchmove',move,{passive:false});window.addEventListener('pointerup',end);window.addEventListener('touchend',end)}
-async function analyzeCroppedArea(){const status=$('#upload-analysis-status');if(!uploadImageState.image){notify('Upload an image first.');return}status.textContent='Analyzing selected area…';const canvas=croppedCanvas();await analyzeCanvasForIdentifiers(canvas,true)}
-async function analyzeCanvasForIdentifiers(canvas,fromCrop=false){const status=$('#upload-analysis-status'),results=$('#upload-analysis-results'),use=$('#upload-use-result'),candidate=$('#upload-identifier-candidate'),barcodeBox=$('#upload-barcode-result'),textBox=$('#upload-text-result');results.hidden=true;use.disabled=true;let bestBarcode=null,bestOcr={text:'',confidence:0,rotation:0,ids:{candidates:[]},score:-Infinity},strongIdentifier=null;const rotations=fromCrop?[0]:[0,90,270,180];for(const rotation of rotations){status.textContent='Analyzing '+rotation+'° orientation…';const source=rotation?makeRotatedCanvas(canvas,rotation):canvas;if(!bestBarcode){try{bestBarcode=await decodeUploadedBarcode(source)}catch{}}const ocr=await runOcrOnCanvas(source,rotation,status),ids=extractIdentifierCandidates(ocr.text),top=ids.candidates[0],semanticBoost=(ids.serviceTag?80:0)+(ids.serialNumber?70:0),score=(top?.score||0)+semanticBoost+(ocr.confidence||0)*.15;if(score>bestOcr.score)bestOcr={rotation,text:ocr.text,confidence:ocr.confidence,ids,score,error:ocr.error||''};if(ids.serviceTag||ids.serialNumber){strongIdentifier=ids.serviceTag||ids.serialNumber;break}}const ids=bestOcr.ids||{candidates:[]},topText=strongIdentifier||ids.serviceTag||ids.serialNumber||ids.candidates?.[0]?.value||'',barcodeValue=normalizeIdentifier(bestBarcode?.barcode||''),best=topText||barcodeValue,conflict=!!(topText&&barcodeValue&&topText!==barcodeValue);candidate.value=best;barcodeBox.innerHTML=bestBarcode?'<div class="analysis-item success"><strong>Barcode detected</strong><span>'+esc(bestBarcode.barcode)+'</span><small>'+esc(bestBarcode.format)+'</small></div>':'<div class="analysis-item warning"><strong>No reliable barcode detected</strong><span>The text reader will be used to find a serial number or service tag.</span></div>';const candidateLines=[];if(ids.serviceTag)candidateLines.push('<div><strong>Service Tag:</strong> '+esc(ids.serviceTag)+'</div>');if(ids.serialNumber)candidateLines.push('<div><strong>Serial Number:</strong> '+esc(ids.serialNumber)+'</div>');if(!ids.serviceTag&&!ids.serialNumber&&ids.candidates?.[0])candidateLines.push('<div><strong>Possible identifier:</strong> '+esc(ids.candidates[0].value)+'</div>');textBox.innerHTML='<div class="analysis-item '+(topText?'success':'warning')+'"><strong>Visible text analysis</strong>'+(candidateLines.join('')||'<span>No clear serial/service-tag pattern was confidently identified.</span>')+'<small>'+(fromCrop?'Selected crop':'Best orientation: '+bestOcr.rotation+'°')+' · OCR confidence: '+Math.round(Number(bestOcr.confidence||0))+'%</small>'+(conflict?'<div class="analysis-conflict"><strong>Barcode/text mismatch</strong><span>The barcode value and visible serial/service-tag text do not match. Verify the label before saving.</span></div>':'')+(bestOcr.text?'<details><summary>Show recognized text</summary><pre>'+esc(bestOcr.text)+'</pre></details>':'')+'</div>';results.dataset.barcode=bestBarcode?.barcode||'';results.dataset.format=topText?'Image OCR / Label Text':bestBarcode?.format||'Image / OCR';results.dataset.ocrText=bestOcr.text||'';results.dataset.serviceTag=ids.serviceTag||'';results.dataset.serialNumber=ids.serialNumber||'';results.hidden=false;use.disabled=!best;status.textContent=best?'Identifier candidate found. Review it before saving.':'No reliable identifier was found. Adjust the crop or enter the value manually.'}
-async function analyzeUploadedLabel(file){const status=$('#upload-analysis-status'),results=$('#upload-analysis-results'),use=$('#upload-use-result'),img=$('#upload-scan-preview');status.textContent='Loading image…';results.hidden=true;use.disabled=true;const url=URL.createObjectURL(file);img.src=url;$('#upload-preview-wrap').hidden=false;await new Promise((resolve,reject)=>{img.onload=resolve;img.onerror=reject});uploadImageState={image:img,rotation:0,crop:{x:.08,y:.08,w:.84,h:.84},drag:null};bindCropInteractions();renderCropEditor();URL.revokeObjectURL(url);status.textContent='Adjust the crop around the serial number, service tag, or barcode, then tap Analyze Selected Area.'}
+
+function normalizeIdentifier(value){
+  return String(value||'').toUpperCase().replace(/[^A-Z0-9-]/g,'').replace(/^-+|-+$/g,'');
+}
+function extractIdentifierCandidates(text){
+  const clean=String(text||'').replace(/\r/g,'\n').replace(/[|]/g,'I');
+  const rules=[
+    {key:'serviceTag',weight:120,re:/(?:service\s*tag|svc\s*tag|tag\s*\/\s*sn|tag\s*[-:]?\s*s\/n|tag\s*sn)\s*[:#-]?\s*([A-Z0-9-]{5,24})/i},
+    {key:'serialNumber',weight:110,re:/(?:serial(?:\s*number|\s*no\.?|\s*#)?|s\s*\/\s*n|\bsn\b)\s*[:#-]?\s*([A-Z0-9-]{5,32})/i}
+  ];
+  const out={candidates:[]};
+  for(const rule of rules){
+    const m=clean.match(rule.re);
+    if(!m)continue;
+    const value=normalizeIdentifier(m[1]);
+    if(value.length<5)continue;
+    out[rule.key]=value;
+    out.candidates.push({value,type:rule.key,score:rule.weight});
+  }
+  const tokens=(clean.toUpperCase().match(/[A-Z0-9-]{5,20}/g)||[])
+    .map(normalizeIdentifier)
+    .filter(v=>/[A-Z]/.test(v)&&/\d/.test(v));
+  for(const value of tokens){
+    if(out.candidates.some(c=>c.value===value))continue;
+    let score=20;
+    if(value.length>=6&&value.length<=10)score+=12;
+    if(/^[A-Z0-9]{7}$/.test(value))score+=8;
+    out.candidates.push({value,type:'token',score});
+  }
+  out.candidates.sort((a,b)=>b.score-a.score);
+  return out;
+}
+function sourceDimensions(source){
+  return {width:source.naturalWidth||source.videoWidth||source.width||1,height:source.naturalHeight||source.videoHeight||source.height||1};
+}
+function makeRotatedCanvas(source,degrees){
+  const dims=sourceDimensions(source),swap=Math.abs(degrees%180)===90;
+  const canvas=document.createElement('canvas');
+  canvas.width=swap?dims.height:dims.width;
+  canvas.height=swap?dims.width:dims.height;
+  const ctx=canvas.getContext('2d',{willReadFrequently:true});
+  ctx.translate(canvas.width/2,canvas.height/2);
+  ctx.rotate(degrees*Math.PI/180);
+  ctx.drawImage(source,-dims.width/2,-dims.height/2,dims.width,dims.height);
+  ctx.setTransform(1,0,0,1,0,0);
+  const data=ctx.getImageData(0,0,canvas.width,canvas.height),p=data.data;
+  for(let i=0;i<p.length;i+=4){
+    const gray=.299*p[i]+.587*p[i+1]+.114*p[i+2];
+    const boosted=gray<128?Math.max(0,gray*.72):Math.min(255,128+(gray-128)*1.35);
+    p[i]=boosted;p[i+1]=boosted;p[i+2]=boosted;
+  }
+  ctx.putImageData(data,0,0);
+  return canvas;
+}
+async function decodeUploadedBarcode(source){
+  if('BarcodeDetector' in window){
+    try{
+      const supported=await BarcodeDetector.getSupportedFormats();
+      const formats=nativeFormats.filter(x=>supported.includes(x));
+      if(formats.length){
+        const detector=new BarcodeDetector({formats});
+        const hits=await detector.detect(source);
+        if(hits.length)return {barcode:hits[0].rawValue,format:hits[0].format.replaceAll('_',' ').toUpperCase()};
+      }
+    }catch{}
+  }
+  if(window.ZXing){
+    try{
+      const canvas=source instanceof HTMLCanvasElement?source:makeRotatedCanvas(source,0);
+      const result=await new ZXing.BrowserMultiFormatReader().decodeFromImage(undefined,canvas.toDataURL('image/png'));
+      return {barcode:result.getText(),format:ZXing.BarcodeFormat[result.getBarcodeFormat()].replaceAll('_',' ')};
+    }catch{}
+  }
+  return null;
+}
+async function runOcrOnCanvas(canvas,rotation,status){
+  if(!window.Tesseract)return {text:'',confidence:0,error:'Text recognition library is unavailable.'};
+  try{
+    const result=await Tesseract.recognize(canvas,'eng',{
+      logger:m=>{
+        if(m.status==='recognizing text')status.textContent='Reading label text ('+rotation+'°)… '+Math.round((m.progress||0)*100)+'%';
+      }
+    });
+    return {text:result?.data?.text||'',confidence:Number(result?.data?.confidence||0)};
+  }catch(error){
+    return {text:'',confidence:0,error:error?.message||'Text recognition failed.'};
+  }
+}
+function cropElements(){
+  return {stage:$('#crop-stage'),canvas:$('#crop-canvas'),selection:$('#crop-selection'),angle:$('#crop-angle')};
+}
+function rotatedDimensions(img,rotation){
+  const dims=sourceDimensions(img),swap=Math.abs(rotation%180)===90;
+  return {w:swap?dims.height:dims.width,h:swap?dims.width:dims.height};
+}
+function renderCropEditor(){
+  const {stage,canvas,selection,angle}=cropElements(),img=uploadImageState.image;
+  if(!stage||!canvas||!selection||!img)return;
+  const rect=stage.getBoundingClientRect(),dims=rotatedDimensions(img,uploadImageState.rotation);
+  const scale=Math.min(Math.max(rect.width,1)/dims.w,560/dims.h,1);
+  canvas.width=Math.max(1,Math.round(dims.w*scale));
+  canvas.height=Math.max(1,Math.round(dims.h*scale));
+  canvas.style.width=canvas.width+'px';canvas.style.height=canvas.height+'px';
+  const ctx=canvas.getContext('2d');
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  ctx.save();
+  ctx.translate(canvas.width/2,canvas.height/2);
+  ctx.rotate(uploadImageState.rotation*Math.PI/180);
+  const original=sourceDimensions(img);
+  ctx.drawImage(img,-original.width*scale/2,-original.height*scale/2,original.width*scale,original.height*scale);
+  ctx.restore();
+  stage.style.height=canvas.height+'px';
+  const c=uploadImageState.crop;
+  selection.style.left=(c.x*canvas.width)+'px';
+  selection.style.top=(c.y*canvas.height)+'px';
+  selection.style.width=(c.w*canvas.width)+'px';
+  selection.style.height=(c.h*canvas.height)+'px';
+  angle.textContent=uploadImageState.rotation+'°';
+}
+function resetCrop(){uploadImageState.crop={x:.08,y:.08,w:.84,h:.84};renderCropEditor();}
+function rotateCrop(delta){uploadImageState.rotation=(uploadImageState.rotation+delta+360)%360;resetCrop();}
+function croppedCanvas(){
+  const {canvas}=cropElements(),c=uploadImageState.crop,out=document.createElement('canvas');
+  const sx=Math.round(c.x*canvas.width),sy=Math.round(c.y*canvas.height);
+  const sw=Math.max(1,Math.round(c.w*canvas.width)),sh=Math.max(1,Math.round(c.h*canvas.height));
+  out.width=sw;out.height=sh;
+  out.getContext('2d').drawImage(canvas,sx,sy,sw,sh,0,0,sw,sh);
+  return out;
+}
+function bindCropInteractions(){
+  const {stage,selection,canvas}=cropElements();
+  if(!stage||!selection||!canvas||stage.dataset.bound)return;
+  stage.dataset.bound='1';
+  const start=e=>{
+    if(!uploadImageState.image)return;
+    const point=e.touches?.[0]||e,rect=canvas.getBoundingClientRect();
+    uploadImageState.drag={handle:e.target?.dataset?.handle||'move',startX:point.clientX,startY:point.clientY,start:{...uploadImageState.crop},rect};
+    e.preventDefault();
+  };
+  const move=e=>{
+    const d=uploadImageState.drag;if(!d)return;
+    const point=e.touches?.[0]||e,dx=(point.clientX-d.startX)/d.rect.width,dy=(point.clientY-d.startY)/d.rect.height,min=.08;
+    let {x,y,w,h}=d.start;
+    if(d.handle==='move'){x=Math.min(1-w,Math.max(0,x+dx));y=Math.min(1-h,Math.max(0,y+dy));}
+    else{
+      if(d.handle.includes('e'))w=Math.max(min,Math.min(1-x,w+dx));
+      if(d.handle.includes('s'))h=Math.max(min,Math.min(1-y,h+dy));
+      if(d.handle.includes('w')){const nx=Math.min(x+w-min,Math.max(0,x+dx));w+=x-nx;x=nx;}
+      if(d.handle.includes('n')){const ny=Math.min(y+h-min,Math.max(0,y+dy));h+=y-ny;y=ny;}
+    }
+    uploadImageState.crop={x,y,w,h};renderCropEditor();e.preventDefault();
+  };
+  const end=()=>{uploadImageState.drag=null;};
+  selection.addEventListener('pointerdown',start);
+  selection.addEventListener('touchstart',start,{passive:false});
+  window.addEventListener('pointermove',move,{passive:false});
+  window.addEventListener('touchmove',move,{passive:false});
+  window.addEventListener('pointerup',end);
+  window.addEventListener('touchend',end);
+}
+async function analyzeCanvasForIdentifiers(canvas,fromCrop=false){
+  const status=$('#upload-analysis-status'),results=$('#upload-analysis-results'),use=$('#upload-use-result');
+  const candidate=$('#upload-identifier-candidate'),barcodeBox=$('#upload-barcode-result'),textBox=$('#upload-text-result');
+  results.hidden=true;use.disabled=true;
+  let bestBarcode=null,bestOcr={text:'',confidence:0,rotation:0,ids:{candidates:[]},score:-Infinity};
+  for(const rotation of (fromCrop?[0]:[0,90,270,180])){
+    status.textContent='Analyzing '+rotation+'° orientation…';
+    const source=rotation?makeRotatedCanvas(canvas,rotation):canvas;
+    if(!bestBarcode)bestBarcode=await decodeUploadedBarcode(source);
+    const ocr=await runOcrOnCanvas(source,rotation,status),ids=extractIdentifierCandidates(ocr.text),top=ids.candidates[0];
+    const score=(top?.score||0)+(ids.serviceTag?80:0)+(ids.serialNumber?70:0)+(ocr.confidence||0)*.15;
+    if(score>bestOcr.score)bestOcr={rotation,text:ocr.text,confidence:ocr.confidence,ids,score};
+    if(ids.serviceTag||ids.serialNumber)break;
+  }
+  const ids=bestOcr.ids||{candidates:[]},topText=ids.serviceTag||ids.serialNumber||ids.candidates?.[0]?.value||'';
+  const barcodeValue=normalizeIdentifier(bestBarcode?.barcode||''),best=topText||barcodeValue,conflict=!!(topText&&barcodeValue&&topText!==barcodeValue);
+  candidate.value=best;
+  barcodeBox.innerHTML=bestBarcode?'<div class="analysis-item success"><strong>Barcode detected</strong><span>'+esc(bestBarcode.barcode)+'</span><small>'+esc(bestBarcode.format)+'</small></div>':'<div class="analysis-item warning"><strong>No reliable barcode detected</strong><span>Visible text will be checked for a serial number or service tag.</span></div>';
+  const lines=[];
+  if(ids.serviceTag)lines.push('<div><strong>Service Tag:</strong> '+esc(ids.serviceTag)+'</div>');
+  if(ids.serialNumber)lines.push('<div><strong>Serial Number:</strong> '+esc(ids.serialNumber)+'</div>');
+  if(!lines.length&&ids.candidates?.[0])lines.push('<div><strong>Possible identifier:</strong> '+esc(ids.candidates[0].value)+'</div>');
+  textBox.innerHTML='<div class="analysis-item '+(topText?'success':'warning')+'"><strong>Visible text analysis</strong>'+(lines.join('')||'<span>No clear serial/service-tag pattern was identified.</span>')+'<small>'+(fromCrop?'Selected crop':'Best orientation: '+bestOcr.rotation+'°')+' · OCR confidence: '+Math.round(bestOcr.confidence||0)+'%</small>'+(conflict?'<div class="analysis-conflict"><strong>Barcode/text mismatch</strong><span>Verify the label before saving.</span></div>':'')+(bestOcr.text?'<details><summary>Show recognized text</summary><pre>'+esc(bestOcr.text)+'</pre></details>':'')+'</div>';
+  results.dataset.barcode=bestBarcode?.barcode||'';
+  results.dataset.format=topText?'Image OCR / Label Text':bestBarcode?.format||'Image / OCR';
+  results.dataset.ocrText=bestOcr.text||'';
+  results.dataset.serviceTag=ids.serviceTag||'';
+  results.dataset.serialNumber=ids.serialNumber||'';
+  results.hidden=false;use.disabled=!best;
+  status.textContent=best?'Identifier candidate found. Review it before saving.':'No reliable identifier was found. Adjust the crop or enter the value manually.';
+}
+async function analyzeCroppedArea(){
+  if(!uploadImageState.image){notify('Upload an image first.');return;}
+  $('#upload-analysis-status').textContent='Analyzing selected area…';
+  await analyzeCanvasForIdentifiers(croppedCanvas(),true);
+}
+async function analyzeUploadedLabel(file){
+  const status=$('#upload-analysis-status'),results=$('#upload-analysis-results'),use=$('#upload-use-result'),img=$('#upload-scan-preview');
+  status.textContent='Loading image…';results.hidden=true;use.disabled=true;
+  const url=URL.createObjectURL(file);img.src=url;$('#upload-preview-wrap').hidden=false;
+  await new Promise((resolve,reject)=>{img.onload=resolve;img.onerror=reject;});
+  uploadImageState={image:img,rotation:0,crop:{x:.08,y:.08,w:.84,h:.84},drag:null};
+  bindCropInteractions();renderCropEditor();URL.revokeObjectURL(url);
+  status.textContent='Adjust the crop around the serial number, service tag, or barcode, then tap Analyze Selected Area.';
+}
 function details(barcode){editingBarcode=barcode;const item=inventory.find(i=>i.barcode===barcode)||{barcode,quantity:1};$('#details-fields').innerHTML=fields.map(([key,label])=>`<label class="${['description','notes'].includes(key)?'wide':''}">${label}${['description','notes'].includes(key)?`<textarea name="${key}" rows="2" maxlength="4096">${esc(item[key]||'')}</textarea>`:`<input name="${key}" value="${esc(item[key]??'')}" ${key==='barcode'?'readonly required':''} ${key==='quantity'?'type="number" min="0" step="1" required':'maxlength="4096"'}>`}</label>`).join('');$('#details-dialog').showModal()}
 async function copy(value){try{await navigator.clipboard.writeText(value);notify('Barcode copied.')}catch{const input=document.createElement('textarea');input.value=value;document.body.append(input);input.select();let ok=false;try{ok=document.execCommand('copy')}catch{}input.remove();notify(ok?'Barcode copied.':'Copy is unavailable. Select the barcode text and copy it manually.')}}
 function csvCell(value){const s=String(value??'');return '"'+(/^[=+\-@\t\r]/.test(s)?"'"+s:s).replaceAll('"','""')+'"'}
