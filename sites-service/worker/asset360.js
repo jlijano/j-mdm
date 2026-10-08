@@ -1,5 +1,6 @@
 import {rows,one,query,insert,audit,allowed,enterprise,visibleAsset,fail} from './data.js';
 import {now,digest,random} from './security.js';
+import {assetCompleteness} from './asset360-completeness.js';
 
 const DOC_TYPES=new Set(['ASSET_PHOTO','BARCODE_PHOTO','ASSET_TAG_PHOTO','SERIAL_LABEL_PHOTO','MANUFACTURER_LABEL_PHOTO','RECEIVING_PHOTO','DAMAGE_PHOTO','INVENTORY_PHOTO','TRANSFER_PHOTO','RETURN_PHOTO','DISPOSAL_PHOTO','PURCHASE_REQUEST','QUOTATION','PURCHASE_ORDER','DELIVERY_RECEIPT','INVOICE','ASSIGNMENT_FORM','RETURN_FORM','TRANSFER_FORM','GATE_PASS','WARRANTY_DOCUMENT','REPAIR_QUOTATION','REPAIR_INVOICE','REPAIR_REPORT','DATA_WIPE_CERTIFICATE','DISPOSAL_CERTIFICATE','OTHER']);
 const PHOTO_TYPES=new Set(['FRONT','BACK','LEFT','RIGHT','TOP','BOTTOM','SERIAL_LABEL','MANUFACTURER_LABEL','BARCODE','ASSET_TAG','PACKAGING','RECEIVING','ASSIGNMENT','RETURN','DAMAGE','REPAIR_BEFORE','REPAIR_AFTER','INVENTORY','TRANSFER','DISPOSAL','OTHER']);
@@ -121,7 +122,7 @@ export async function asset360API(req,db,u,path,d,env){
  }
  const m=/^\/api\/assets\/(\d+)\/360(?:\/([a-z-]+))?$/.exec(path);if(!m)fail('Not found.',404);const id=Number(m[1]);if(!allowed(u,'assets'))fail('Asset access is required.',403);await visibleAsset(db,u,id,req.method!=='GET');
  const part=m[2];
- if(!part&&req.method==='GET'){const a=await base(db,u,id),current=await assignment(db,id);return{asset:a,current_assignment:current,permissions:{finance:allowed(u,'finance'),procurement:allowed(u,'procurement'),files:allowed(u,'files'),audit:allowed(u,'audit'),manage_evidence:allowed(u,'files',true)},completeness:null};}
+ if(!part&&req.method==='GET'){const a=await base(db,u,id),current=await assignment(db,id);return{asset:a,current_assignment:current,permissions:{finance:allowed(u,'finance'),procurement:allowed(u,'procurement'),files:allowed(u,'files'),audit:allowed(u,'audit'),manage_evidence:allowed(u,'files',true)},completeness:await assetCompleteness(db,id,allowed(u,'finance'))};}
  if(part==='timeline'&&req.method==='GET')return timeline(db,u,id);
  if(part==='evidence'&&req.method==='POST')return upload(req,db,u,id,d,env);
  if(part==='condition'&&req.method==='POST'){
