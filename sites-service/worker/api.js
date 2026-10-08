@@ -36,7 +36,8 @@ export async function recordAPI(req,db,u,table,key,input){
  if(req.method==='GET'){
   let where='1=1',args=[];const s=scopeSQL(u,false,table==='assets'?'t':'a');if(table==='assets'){where=s.sql;args=s.args;}else if(assetLinked){where=`t.asset_id IN (SELECT a.asset_id FROM assets a WHERE ${s.sql})`;args=s.args;}
   if(key){const ids=key.split(',');if(ids.length!==pk(table).length)fail('Invalid record ID.');where+=' AND '+pk(table).map(c=>`t."${c}"=?`).join(' AND ');args.push(...ids);}
-  const url=new URL(req.url),search=(url.searchParams.get('q')||'').slice(0,100),limit=Math.min(500,Math.max(1,Number(url.searchParams.get('limit'))||100));
+  const url=new URL(req.url),search=(url.searchParams.get('q')||'').slice(0,100),limit=Math.min(500,Math.max(1,Number(url.searchParams.get('limit'))||100)),assetId=url.searchParams.get('asset_id');
+  if(assetId&&assetLinked){if(!/^\d+$/.test(assetId))fail('Invalid asset filter.');where+=' AND t.asset_id=?';args.push(Number(assetId));}
   if(search){const cols=metadata[table].filter(c=>c.type.startsWith('VARCHAR')&&c.name!=='password_hash');where+=' AND ('+cols.map(c=>`t."${c.name}" LIKE ?`).join(' OR ')+')';args.push(...cols.map(()=>`%${search}%`));}
   const projection=metadata[table].filter(c=>c.name!=='password_hash').map(c=>`t."${c.name}"`).join(',');const result=await rows(db,`SELECT ${projection} FROM "${table}" t WHERE ${where} ORDER BY t."${pk(table)[0]}" DESC LIMIT ?`,...args,limit);if(table==='files'&&!enterprise(u))fail('Use an asset evidence link within your scope.',403);if(table==='asset_files'&&!allowed(u,'finance'))return{rows:result.filter(r=>!['INVOICE','PO'].includes(r.document_type))};if(table==='asset_repairs'&&!allowed(u,'finance'))for(const r of result){delete r.repair_cost;}return{rows:result};
  }
