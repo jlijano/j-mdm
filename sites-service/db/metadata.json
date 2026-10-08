@@ -3558,6 +3558,147 @@
       "key": "",
       "null": "YES",
       "description": "Description."
+    },
+    {
+      "name": "evidence_type",
+      "type": "VARCHAR(50)",
+      "null": "YES",
+      "key": "",
+      "default": null,
+      "extra": "",
+      "description": "",
+      "references": null
+    },
+    {
+      "name": "caption",
+      "type": "VARCHAR(500)",
+      "null": "YES",
+      "key": "",
+      "default": null,
+      "extra": "",
+      "description": "",
+      "references": null
+    },
+    {
+      "name": "condition_id",
+      "type": "INT",
+      "null": "YES",
+      "key": "",
+      "default": null,
+      "extra": "",
+      "description": "",
+      "references": [
+        "asset_conditions",
+        "condition_id"
+      ]
+    },
+    {
+      "name": "lifecycle_stage",
+      "type": "VARCHAR(50)",
+      "null": "YES",
+      "key": "",
+      "default": null,
+      "extra": "",
+      "description": "",
+      "references": null
+    },
+    {
+      "name": "captured_at",
+      "type": "DATETIME",
+      "null": "YES",
+      "key": "",
+      "default": null,
+      "extra": "",
+      "description": "",
+      "references": null
+    },
+    {
+      "name": "location_id",
+      "type": "INT",
+      "null": "YES",
+      "key": "",
+      "default": null,
+      "extra": "",
+      "description": "",
+      "references": [
+        "locations",
+        "location_id"
+      ]
+    },
+    {
+      "name": "related_assignment_id",
+      "type": "INT",
+      "null": "YES",
+      "key": "",
+      "default": null,
+      "extra": "",
+      "description": "",
+      "references": [
+        "asset_assignments",
+        "assignment_id"
+      ]
+    },
+    {
+      "name": "related_repair_id",
+      "type": "INT",
+      "null": "YES",
+      "key": "",
+      "default": null,
+      "extra": "",
+      "description": "",
+      "references": [
+        "asset_repairs",
+        "repair_id"
+      ]
+    },
+    {
+      "name": "related_inventory_session_id",
+      "type": "INT",
+      "null": "YES",
+      "key": "",
+      "default": null,
+      "extra": "",
+      "description": "",
+      "references": [
+        "inventory_sessions",
+        "inventory_session_id"
+      ]
+    },
+    {
+      "name": "related_movement_id",
+      "type": "INT",
+      "null": "YES",
+      "key": "",
+      "default": null,
+      "extra": "",
+      "description": "",
+      "references": [
+        "asset_movements",
+        "movement_id"
+      ]
+    },
+    {
+      "name": "related_disposal_id",
+      "type": "INT",
+      "null": "YES",
+      "key": "",
+      "default": null,
+      "extra": "",
+      "description": "",
+      "references": [
+        "asset_disposals",
+        "disposal_id"
+      ]
+    },
+    {
+      "name": "evidence_status",
+      "type": "VARCHAR(50)",
+      "null": "NO",
+      "key": "",
+      "default": null,
+      "extra": "",
+      "description": "",
+      "references": null
     }
   ],
   "notifications": [
@@ -3765,6 +3906,773 @@
       "key": "",
       "null": "NO",
       "description": "Expiry"
+    }
+  ],
+  "delivery_receipts": [
+    {
+      "name": "delivery_receipt_id",
+      "type": "INT",
+      "null": "NO",
+      "key": "PRI",
+      "default": null,
+      "extra": "",
+      "description": "",
+      "references": null
+    },
+    {
+      "name": "dr_number",
+      "type": "VARCHAR(255)",
+      "null": "NO",
+      "key": "",
+      "default": null,
+      "extra": "",
+      "description": "",
+      "references": null
+    },
+    {
+      "name": "vendor_id",
+      "type": "INT",
+      "null": "NO",
+      "key": "",
+      "default": null,
+      "extra": "",
+      "description": "",
+      "references": [
+        "vendors",
+        "vendor_id"
+      ]
+    },
+    {
+      "name": "purchase_order_id",
+      "type": "INT",
+      "null": "YES",
+      "key": "",
+      "default": null,
+      "extra": "",
+      "description": "",
+      "references": [
+        "purchase_orders",
+        "purchase_order_id"
+      ]
+    },
+    {
+      "name": "delivery_date",
+      "type": "DATE",
+      "null": "YES",
+      "key": "",
+      "default": null,
+      "extra": "",
+      "description": "",
+      "references": null
+    },
+    {
+      "name": "received_date",
+      "type": "DATE",
+      "null": "YES",
+      "key": "",
+      "default": null,
+      "extra": "",
+      "description": "",
+      "references": null
+    },
+    {
+      "name": "received_by",
+      "type": "INT",
+      "null": "YES",
+      "key": "",
+      "default": null,
+      "extra": "",
+      "description": "",
+      "references": [
+        "users",
+        "user_id"
+      ]
+    },
+    {
+      "name": "receiving_location_id",
+      "type": "INT",
+      "null": "YES",
+      "key": "",
+      "default": null,
+      "extra": "",
+      "description": "",
+      "references": [
+        "locations",
+        "location_id"
+      ]
+    },
+    {
+      "name": "delivery_status",
+      "type": "VARCHAR(50)",
+      "null": "NO",
+      "key": "",
+      "default": null,
+      "extra": "",
+      "description": "",
+      "references": null
+    },
+    {
+      "name": "notes",
+      "type": "TEXT",
+      "null": "YES",
+      "key": "",
+      "default": null,
+      "extra": "",
+      "description": "",
+      "references": null
+    },
+    {
+      "name": "file_id",
+      "type": "INT",
+      "null": "YES",
+      "key": "",
+      "default": null,
+      "extra": "",
+      "description": "",
+      "references": [
+        "files",
+        "file_id"
+      ]
+    },
+    {
+      "name": "created_at",
+      "type": "DATETIME",
+      "null": "NO",
+      "key": "",
+      "default": null,
+      "extra": "",
+      "description": "",
+      "references": null
+    },
+    {
+      "name": "created_by",
+      "type": "INT",
+      "null": "NO",
+      "key": "",
+      "default": null,
+      "extra": "",
+      "description": "",
+      "references": [
+        "users",
+        "user_id"
+      ]
+    },
+    {
+      "name": "updated_at",
+      "type": "DATETIME",
+      "null": "NO",
+      "key": "",
+      "default": null,
+      "extra": "",
+      "description": "",
+      "references": null
+    },
+    {
+      "name": "updated_by",
+      "type": "INT",
+      "null": "NO",
+      "key": "",
+      "default": null,
+      "extra": "",
+      "description": "",
+      "references": [
+        "users",
+        "user_id"
+      ]
+    }
+  ],
+  "delivery_receipt_lines": [
+    {
+      "name": "delivery_receipt_line_id",
+      "type": "INT",
+      "null": "NO",
+      "key": "PRI",
+      "default": null,
+      "extra": "",
+      "description": "",
+      "references": null
+    },
+    {
+      "name": "delivery_receipt_id",
+      "type": "INT",
+      "null": "NO",
+      "key": "",
+      "default": null,
+      "extra": "",
+      "description": "",
+      "references": [
+        "delivery_receipts",
+        "delivery_receipt_id"
+      ]
+    },
+    {
+      "name": "purchase_order_item_id",
+      "type": "INT",
+      "null": "YES",
+      "key": "",
+      "default": null,
+      "extra": "",
+      "description": "",
+      "references": [
+        "purchase_order_items",
+        "purchase_order_item_id"
+      ]
+    },
+    {
+      "name": "asset_id",
+      "type": "INT",
+      "null": "YES",
+      "key": "",
+      "default": null,
+      "extra": "",
+      "description": "",
+      "references": [
+        "assets",
+        "asset_id"
+      ]
+    },
+    {
+      "name": "description",
+      "type": "TEXT",
+      "null": "YES",
+      "key": "",
+      "default": null,
+      "extra": "",
+      "description": "",
+      "references": null
+    },
+    {
+      "name": "quantity_delivered",
+      "type": "DECIMAL(18,4)",
+      "null": "NO",
+      "key": "",
+      "default": null,
+      "extra": "",
+      "description": "",
+      "references": null
+    },
+    {
+      "name": "serial_number",
+      "type": "VARCHAR(255)",
+      "null": "YES",
+      "key": "",
+      "default": null,
+      "extra": "",
+      "description": "",
+      "references": null
+    },
+    {
+      "name": "notes",
+      "type": "TEXT",
+      "null": "YES",
+      "key": "",
+      "default": null,
+      "extra": "",
+      "description": "",
+      "references": null
+    }
+  ],
+  "asset_condition_history": [
+    {
+      "name": "condition_history_id",
+      "type": "INT",
+      "null": "NO",
+      "key": "PRI",
+      "default": null,
+      "extra": "",
+      "description": "",
+      "references": null
+    },
+    {
+      "name": "asset_id",
+      "type": "INT",
+      "null": "NO",
+      "key": "",
+      "default": null,
+      "extra": "",
+      "description": "",
+      "references": [
+        "assets",
+        "asset_id"
+      ]
+    },
+    {
+      "name": "inspection_date",
+      "type": "DATETIME",
+      "null": "NO",
+      "key": "",
+      "default": null,
+      "extra": "",
+      "description": "",
+      "references": null
+    },
+    {
+      "name": "condition_id",
+      "type": "INT",
+      "null": "NO",
+      "key": "",
+      "default": null,
+      "extra": "",
+      "description": "",
+      "references": [
+        "asset_conditions",
+        "condition_id"
+      ]
+    },
+    {
+      "name": "cosmetic_condition",
+      "type": "TEXT",
+      "null": "YES",
+      "key": "",
+      "default": null,
+      "extra": "",
+      "description": "",
+      "references": null
+    },
+    {
+      "name": "functional_condition",
+      "type": "TEXT",
+      "null": "YES",
+      "key": "",
+      "default": null,
+      "extra": "",
+      "description": "",
+      "references": null
+    },
+    {
+      "name": "damage_description",
+      "type": "TEXT",
+      "null": "YES",
+      "key": "",
+      "default": null,
+      "extra": "",
+      "description": "",
+      "references": null
+    },
+    {
+      "name": "missing_components",
+      "type": "TEXT",
+      "null": "YES",
+      "key": "",
+      "default": null,
+      "extra": "",
+      "description": "",
+      "references": null
+    },
+    {
+      "name": "inspector_user_id",
+      "type": "INT",
+      "null": "YES",
+      "key": "",
+      "default": null,
+      "extra": "",
+      "description": "",
+      "references": [
+        "users",
+        "user_id"
+      ]
+    },
+    {
+      "name": "location_id",
+      "type": "INT",
+      "null": "YES",
+      "key": "",
+      "default": null,
+      "extra": "",
+      "description": "",
+      "references": [
+        "locations",
+        "location_id"
+      ]
+    },
+    {
+      "name": "event_type",
+      "type": "VARCHAR(50)",
+      "null": "YES",
+      "key": "",
+      "default": null,
+      "extra": "",
+      "description": "",
+      "references": null
+    },
+    {
+      "name": "notes",
+      "type": "TEXT",
+      "null": "YES",
+      "key": "",
+      "default": null,
+      "extra": "",
+      "description": "",
+      "references": null
+    },
+    {
+      "name": "created_at",
+      "type": "DATETIME",
+      "null": "NO",
+      "key": "",
+      "default": null,
+      "extra": "",
+      "description": "",
+      "references": null
+    }
+  ],
+  "barcode_history": [
+    {
+      "name": "barcode_history_id",
+      "type": "INT",
+      "null": "NO",
+      "key": "PRI",
+      "default": null,
+      "extra": "",
+      "description": "",
+      "references": null
+    },
+    {
+      "name": "asset_id",
+      "type": "INT",
+      "null": "NO",
+      "key": "",
+      "default": null,
+      "extra": "",
+      "description": "",
+      "references": [
+        "assets",
+        "asset_id"
+      ]
+    },
+    {
+      "name": "barcode_value",
+      "type": "VARCHAR(255)",
+      "null": "YES",
+      "key": "",
+      "default": null,
+      "extra": "",
+      "description": "",
+      "references": null
+    },
+    {
+      "name": "status",
+      "type": "VARCHAR(50)",
+      "null": "NO",
+      "key": "",
+      "default": null,
+      "extra": "",
+      "description": "",
+      "references": null
+    },
+    {
+      "name": "date_applied",
+      "type": "DATETIME",
+      "null": "NO",
+      "key": "",
+      "default": null,
+      "extra": "",
+      "description": "",
+      "references": null
+    },
+    {
+      "name": "date_replaced",
+      "type": "DATETIME",
+      "null": "YES",
+      "key": "",
+      "default": null,
+      "extra": "",
+      "description": "",
+      "references": null
+    },
+    {
+      "name": "replacement_reason",
+      "type": "TEXT",
+      "null": "YES",
+      "key": "",
+      "default": null,
+      "extra": "",
+      "description": "",
+      "references": null
+    },
+    {
+      "name": "replaced_by",
+      "type": "INT",
+      "null": "YES",
+      "key": "",
+      "default": null,
+      "extra": "",
+      "description": "",
+      "references": [
+        "users",
+        "user_id"
+      ]
+    },
+    {
+      "name": "previous_barcode",
+      "type": "VARCHAR(255)",
+      "null": "YES",
+      "key": "",
+      "default": null,
+      "extra": "",
+      "description": "",
+      "references": null
+    },
+    {
+      "name": "new_barcode",
+      "type": "VARCHAR(255)",
+      "null": "YES",
+      "key": "",
+      "default": null,
+      "extra": "",
+      "description": "",
+      "references": null
+    },
+    {
+      "name": "barcode_file_id",
+      "type": "INT",
+      "null": "YES",
+      "key": "",
+      "default": null,
+      "extra": "",
+      "description": "",
+      "references": [
+        "files",
+        "file_id"
+      ]
+    },
+    {
+      "name": "created_at",
+      "type": "DATETIME",
+      "null": "NO",
+      "key": "",
+      "default": null,
+      "extra": "",
+      "description": "",
+      "references": null
+    }
+  ],
+  "employee_files": [
+    {
+      "name": "employee_file_id",
+      "type": "INT",
+      "null": "NO",
+      "key": "PRI",
+      "default": null,
+      "extra": "",
+      "description": "",
+      "references": null
+    },
+    {
+      "name": "employee_id",
+      "type": "INT",
+      "null": "NO",
+      "key": "",
+      "default": null,
+      "extra": "",
+      "description": "",
+      "references": [
+        "employees",
+        "employee_id"
+      ]
+    },
+    {
+      "name": "file_id",
+      "type": "INT",
+      "null": "NO",
+      "key": "",
+      "default": null,
+      "extra": "",
+      "description": "",
+      "references": [
+        "files",
+        "file_id"
+      ]
+    },
+    {
+      "name": "document_type",
+      "type": "VARCHAR(50)",
+      "null": "NO",
+      "key": "",
+      "default": null,
+      "extra": "",
+      "description": "",
+      "references": null
+    },
+    {
+      "name": "description",
+      "type": "TEXT",
+      "null": "YES",
+      "key": "",
+      "default": null,
+      "extra": "",
+      "description": "",
+      "references": null
+    },
+    {
+      "name": "is_active",
+      "type": "BOOLEAN",
+      "null": "NO",
+      "key": "",
+      "default": null,
+      "extra": "",
+      "description": "",
+      "references": null
+    },
+    {
+      "name": "created_at",
+      "type": "DATETIME",
+      "null": "NO",
+      "key": "",
+      "default": null,
+      "extra": "",
+      "description": "",
+      "references": null
+    },
+    {
+      "name": "created_by",
+      "type": "INT",
+      "null": "NO",
+      "key": "",
+      "default": null,
+      "extra": "",
+      "description": "",
+      "references": [
+        "users",
+        "user_id"
+      ]
+    }
+  ],
+  "receiving_discrepancies": [
+    {
+      "name": "discrepancy_id",
+      "type": "INT",
+      "null": "NO",
+      "key": "PRI",
+      "default": null,
+      "extra": "",
+      "description": "",
+      "references": null
+    },
+    {
+      "name": "delivery_receipt_id",
+      "type": "INT",
+      "null": "YES",
+      "key": "",
+      "default": null,
+      "extra": "",
+      "description": "",
+      "references": [
+        "delivery_receipts",
+        "delivery_receipt_id"
+      ]
+    },
+    {
+      "name": "asset_id",
+      "type": "INT",
+      "null": "YES",
+      "key": "",
+      "default": null,
+      "extra": "",
+      "description": "",
+      "references": [
+        "assets",
+        "asset_id"
+      ]
+    },
+    {
+      "name": "discrepancy_type",
+      "type": "VARCHAR(50)",
+      "null": "NO",
+      "key": "",
+      "default": null,
+      "extra": "",
+      "description": "",
+      "references": null
+    },
+    {
+      "name": "notes",
+      "type": "TEXT",
+      "null": "YES",
+      "key": "",
+      "default": null,
+      "extra": "",
+      "description": "",
+      "references": null
+    },
+    {
+      "name": "responsible_vendor_id",
+      "type": "INT",
+      "null": "YES",
+      "key": "",
+      "default": null,
+      "extra": "",
+      "description": "",
+      "references": [
+        "vendors",
+        "vendor_id"
+      ]
+    },
+    {
+      "name": "resolution_status",
+      "type": "VARCHAR(50)",
+      "null": "NO",
+      "key": "",
+      "default": null,
+      "extra": "",
+      "description": "",
+      "references": null
+    },
+    {
+      "name": "resolution_notes",
+      "type": "TEXT",
+      "null": "YES",
+      "key": "",
+      "default": null,
+      "extra": "",
+      "description": "",
+      "references": null
+    },
+    {
+      "name": "created_at",
+      "type": "DATETIME",
+      "null": "NO",
+      "key": "",
+      "default": null,
+      "extra": "",
+      "description": "",
+      "references": null
+    },
+    {
+      "name": "created_by",
+      "type": "INT",
+      "null": "NO",
+      "key": "",
+      "default": null,
+      "extra": "",
+      "description": "",
+      "references": [
+        "users",
+        "user_id"
+      ]
+    },
+    {
+      "name": "resolved_at",
+      "type": "DATETIME",
+      "null": "YES",
+      "key": "",
+      "default": null,
+      "extra": "",
+      "description": "",
+      "references": null
+    },
+    {
+      "name": "resolved_by",
+      "type": "INT",
+      "null": "YES",
+      "key": "",
+      "default": null,
+      "extra": "",
+      "description": "",
+      "references": [
+        "users",
+        "user_id"
+      ]
     }
   ]
 }
