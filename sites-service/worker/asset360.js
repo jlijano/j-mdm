@@ -62,7 +62,9 @@ async function section(db,u,id,name){
   const invoice=fin?.invoice_id?await one(db,`SELECT i.*,v.vendor_name FROM invoices i LEFT JOIN vendors v ON v.vendor_id=i.vendor_id WHERE i.invoice_id=?`,fin.invoice_id):null;
   const dr=await one(db,`SELECT dr.*,v.vendor_name,l.location_name FROM delivery_receipt_lines dl JOIN delivery_receipts dr ON dr.delivery_receipt_id=dl.delivery_receipt_id LEFT JOIN vendors v ON v.vendor_id=dr.vendor_id LEFT JOIN locations l ON l.location_id=dr.receiving_location_id WHERE dl.asset_id=? ORDER BY dr.delivery_receipt_id DESC LIMIT 1`,id);
   if(!finance){if(po){delete po.total_amount;}if(invoice){delete invoice.amount;}}
-  return{purchase_order:po,delivery_receipt:dr,invoice:invoice,reconciliation:{po_found:!!po,dr_found:!!dr,invoice_found:!!invoice,serial_recorded:!!(await one(db,'SELECT serial_number FROM assets WHERE asset_id=? AND serial_number IS NOT NULL',id)),cost_matched:null}};
+  const comparable=!!(po&&invoice&&po.total_amount!=null&&invoice.amount!=null&&po.currency_code&&invoice.currency_code&&po.currency_code===invoice.currency_code);
+  const costMatched=comparable&&Number.isFinite(Number(po.total_amount))&&Number.isFinite(Number(invoice.amount))?Math.abs(Number(po.total_amount)-Number(invoice.amount))<0.005:null;
+  return{purchase_order:po,delivery_receipt:dr,invoice:invoice,reconciliation:{po_found:!!po,dr_found:!!dr,invoice_found:!!invoice,serial_recorded:!!(await one(db,'SELECT serial_number FROM assets WHERE asset_id=? AND serial_number IS NOT NULL',id)),cost_matched:finance?costMatched:null}};
  }
  const map={warranty:['asset_warranties','warranty_id'],inventory:['inventory_scan_results','scanned_at'],movements:['asset_movements','movement_date'],condition:['asset_condition_history','inspection_date'],repairs:['asset_repairs','opened_at'],lifecycle:['asset_lifecycle','updated_at'],refresh:['asset_refreshes','recommended_date'],security:['gate_pass_assets','gate_pass_id'],scans:['barcode_scan_logs','scan_timestamp'],barcodes:['barcode_history','date_applied'],disposal:['asset_disposals','disposal_id']};
  if(map[name]){
