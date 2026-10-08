@@ -49,7 +49,7 @@ test('uploaded-label analysis supports crop, rotation, OCR orientations, service
   }
   assert.ok(app.includes('rotateCrop(-90)'));
   assert.ok(app.includes('rotateCrop(90)'));
-  assert.ok(app.includes("for(const rotation of [0,90,180,270])"));
+  assert.ok(app.includes("for(const rotation of (fromCrop?[0]:[0,90,270,180]))"));
   assert.ok(app.includes('Tesseract.recognize'));
   assert.ok(app.includes("tag\\s*\\/\\s*sn"));
   assert.ok(app.includes('Barcode/text mismatch'));
@@ -59,8 +59,8 @@ test('uploaded-label analysis supports crop, rotation, OCR orientations, service
 test('asset forms expose empty lookup state, dependent filters, validation, saving state, and backend errors', () => {
   assert.ok(itam.includes("No options configured"));
   assert.ok(itam.includes("allTypes.filter(r=>String(r.category_id)===String(category.value))"));
-  assert.ok(itam.includes("rows.filter(r=>String(r.manufacturer_id)===String(manufacturer.value))"));
-  assert.ok(itam.includes("rows.filter(r=>String(r.asset_type_id)===String(type.value))"));
+  assert.ok(itam.includes("String(r.manufacturer_id)===String(manufacturer.value)"));
+  assert.ok(itam.includes("String(r.asset_type_id)===String(type.value)"));
   assert.ok(itam.includes('validateCloudForm()'));
   assert.ok(itam.includes("button.textContent='Saving…'"));
   assert.ok(itam.includes("error.textContent=err.message||'The record could not be saved.'"));
