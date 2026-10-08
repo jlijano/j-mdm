@@ -1,0 +1,13 @@
+// Presentation-only vocabulary. Database/API keys remain unchanged.
+(function(root) {
+  const names = {manufacturer_id:'Manufacturer',model_id:'Model',category_id:'Category',asset_type_id:'Asset Type',asset_class_id:'Asset Class',condition_id:'Condition',current_location_id:'Current Location',unit_of_measure_id:'Unit of Measure',vendor_id:'Vendor',employee_id:'Employee',location_id:'Location',department_id:'Department',business_unit_id:'Business Unit',team_id:'Team',role_id:'Role',permission_id:'Permission',status_id:'Status',site_id:'Site',assigned_to_id:'Assigned To',disposal_method_id:'Disposal Method',certificate_file_id:'Certificate File',created_by:'Created By',updated_by:'Updated By',approved_by:'Approved By',created_at:'Date Created',updated_at:'Last Updated',started_at:'Start Date',completed_at:'Completion Date',last_login_at:'Last Login',locked_until:'Locked Until',captured_at:'Date Captured',uploaded_at:'Date Uploaded',is_active:'Active',mfa_enabled:'MFA Enabled',requires_approval:'Approval Required',data_wipe_confirmed:'Data Wipe Confirmed',employee_number:'Employee ID',serial_number:'Serial Number',uom_name:'Unit of Measure'};
+  const minor=new Set(['of','for','to','and','in','on','by']);
+  const acronyms=new Set(['id','it','itam','mdm','mfa','sku','po','qr','csv','api','ip','url','sla','ocr']);
+  function words(input) {return String(input??'').replace(/[_.-]+/g,' ').trim().toLowerCase().split(/\s+/).filter(Boolean).map((w,i)=>acronyms.has(w)?w.toUpperCase():(i>0&&minor.has(w)?w:w[0].toUpperCase()+w.slice(1))).join(' ');}
+  function fieldLabel(name) {const key=String(name??'');return Object.prototype.hasOwnProperty.call(names,key)?names[key]:words(key.endsWith('_id')?key.slice(0,-3):key);}
+  const enums={WAITING_PARTS:'Waiting for Parts',DATA_WIPE_CERT:'Data Wipe Certificate',THIRD_PARTY:'Third Party',IN_HOUSE:'In House'};
+  function enumLabel(value) {const key=String(value??'');return enums[key]||words(key);}
+  function permissionLabel(value) {const [resource,verb,...rest]=String(value??'').split('.');if(!verb||rest.length)return fieldLabel(value);const actions={read:'View',create:'Create',update:'Update',delete:'Delete',manage:'Manage',approve:'Approve',export:'Export',assign:'Assign'};const subjects={asset:'Assets',assets:'Assets',finance:'Financial Data',users:'Users',user:'Users'};return (actions[verb]||words(verb))+' '+(subjects[resource]||words(resource));}
+  function formatBoolean(value,style='yes-no') {const yes=value===true||value===1||value==='1';return style==='active'?(yes?'Active':'Inactive'):style==='enabled'?(yes?'Enabled':'Disabled'):(yes?'Yes':'No');}
+  root.JMDMPresentation=Object.freeze({fieldLabel,enumLabel,permissionLabel,formatBoolean});
+})(window);
