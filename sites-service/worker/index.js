@@ -6,12 +6,13 @@ import {recordAPI,lifecycle} from './api.js';
 import {now,verify,sessionToken,sessionCookie,digest,random} from './security.js';
 import {asset360API} from './asset360.js';
 import {employeePhotoAPI} from './employee-photos.js';
+import {initializeManufacturerLogos,manufacturerLogoAPI} from './manufacturer-logos.js';
 import {seedQA} from './qa-seed.js';
 const json=(data,status=200,headers={})=>new Response(JSON.stringify(data),{status,headers:{'content-type':'application/json','cache-control':'no-store','x-content-type-options':'nosniff',...headers}});
 const initializationPromises=new WeakMap();
 function initialize(db,env){
  let promise=initializationPromises.get(db);
- if(!promise){promise=(async()=>{await seed(db,env);await upgrade(db);await seedQA(db,env);})();initializationPromises.set(db,promise);promise.catch(()=>initializationPromises.delete(db));}
+ if(!promise){promise=(async()=>{await seed(db,env);await upgrade(db);await seedQA(db,env);await initializeManufacturerLogos(db);})();initializationPromises.set(db,promise);promise.catch(()=>initializationPromises.delete(db));}
  return promise;
 }
 async function input(req){const text=await req.text();if(text.length>15000000)fail('Request too large.',413);let d;try{d=JSON.parse(text);}catch{fail('Invalid JSON.');}if(!d||typeof d!=='object'||Array.isArray(d))fail('Invalid request.');return d;}
@@ -41,6 +42,7 @@ export default {async fetch(req,env){
   if(path.startsWith('/api/auth/')&&req.method==='POST')return json(await securityAPI(req,db,u,path,await input(req),env));
   if(u.requires_password_change||u.requires_mfa)return json({message:'Complete account security before continuing.',code:'ACCOUNT_SECURITY_REQUIRED',redirect:'/account-security'},403);
   if(path.startsWith('/api/admin/'))return json(await adminAPI(req,db,u,path,req.method==='GET'?null:await input(req)));
+  if(/^\/api\/manufacturers\/\d+\/logo$/.test(path))return await manufacturerLogoAPI(req,db,u,path,req.method==='POST'?await input(req):null,env);
   if(/^\/api\/employees\/\d+\/photo$/.test(path))return await employeePhotoAPI(req,db,u,path,req.method==='POST'?await input(req):null,env);
   if(/^\/api\/assets\/\d+\/360(?:\/|$)/.test(path)||path==='/api/locations/smart')return json(await asset360API(req,db,u,path,req.method==='GET'?null:await input(req),env));
   const actionMatch=/^\/api\/assets\/\d+\/actions\/([a-z-]+)$/.exec(path),actionFeature=actionMatch?(actionMatch[1].startsWith('repair')?'repairs':actionMatch[1].startsWith('disposal')?'disposal':actionMatch[1]==='refresh'?'refresh':actionMatch[1]==='depreciate'?'finance':'assets'):null;
