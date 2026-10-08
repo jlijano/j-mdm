@@ -756,3 +756,123 @@ button.recent-scan-row:hover{background:#F8FAFC;border-color:#E2E8F0}
     max-height:260px;
   }
 }
+
+
+/* Manual crop + rotate editor for uploaded asset labels */
+.crop-toolbar{
+  display:flex;
+  gap:8px;
+  align-items:center;
+  flex-wrap:wrap;
+  margin-bottom:10px;
+}
+.crop-toolbar button{
+  min-height:40px;
+  padding:8px 12px;
+}
+.crop-angle{
+  margin-left:auto;
+  font-size:12px;
+  font-weight:700;
+  color:#475569;
+  background:#F1F5F9;
+  border-radius:7px;
+  padding:6px 8px;
+}
+.crop-stage{
+  position:relative;
+  width:100%;
+  min-height:220px;
+  overflow:hidden;
+  border:1px solid #CBD5E1;
+  border-radius:12px;
+  background:#0F172A;
+  touch-action:none;
+  user-select:none;
+}
+#crop-canvas{
+  display:block;
+  max-width:100%;
+  margin:0 auto;
+  background:#0F172A;
+}
+.crop-selection{
+  position:absolute;
+  border:2px solid #22D3EE;
+  background:rgba(34,211,238,.08);
+  box-shadow:0 0 0 9999px rgba(2,6,23,.48);
+  cursor:move;
+  touch-action:none;
+}
+.crop-selection:focus-visible{
+  outline:3px solid #FFFFFF;
+  outline-offset:2px;
+}
+.crop-handle{
+  position:absolute;
+  width:20px;
+  height:20px;
+  border-radius:50%;
+  background:#FFFFFF;
+  border:3px solid #0891B2;
+  box-shadow:0 2px 8px rgba(15,23,42,.25);
+}
+.crop-handle-nw{left:-11px;top:-11px;cursor:nwse-resize}
+.crop-handle-ne{right:-11px;top:-11px;cursor:nesw-resize}
+.crop-handle-sw{left:-11px;bottom:-11px;cursor:nesw-resize}
+.crop-handle-se{right:-11px;bottom:-11px;cursor:nwse-resize}
+.crop-help{
+  margin:10px 0 8px;
+  color:#64748B;
+  font-size:12px;
+  line-height:1.45;
+}
+.crop-actions{
+  display:flex;
+  justify-content:flex-end;
+}
+.crop-actions .primary{
+  min-height:44px;
+}
+.analysis-conflict{
+  margin-top:8px;
+  padding:10px;
+  border-radius:8px;
+  background:#FEF2F2;
+  border:1px solid #FECACA;
+  color:#991B1B;
+}
+.analysis-conflict span{
+  display:block;
+  margin-top:3px;
+  color:#7F1D1D;
+}
+
+@media(max-width:650px){
+  .crop-toolbar{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+  }
+  .crop-toolbar #crop-reset{
+    grid-column:1/2;
+  }
+  .crop-angle{
+    justify-self:end;
+    align-self:center;
+    margin-left:0;
+  }
+  .crop-stage{
+    min-height:180px;
+  }
+  .crop-actions .primary{
+    width:100%;
+  }
+  .crop-handle{
+    width:24px;
+    height:24px;
+  }
+  .crop-handle-nw{left:-13px;top:-13px}
+  .crop-handle-ne{right:-13px;top:-13px}
+  .crop-handle-sw{left:-13px;bottom:-13px}
+  .crop-handle-se{right:-13px;bottom:-13px}
+}
