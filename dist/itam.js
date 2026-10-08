@@ -46,7 +46,9 @@ const idOf=row=>meta[currentTable].columns.filter(c=>c.key.includes('PK')).map(c
  const f=(name,ref,required=true)=>({name,type:ref?'BIGINT':'VARCHAR(500)',null:required?'NO':'YES',references:ref});
  const actions={assign:[f('employee_id',['employees','employee_id']),f('location_id',['locations','location_id']),{name:'expected_return_date',type:'DATE',null:'YES'},f('notes',null,false)],return:[f('location_id',['locations','location_id']),f('notes',null,false)],transfer:[f('location_id',['locations','location_id']),f('notes',null,false)],receive:[],repair:[f('repair_source'),f('vendor_id',['vendors','vendor_id'],false),f('issue_description')],'repair-return':[f('location_id',['locations','location_id']),{name:'repair_cost',type:'DECIMAL(18,2)',null:'YES'},f('notes',null,false)],refresh:[f('notes')],'disposal-request':[f('disposal_method_id',['disposal_methods','disposal_method_id']),{name:'data_wipe_required',type:'BOOLEAN',null:'NO'},f('notes',null,false)],'disposal-approve':[],'disposal-complete':[f('certificate_file_id',['files','file_id']),{name:'data_wipe_confirmed',type:'BOOLEAN',null:'NO'}],depreciate:[{name:'period_date',type:'DATE',null:'NO',description:'First day of the month (YYYY-MM-01).'}]};
  async function ensureClientMasterDefaults(){
-  if(!user?.super)return false;
+  // Any account that the backend marks as able to manage master data may repair defaults.
+  // The API remains authoritative for permission/scope checks.
+  if(!meta.manufacturers?.editable)return [];
   const changed=[];
   const ensure=async(table,key,defaults)=>{
    const existing=(await api('/api/records/'+table+'?limit=500')).rows||[];
