@@ -4,10 +4,11 @@ import {adminAPI,upgrade,adminTables} from './admin.js';
 import {securityAPI} from './mfa.js';
 import {recordAPI,lifecycle} from './api.js';
 import {now,verify,sessionToken,sessionCookie,digest,random} from './security.js';
+import {seedQA} from './qa-seed.js';
 const json=(data,status=200,headers={})=>new Response(JSON.stringify(data),{status,headers:{'content-type':'application/json','cache-control':'no-store','x-content-type-options':'nosniff',...headers}});
 let initializationPromise;
 function initialize(db,env){
- if(!initializationPromise)initializationPromise=(async()=>{await seed(db,env);await upgrade(db);})().catch(error=>{initializationPromise=null;throw error;});
+ if(!initializationPromise)initializationPromise=(async()=>{await seed(db,env);await upgrade(db);await seedQA(db,env);})().catch(error=>{initializationPromise=null;throw error;});
  return initializationPromise;
 }
 async function input(req){const text=await req.text();if(text.length>7500000)fail('Request too large.',413);let d;try{d=JSON.parse(text);}catch{fail('Invalid JSON.');}if(!d||typeof d!=='object'||Array.isArray(d))fail('Invalid request.');return d;}
