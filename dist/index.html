@@ -10,16 +10,16 @@
 </header>
 <button id="menu-backdrop" class="menu-backdrop" type="button" aria-label="Close navigation" tabindex="-1" hidden></button>
 <nav id="main-nav" aria-label="Main navigation">
-<div class="nav-section"><span class="nav-section-label">OVERVIEW</span><button data-page="dashboard" class="active">▦ <span>Dashboard</span></button></div>
-<div class="nav-section"><span class="nav-section-label">ASSET MANAGEMENT</span><button data-page="records">▤ <span>Assets</span></button><button data-page="scanner">▣ <span>Scan Asset</span></button><button data-page="inventory">▤ <span>Inventory</span></button><button data-page="history">◷ <span>Asset History</span></button></div>
-<div class="nav-section"><span class="nav-section-label">ADMINISTRATION</span><button data-page="users" id="users-nav" hidden>♙ <span>Users &amp; Roles</span></button><button data-page="settings">⚙ <span>Settings</span></button></div>
+<div class="nav-section"><span class="nav-section-label">OVERVIEW</span><a data-page="dashboard" class="nav-link active" href="/dashboard">▦ <span>Dashboard</span></a></div>
+<div class="nav-section"><span class="nav-section-label">ASSET MANAGEMENT</span><a data-page="records" class="nav-link" href="/dashboard#records">▤ <span>Assets</span></a><a data-page="scanner" class="nav-link" href="/assets/scanner">▣ <span>Scan Asset</span></a><a data-page="inventory" class="nav-link" href="/dashboard#inventory">▤ <span>Inventory</span></a><a data-page="history" class="nav-link" href="/dashboard#history">◷ <span>Asset History</span></a></div>
+<div class="nav-section"><span class="nav-section-label">ADMINISTRATION</span><a data-page="users" id="users-nav" class="nav-link" href="/dashboard#users" hidden>♙ <span>Users &amp; Roles</span></a><a data-page="settings" class="nav-link" href="/dashboard#settings">⚙ <span>Settings</span></a></div>
 </nav>
 <nav id="mobile-nav" aria-label="Mobile navigation">
-<button type="button" data-page="dashboard">⌂<span>Home</span></button>
-<button type="button" data-page="records">▤<span>Assets</span></button>
-<button type="button" data-page="scanner" class="mobile-scan-action">▣<span>Scan</span></button>
-<button type="button" data-page="history">◷<span>History</span></button>
-<button type="button" data-page="settings">•••<span>More</span></button>
+<a data-page="dashboard" class="mobile-nav-link" href="/dashboard">⌂<span>Home</span></a>
+<a data-page="records" class="mobile-nav-link" href="/dashboard#records">▤<span>Assets</span></a>
+<a data-page="scanner" class="mobile-nav-link mobile-scan-action" href="/assets/scanner">▣<span>Scan</span></a>
+<a data-page="history" class="mobile-nav-link" href="/dashboard#history">◷<span>History</span></a>
+<a data-page="settings" class="mobile-nav-link" href="/dashboard#settings">•••<span>More</span></a>
 </nav>
 <main><div id="notice" role="status" aria-live="polite" hidden></div><section id="dashboard" class="page"><div class="page-heading"><div><div class="eyebrow">ITAM WORKSPACE</div><h1>Main Dashboard</h1><p class="small">Shared asset records and lifecycle activity.</p></div><button class="primary" data-page="records">Manage Assets</button></div><div id="cloud-stats" class="stats card">Loading shared records…</div><article class="card"><h2>Recently updated assets</h2><div id="cloud-recent"></div></article><div hidden><div id="dashboard-stats"></div><span id="dashboard-items"></span><div id="dashboard-recent"></div></div></section><section id="records" class="page" hidden><div class="page-heading"><div><div class="eyebrow">SHARED RECORDS</div><h1 id="module-title">Asset Management</h1></div><button id="new-record" class="primary">New Record</button></div><div class="toolbar"><label>Module <select id="module-select" aria-label="Record module"></select></label><input id="cloud-search" type="search" placeholder="Search records"><button id="refresh-records">Refresh</button><button id="cloud-export" hidden>Export CSV</button></div><div class="card" id="records-table">Loading…</div><p class="small">Showing up to 100 records. Search to find specific identifiers. Historical records are retained.</p><button id="import-local">Import device inventory as assets</button></section><section id="scanner" class="page" hidden>
 <div id="offline-banner" class="offline-banner" role="status" hidden><strong>Offline Mode</strong><span>Local scan history remains available. Shared asset sync requires a connection.</span></div>
