@@ -978,3 +978,30 @@ button.recent-scan-row:hover{background:#F8FAFC;border-color:#E2E8F0}
     -webkit-text-fill-color:#FFFFFF !important;
   }
 }
+
+
+/* Asset form save feedback */
+#cloud-dialog #cloud-error{
+  position:sticky;
+  bottom:76px;
+  z-index:5;
+  margin:12px 0;
+  padding:12px 14px;
+  border:1px solid #FECACA;
+  border-radius:10px;
+  background:#FEF2F2;
+  color:#991B1B;
+  font-weight:600;
+  box-shadow:0 8px 20px rgba(127,29,29,.08);
+}
+#cloud-dialog #cloud-error[hidden]{display:none!important}
+#cloud-dialog #cloud-save:disabled{
+  opacity:.65;
+  cursor:wait;
+}
+@media(max-width:650px){
+  #cloud-dialog #cloud-error{
+    bottom:84px;
+    font-size:13px;
+  }
+}
