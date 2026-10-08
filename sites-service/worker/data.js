@@ -33,7 +33,7 @@ export function scopeSQL(u,write=false,alias='a'){
 export async function visibleAsset(db,u,id,write=false){const s=scopeSQL(u,write);const a=await one(db,`SELECT a.* FROM assets a WHERE a.asset_id=? AND ${s.sql}`,id,...s.args);if(!a)throw Object.assign(new Error('Asset not found in your permitted scope.'),{status:404});return a;}
 export const fail=(message,status=400)=>{throw Object.assign(new Error(message),{status});};
 export async function ensureDefaultMasterData(db){
- const marker=await one(db,"SELECT setting_value FROM system_settings WHERE setting_key='default_master_data_v1'");
+ const marker=await one(db,"SELECT setting_value FROM system_settings WHERE setting_key='default_master_data_v2'");
  if(marker)return;
  const st=[];
  const q=(sql,...args)=>st.push(query(db,sql,...args));
@@ -86,7 +86,7 @@ export async function ensureDefaultMasterData(db){
   WHERE c.category_name=? AND NOT EXISTS (
    SELECT 1 FROM asset_types t WHERE lower(t.type_name)=lower(?) AND t.category_id=c.category_id
   )`,type,category,type);
- q("INSERT OR REPLACE INTO system_settings(setting_key,setting_value) VALUES ('default_master_data_v1','1')");
+ q("INSERT OR REPLACE INTO system_settings(setting_key,setting_value) VALUES ('default_master_data_v2','1')");
  await db.batch(st);
 }
 
