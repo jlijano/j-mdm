@@ -1,0 +1,47 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  root-tests:
+    name: Root tests and browser syntax
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Syntax-check browser scripts
+        run: |
+          node --check dist/app.js
+          node --check dist/navigation.js
+          node --check dist/itam.js
+          node --check dist/users.js
+          node --check dist/login.js
+          node --check dist/account-security.js
+      - run: npm test
+
+  backend-tests:
+    name: Sites service build and tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: sites-service
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: sites-service/package-lock.json
+      - run: npm ci
+      - run: npm run build
+      - run: npm test
