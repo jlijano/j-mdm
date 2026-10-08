@@ -1067,3 +1067,405 @@ button.recent-scan-row:hover{background:#F8FAFC;border-color:#E2E8F0}
     padding:15px;
   }
 }
+
+
+/* =========================================================
+   J-MDM UI consistency sweep
+   Keeps the approved light enterprise workspace independent
+   from the browser/OS dark color-scheme while preserving the
+   dark navigation shell.
+   ========================================================= */
+body.app-shell{
+  --surface:#FFFFFF;
+  --bg:#F4F7FB;
+  --border:#DCE4EE;
+  --muted:#60718A;
+  --soft:#EEF4FF;
+  --blue:#155EEF;
+  color-scheme:light;
+  background:#F4F7FB;
+  color:#0F172A;
+}
+
+/* Form controls: never inherit the legacy dark surface in the light workspace. */
+.app-shell main input:not([type="checkbox"]):not([type="radio"]),
+.app-shell main textarea,
+.app-shell main select,
+.app-shell dialog input:not([type="checkbox"]):not([type="radio"]),
+.app-shell dialog textarea,
+.app-shell dialog select{
+  background:#FFFFFF;
+  color:#0F172A;
+  border:1px solid #CBD5E1;
+  box-shadow:none;
+}
+.app-shell main input::placeholder,
+.app-shell main textarea::placeholder,
+.app-shell dialog input::placeholder,
+.app-shell dialog textarea::placeholder{
+  color:#94A3B8;
+  opacity:1;
+}
+.app-shell main input:hover,
+.app-shell main textarea:hover,
+.app-shell main select:hover,
+.app-shell dialog input:hover,
+.app-shell dialog textarea:hover,
+.app-shell dialog select:hover{
+  border-color:#94A3B8;
+}
+.app-shell main input:focus,
+.app-shell main textarea:focus,
+.app-shell main select:focus,
+.app-shell dialog input:focus,
+.app-shell dialog textarea:focus,
+.app-shell dialog select:focus{
+  border-color:#0EA5E9;
+  outline:3px solid rgba(14,165,233,.16);
+  outline-offset:1px;
+}
+
+/* Default action buttons in the workspace should be light and readable. */
+.app-shell main button:not(.primary):not(.danger):not(.text-button):not(.master-data-card):not(.recent-scan-row),
+.app-shell dialog button:not(.primary):not(.danger){
+  background:#FFFFFF;
+  color:#334155;
+  border-color:#CBD5E1;
+}
+.app-shell main button:not(.primary):not(.danger):not(.text-button):not(.master-data-card):not(.recent-scan-row):hover,
+.app-shell dialog button:not(.primary):not(.danger):hover{
+  background:#F8FAFC;
+  color:#0F172A;
+  border-color:#94A3B8;
+}
+.app-shell .primary{
+  background:#155EEF;
+  border-color:#155EEF;
+  color:#FFFFFF;
+}
+.app-shell .primary:hover{
+  background:#124AC0;
+  border-color:#124AC0;
+  color:#FFFFFF;
+}
+.app-shell .danger{
+  background:#FFFFFF;
+  color:#B42318;
+  border-color:#FECACA;
+}
+.app-shell .danger:hover{
+  background:#FEF2F2;
+  border-color:#FCA5A5;
+}
+
+/* Badges/status pills: remove the dark-theme bleed visible in session and count pills. */
+.app-shell main .badge,
+.app-shell main .local-badge{
+  background:#EEF4FF;
+  color:#155EEF;
+  border:1px solid #DCE7FF;
+}
+.session-card #session-mode-label{
+  background:#EAF4FF;
+  color:#075985;
+  border-color:#BAE6FD;
+}
+#inventory-count{
+  background:#F1F5F9;
+  color:#475569;
+  border-color:#E2E8F0;
+}
+
+/* Records / Assets page */
+#records .page-heading{
+  align-items:flex-end;
+  margin-bottom:18px;
+}
+#records .page-heading h1{
+  margin:0;
+  color:#0F172A;
+}
+#records .toolbar{
+  display:grid;
+  grid-template-columns:minmax(260px,1.15fr) minmax(300px,1.4fr) auto auto;
+  gap:12px;
+  align-items:end;
+  margin:0 0 18px;
+}
+#records .toolbar label{
+  min-width:0;
+  color:#334155;
+  font-size:13px;
+  gap:7px;
+}
+#records #module-select,
+#records #cloud-search{
+  width:100%;
+  min-height:48px;
+  border-radius:10px;
+  font-size:14px;
+}
+#records #cloud-search{
+  align-self:end;
+}
+#records #refresh-records,
+#records #cloud-export{
+  min-height:48px;
+  white-space:nowrap;
+  padding-inline:18px;
+}
+#records #new-record{
+  min-height:44px;
+  white-space:nowrap;
+}
+#records #records-table{
+  padding:0;
+  overflow:hidden;
+  border-radius:14px;
+}
+#records .table-scroll{
+  width:100%;
+  overflow:auto;
+}
+#records .records-data-table{
+  min-width:980px;
+  background:#FFFFFF;
+}
+#records .records-data-table thead{
+  background:#F8FAFC;
+}
+#records .records-data-table th{
+  color:#334155;
+  font-size:12px;
+  font-weight:700;
+  letter-spacing:.02em;
+  text-transform:none;
+  padding:15px 18px;
+  border-bottom:1px solid #E2E8F0;
+}
+#records .records-data-table td{
+  color:#0F172A;
+  padding:16px 18px;
+  border-bottom:1px solid #E2E8F0;
+  vertical-align:middle;
+}
+#records .records-data-table tbody tr{
+  background:#FFFFFF;
+  transition:background-color .15s ease;
+}
+#records .records-data-table tbody tr:hover{
+  background:#F8FAFC;
+}
+#records .record-actions{
+  display:flex;
+  align-items:center;
+  flex-wrap:nowrap;
+  gap:8px;
+}
+#records .record-actions button{
+  min-height:38px;
+  margin:0;
+  padding:8px 12px;
+  border-radius:8px;
+  white-space:nowrap;
+}
+#records .record-actions button:first-child{
+  background:#EFF6FF;
+  color:#1D4ED8;
+  border-color:#BFDBFE;
+}
+#records .record-actions button:first-child:hover{
+  background:#DBEAFE;
+  border-color:#93C5FD;
+}
+#records>.small{
+  color:#64748B;
+  margin:14px 0;
+}
+#records #import-local{
+  min-height:44px;
+  background:#FFFFFF;
+  color:#334155;
+  border:1px solid #CBD5E1;
+}
+
+/* General table polish across admin/history views */
+.app-shell main table{
+  background:#FFFFFF;
+}
+.app-shell main th{
+  color:#334155;
+}
+.app-shell main td{
+  color:#0F172A;
+}
+.app-shell main .card{
+  color:#0F172A;
+}
+.app-shell main .small,
+.app-shell main .field-hint{
+  color:#64748B;
+}
+
+/* Scanner controls and cards */
+.scan-config-card select,
+.inline-manual-search input,
+.camera-actions select{
+  background:#FFFFFF!important;
+  color:#0F172A!important;
+}
+.scanner-start{
+  background:linear-gradient(90deg,#0891B2,#0EA5E9)!important;
+  color:#FFFFFF!important;
+  border:0!important;
+}
+.scanner-start:hover{
+  background:#0284C7!important;
+}
+.camera-actions button{
+  background:#FFFFFF;
+  color:#334155;
+  border-color:#CBD5E1;
+}
+.camera-actions button:hover{
+  background:#F8FAFC;
+  color:#0F172A;
+}
+.external-scanner-state{
+  background:#ECFDF5;
+  color:#15803D;
+}
+.camera-status[data-state="off"]{
+  background:#F1F5F9;
+  color:#64748B;
+  border:1px solid #E2E8F0;
+}
+
+/* Dialog consistency */
+.app-shell dialog{
+  background:#FFFFFF;
+  color:#0F172A;
+  border-color:#E2E8F0;
+  box-shadow:0 24px 60px rgba(15,23,42,.22);
+}
+.app-shell dialog .section-heading{
+  border-bottom:1px solid #E2E8F0;
+  padding-bottom:12px;
+}
+.app-shell dialog label{
+  color:#334155;
+}
+
+/* Users & Roles / settings consistency */
+.admin-tabs button{
+  background:#FFFFFF;
+  color:#475569;
+  border-color:#CBD5E1;
+}
+.admin-tabs [aria-selected=true]{
+  background:#EEF4FF!important;
+  border-color:#155EEF!important;
+  color:#155EEF!important;
+}
+.settings-card,
+#admin-content{
+  background:#FFFFFF;
+  color:#0F172A;
+}
+.permission-preview{
+  background:#F8FAFC;
+  color:#334155;
+}
+
+/* Keep native toggles readable in the light application shell. */
+.app-shell input[type="checkbox"],
+.app-shell input[type="radio"]{
+  accent-color:#155EEF;
+}
+
+/* Responsive records toolbar and table/card behavior */
+@media(max-width:1180px){
+  #records .toolbar{
+    grid-template-columns:minmax(240px,1fr) minmax(260px,1.2fr) auto;
+  }
+  #records #cloud-export{
+    grid-column:auto;
+  }
+}
+@media(max-width:900px){
+  #records .toolbar{
+    grid-template-columns:1fr 1fr;
+  }
+  #records .toolbar label,
+  #records #cloud-search{
+    grid-column:1/-1;
+  }
+  #records #refresh-records,
+  #records #cloud-export{
+    width:100%;
+  }
+}
+@media(max-width:650px){
+  #records .page-heading{
+    align-items:flex-start;
+  }
+  #records .page-heading #new-record{
+    width:100%;
+  }
+  #records .toolbar{
+    display:grid;
+    grid-template-columns:1fr;
+  }
+  #records .toolbar label,
+  #records #cloud-search,
+  #records #refresh-records,
+  #records #cloud-export{
+    grid-column:1;
+    width:100%;
+  }
+  #records #records-table{
+    padding:12px;
+    overflow:visible;
+    background:transparent;
+    border:0;
+    box-shadow:none;
+  }
+  #records .records-data-table{
+    min-width:0;
+    background:transparent;
+  }
+  #records .records-data-table tr{
+    background:#FFFFFF;
+    box-shadow:0 3px 10px rgba(15,23,42,.05);
+  }
+  #records .records-data-table td{
+    color:#0F172A;
+  }
+  #records .record-actions{
+    flex-wrap:wrap;
+  }
+  #records .record-actions button{
+    flex:1 1 120px;
+  }
+}
+
+/* High-contrast focus and disabled states across the application */
+.app-shell button:focus-visible,
+.app-shell a:focus-visible,
+.app-shell input:focus-visible,
+.app-shell select:focus-visible,
+.app-shell textarea:focus-visible,
+.app-shell summary:focus-visible{
+  outline:3px solid rgba(14,165,233,.35);
+  outline-offset:2px;
+}
+.app-shell button:disabled,
+.app-shell input:disabled,
+.app-shell select:disabled,
+.app-shell textarea:disabled{
+  background:#F1F5F9!important;
+  color:#94A3B8!important;
+  border-color:#E2E8F0!important;
+  opacity:1;
+  cursor:not-allowed;
+}
