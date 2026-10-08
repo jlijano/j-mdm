@@ -29,6 +29,17 @@ async function assignment(db,id){
 }
 async function section(db,u,id,name){
  const finance=allowed(u,'finance');
+ if(name==='procurement'&&!allowed(u,'procurement')&&!finance)fail('Procurement permission is required.',403);
+ if(name==='warranty'&&!allowed(u,'warranty'))fail('Warranty permission is required.',403);
+ if(name==='repairs'&&!allowed(u,'repairs'))fail('Repair permission is required.',403);
+ if(name==='refresh'&&!allowed(u,'refresh'))fail('Refresh permission is required.',403);
+ if(name==='disposal'&&!allowed(u,'disposal'))fail('Disposal permission is required.',403);
+ if(name==='inventory'&&!allowed(u,'inventory'))fail('Inventory permission is required.',403);
+ if(name==='security'&&!allowed(u,'security'))fail('Security permission is required.',403);
+ if(name==='scans'&&!allowed(u,'barcode')&&!allowed(u,'inventory'))fail('Scan-history permission is required.',403);
+ if(name==='assignment'&&!allowed(u,'custody'))fail('Custody permission is required.',403);
+ if(name==='movements'&&!allowed(u,'movements'))fail('Movement permission is required.',403);
+ if(name==='technical'&&!allowed(u,'technical'))fail('Technical permission is required.',403);
  if(name==='photos'||name==='documents'){
   if(!allowed(u,'files'))fail('File permission is required.',403);
   const photo=name==='photos';
