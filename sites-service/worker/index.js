@@ -6,10 +6,11 @@ import {recordAPI,lifecycle} from './api.js';
 import {now,verify,sessionToken,sessionCookie,digest,random} from './security.js';
 import {seedQA} from './qa-seed.js';
 const json=(data,status=200,headers={})=>new Response(JSON.stringify(data),{status,headers:{'content-type':'application/json','cache-control':'no-store','x-content-type-options':'nosniff',...headers}});
-let initializationPromise;
+const initializationPromises=new WeakMap();
 function initialize(db,env){
- if(!initializationPromise)initializationPromise=(async()=>{await seed(db,env);await upgrade(db);await seedQA(db,env);})().catch(error=>{initializationPromise=null;throw error;});
- return initializationPromise;
+ let promise=initializationPromises.get(db);
+ if(!promise){promise=(async()=>{await seed(db,env);await upgrade(db);await seedQA(db,env);})();initializationPromises.set(db,promise);promise.catch(()=>initializationPromises.delete(db));}
+ return promise;
 }
 async function input(req){const text=await req.text();if(text.length>7500000)fail('Request too large.',413);let d;try{d=JSON.parse(text);}catch{fail('Invalid JSON.');}if(!d||typeof d!=='object'||Array.isArray(d))fail('Invalid request.');return d;}
 async function current(req,db){const token=sessionToken(req);if(!token)return null;const s=await one(db,'SELECT user_id,mfa_verified FROM app_sessions WHERE session_hash=? AND expires_at>?',await digest(token),now());if(!s)return null;const u=await access(db,s.user_id);if(!u)return null;const a=await one(db,'SELECT locked_until FROM users WHERE user_id=?',u.user_id);if(a?.locked_until&&a.locked_until>now())return null;u.mfa_verified=!!s.mfa_verified;u.requires_password_change=!!u.force_password_change;u.requires_mfa=!!((u.mfa_required||u.mfa_enabled)&&!s.mfa_verified);return u;}
