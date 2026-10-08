@@ -27,7 +27,7 @@
   container?.addEventListener('click',event=>{
    const button=event.target.closest('[data-page]');
    if(!button||button.disabled||false)return;
-   if(button.tagName==='A'){close(false);return;}
+   if(button.tagName==='A'&&typeof window.jmdmSetPage!=='function'){close(false);return;}
    event.preventDefault();
    event.stopPropagation();
    route(button.dataset.page);
