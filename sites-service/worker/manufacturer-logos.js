@@ -8,7 +8,7 @@ export async function manufacturerLogoAPI(req,db,u,path,d,env){
  const match=/^\/api\/manufacturers\/(\d+)\/logo$/.exec(path);
  if(!match)fail('Not found.',404);
  const id=Number(match[1]);
- if(!allowed(u,'master'))fail('Manufacturer permission required.',403);
+ if(!allowed(u,'master')&&!allowed(u,'assets'))fail('Manufacturer permission required.',403);
  if(!await one(db,'SELECT manufacturer_id FROM manufacturers WHERE manufacturer_id=?',id))fail('Manufacturer not found.',404);
  if(req.method==='GET'){
    const f=await one(db,'SELECT f.mime_type,f.storage_path FROM manufacturer_logos ml JOIN files f ON f.file_id=ml.file_id WHERE ml.manufacturer_id=?',id);
