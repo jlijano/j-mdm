@@ -1483,3 +1483,5 @@ body.app-shell{
 .asset360-timeline{display:grid;gap:0}.asset360-timeline article{display:grid;grid-template-columns:180px 1fr;gap:18px;padding:14px 0;border-bottom:1px solid var(--border)}.asset360-timeline time{color:var(--muted);font-size:13px}.asset360-timeline p{margin:4px 0 0;color:var(--muted)}
 @media(max-width:760px){.asset360-hero{flex-direction:column}.asset360-summary{grid-template-columns:repeat(2,minmax(0,1fr))}.asset360-overview-grid{grid-template-columns:1fr}.procurement-chain{grid-template-columns:1fr}.procurement-chain>span{transform:rotate(90deg)}.asset360-timeline article{grid-template-columns:1fr;gap:4px}}
 @media(max-width:420px){.asset360-summary{grid-template-columns:1fr}}
+
+.manufacturer-cell,.manufacturer-brand{display:inline-flex;align-items:center;gap:10px}.manufacturer-logo{width:42px;height:42px;object-fit:contain;border-radius:7px;background:#fff;padding:4px;border:1px solid #d9dfe8}.manufacturer-logo-fallback{width:42px;height:42px;display:inline-grid;place-items:center;border:1px solid #d9dfe8;border-radius:7px}.manufacturer-brand{margin-bottom:12px}
