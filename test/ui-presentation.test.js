@@ -1,0 +1,10 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import vm from 'node:vm';
+const js=readFileSync(new URL('../dist/ui-presentation.js',import.meta.url),'utf8');
+const context={window:{}};vm.runInNewContext(js,context);const p=context.window.JMDMPresentation;
+test('semantic relational identifiers stay business-friendly',()=>{assert.equal(p.fieldLabel('manufacturer_id'),'Manufacturer');assert.equal(p.fieldLabel('unit_of_measure_id'),'Unit of Measure');assert.equal(p.fieldLabel('created_at'),'Date Created');assert.equal(p.fieldLabel('employee_number'),'Employee ID');assert.equal(p.fieldLabel('unknown_id'),'Unknown');});
+test('permission display does not expose dot-separated codes',()=>{assert.equal(p.permissionLabel('asset.read'),'View Assets');assert.equal(p.permissionLabel('finance.manage'),'Manage Financial Data');assert.equal(p.permissionLabel('users.manage'),'Manage Users');});
+test('enum values and booleans are legible',()=>{assert.equal(p.enumLabel('WAITING_PARTS'),'Waiting for Parts');assert.equal(p.enumLabel('DATA_WIPE_CERT'),'Data Wipe Certificate');assert.equal(p.formatBoolean(1,'active'),'Active');assert.equal(p.formatBoolean(0,'enabled'),'Disabled');});
+test('dynamic screens load presentation helper before their scripts',()=>{const html=readFileSync(new URL('../dist/index.html',import.meta.url),'utf8');const script=html.indexOf('src="/ui-presentation.js"');assert.ok(script>=0);assert.ok(script<html.indexOf('src="/itam.js"'));assert.ok(script<html.indexOf('src="/users.js"'));});
