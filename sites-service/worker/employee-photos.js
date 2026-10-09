@@ -38,9 +38,13 @@ export async function employeePhotoAPI(req,db,u,path,d,env){
  const filename=String(d.filename||'employee-photo').replace(/[^a-zA-Z0-9_.-]/g,'_').slice(0,120),storage=random();
  await env.BUCKET.put(storage,bytes,{httpMetadata:{contentType:'application/octet-stream'}});
  try{
-  await insert(db,'files',{original_filename:filename,stored_filename:storage,storage_path:storage,mime_type:mime,file_size:bytes.length,checksum:await digest(d.base64),uploaded_by:u.user_id}).run();
-  const file=await one(db,'SELECT file_id FROM files WHERE stored_filename=?',storage);
-  await db.batch([query(db,"UPDATE employee_files SET is_active=0 WHERE employee_id=? AND document_type='PROFILE_PHOTO' AND is_active=1",id),insert(db,'employee_files',{employee_id:id,file_id:file.file_id,document_type:'PROFILE_PHOTO',description:'Employee identity reference photo',is_active:1,created_by:u.user_id}),audit(db,u,'employee_files',id,'PROFILE_PHOTO_UPLOADED',null,{employee_id:id,file_id:file.file_id},req)]);
+  await db.batch([
+   insert(db,'files',{original_filename:filename,stored_filename:storage,storage_path:storage,mime_type:mime,file_size:bytes.length,checksum:await digest(d.base64),uploaded_by:u.user_id}),
+   query(db,"UPDATE employee_files SET is_active=0 WHERE employee_id=? AND document_type='PROFILE_PHOTO' AND is_active=1",id),
+   query(db,"INSERT INTO employee_files(employee_id,file_id,document_type,description,is_active,created_by) SELECT ? ,file_id,'PROFILE_PHOTO','Employee identity reference photo',1,? FROM files WHERE stored_filename=?",id,u.user_id,storage),
+   audit(db,u,'employee_files',id,'PROFILE_PHOTO_UPLOADED',null,{employee_id:id},req)
+  ]);
+
   return new Response(JSON.stringify({ok:true}),{headers:{'content-type':'application/json','cache-control':'no-store'}});
- }catch(e){await env.BUCKET.delete(storage);throw e;}
+ }catch(e){try{await env.BUCKET.delete(storage);}catch{console.error('Employee photo object cleanup requires reconciliation');}throw e;}
 }
