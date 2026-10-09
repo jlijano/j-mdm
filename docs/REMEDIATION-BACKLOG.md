@@ -87,6 +87,18 @@ This audit inspected the current `main` source without modifying runtime code or
 - **Release blockers:** Review Drizzle migration journal/deployment path and ensure migration 0006 applied **before** deploying worker; validate cleanup queue recovery with actual D1/R2 staging; explicitly approve the supported office-document MIME policy; confirm Node 24 CI results. R2 recovery executes on isolate startup, not through a guaranteed schedule—define an operational retry/reconciliation runbook and monitor failures.
 - **Status:** **In Progress — Not Deployed**; not yet approved for production deployment.
 
+### FIX-006 release-gate audit — 2026-10-09
+
+**Release decision: HOLD; isolated branch only, no merge or deployment.**
+
+1. **Migration sequencing — Blocked:** SQL files `drizzle/0005_asset_360.sql` and `drizzle/0006_evidence_cleanup_queue.sql` exist, but `drizzle/meta/_journal.json` lists entries only through `0004_short_hedge_knight`. The test helper executes SQL files directly, so its passing tests do not demonstrate the deployed migration pipeline will apply migration 0006. Inspect the actual Sites deployment/migration executor, reconcile the journal without corrupting applied history, and test a fresh and upgraded staging database before approval.
+2. **Document MIME compatibility — Awaiting business approval:** Unified policy currently accepts only JPEG, PNG, WebP and PDF and rejects previously possible office/CSV/plain-text uploads, a breaking compatibility change for procurement/finance evidence. Do not self-approve the restriction. Obtain an approved allowlist, then add fixtures for each type and content-disposition checks.
+3. **Actual isolated D1/R2 test — Not performed:** Available connected services expose Render, but no isolated Sites/D1/R2 resource was verified for safe testing. Mock/in-memory R2 and SQLite tests passed earlier; they are not proof of actual storage behavior. Require dedicated staging bindings, real failure injection and retry verification before release.
+4. **Node.js 24 — In progress / not evidenced at this checkpoint:** Previous suite passed on Node 26, which does not satisfy the project's declared Node 24 requirement. Do not report Node 24 CI as passed without captured output from a completed execution.
+5. **Recovery scheduling — Operational review required:** Queue retry occurs on worker startup; it is not guaranteed to run regularly. Add an authorized job/operational runbook, failure alerts, retention and reconciliation process before release.
+
+**Existing tested baseline on this branch:** root 22/22; Sites 8/8; Sites build passed on Node 26. New release-gate checks must not be conflated with those earlier results.
+
 ### SEC-002 — Evidence type validation and policy consistency (FIX-006)
 
 - **Evidence / affected files:** `sites-service/worker/asset360.js` `upload()` accepts image signatures from a combined set after `mime_type.startsWith('image/')`; legacy `/api/files` upload is in `sites-service/worker/index.js`.
