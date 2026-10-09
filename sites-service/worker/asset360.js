@@ -1,3 +1,4 @@
+import {cleanupFailedEvidence} from './evidence-cleanup.js';
 import {validateEvidenceMime} from './evidence-validation.js';
 import {rows,one,query,insert,audit,allowed,enterprise,visibleAsset,fail} from './data.js';
 import {now,digest,random} from './security.js';
@@ -113,7 +114,7 @@ async function upload(req,db,u,id,d,env){
   const file=await one(db,'SELECT file_id FROM files WHERE stored_filename=?',storage);
   return{ok:true,file_id:file.file_id};
  }catch(e){
-  try{await env.BUCKET.delete(storage);}catch{console.error('Evidence object cleanup requires reconciliation');}
+  await cleanupFailedEvidence(db,env.BUCKET,storage)
   throw e;
  }
 }
