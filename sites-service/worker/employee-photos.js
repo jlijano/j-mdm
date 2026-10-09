@@ -35,7 +35,7 @@ export async function employeePhotoAPI(req,db,u,path,d,env){
  if(typeof d?.base64!=='string')fail('Invalid upload.');
  let bytes;try{bytes=Uint8Array.from(atob(d.base64),c=>c.charCodeAt(0));}catch{fail('Invalid upload.');}
  if(!bytes.length||bytes.length>5*1024*1024)fail('Employee photos must be 5 MB or smaller.');
- validateEvidenceMime(mime,bytes,{photo:true});
+ validateEvidenceMime(mime,bytes,{photo:true,filename:d.filename});
  const filename=String(d.filename||'employee-photo').replace(/[^a-zA-Z0-9_.-]/g,'_').slice(0,120),storage=random();
  await env.BUCKET.put(storage,bytes,{httpMetadata:{contentType:'application/octet-stream'}});
  try{
