@@ -157,7 +157,22 @@ const idOf=row=>meta[currentTable].columns.filter(c=>c.key.includes('PK')).map(c
     <section id="asset360-panel" class="asset360-panel"></section></div>`;
    const panel=q('#asset360-panel');
    panel.innerHTML=`<div class="asset360-overview-grid"><article><h3>Identity</h3><dl><dt>Asset Tag</dt><dd>${val(a.asset_tag)}</dd><dt>Barcode</dt><dd>${val(a.barcode)}</dd><dt>Serial</dt><dd>${val(a.serial_number)}</dd></dl></article><article><h3>Classification</h3><dl><dt>Manufacturer</dt><dd>${val(a.manufacturer_name)}</dd><dt>Model</dt><dd>${val(a.model_name||a.model_number)}</dd><dt>Category</dt><dd>${val(a.category_name)}</dd><dt>Type</dt><dd>${val(a.type_name)}</dd><dt>Class</dt><dd>${val(a.class_name)}</dd></dl></article><article><h3>Custody</h3><dl><dt>Current Custodian</dt><dd>${ass?val(ass.first_name+' '+ass.last_name):'Unassigned'}</dd><dt>Employee Number</dt><dd>${ass?val(ass.employee_number):'—'}</dd><dt>Current Location</dt><dd>${val(a.location_name)}</dd></dl></article></div>`;
-  }catch(e){q('#asset-content').textContent=e.message;}
+  }catch(e){
+   // Older Sites deployments can serve asset records before the Asset 360 route is published.
+   // Show only the authorized core record; do not imply that unavailable 360 sections work.
+   if(e.message==='Not found.'){
+    try{
+     const result=await api('/api/records/assets/'+encodeURIComponent(id));
+     const a=(result.rows||[]).find(row=>String(row.asset_id)===String(id));
+     if(!a)throw Error('Asset not found in your permitted scope.');
+     q('#asset-title').textContent=a.asset_tag||'Asset';
+     const fields=[['Asset Tag',a.asset_tag],['Description',a.description],['Barcode',a.barcode],['Serial Number',a.serial_number],['Status ID',a.status_id],['Condition ID',a.condition_id],['Location ID',a.current_location_id]];
+     q('#asset-content').innerHTML='<div class="asset360"><p>Basic asset information is available. Full Asset 360 details are temporarily unavailable.</p><dl>'+fields.map(([name,value])=>'<dt>'+escape(name)+'</dt><dd>'+escape(value??'Not set')+'</dd>').join('')+'</dl></div>';
+     return;
+    }catch(fallbackError){q('#asset-content').textContent=fallbackError.message;return;}
+   }
+   q('#asset-content').textContent=e.message;
+  }
  }
  async function asset360Tab(id,tab,button){
   document.querySelectorAll('[data-asset360-tab]').forEach(x=>x.setAttribute('aria-selected',String(x===button)));const panel=q('#asset360-panel');panel.innerHTML='<div class="asset360-loading">Loading '+escape(title(tab))+'…</div>';
