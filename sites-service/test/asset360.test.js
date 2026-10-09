@@ -39,6 +39,31 @@ test('Asset 360 evidence, custody photos, barcode, condition, reconciliation and
  assert.equal((await call(url+'/condition','POST',{condition_id:1,event_type:'INSPECTION',notes:'Checked'})).status,200);
  assert.equal((await call(url+'/condition')).rows.length,1);
  assert.equal((await call(url+'/timeline')).status,200);
+ // Simulate another writer committing after Asset 360 reads the revision but before its batch begins.
+ const batchBeforeConflict=db.batch.bind(db);
+ for(const [endpoint,payload,historyTable] of [
+  ['condition',{condition_id:1,event_type:'INSPECTION',notes:'Stale condition'},'asset_condition_history'],
+  ['barcode',{new_barcode:'STALE-BARCODE',replacement_reason:'Stale request'},'barcode_history']
+ ]){
+  const historyBefore=sql.prepare('SELECT COUNT(*) n FROM '+historyTable+' WHERE asset_id=?').get(asset).n;
+  const auditBefore=sql.prepare('SELECT COUNT(*) n FROM audit_logs').get().n;
+  const revisionBefore=sql.prepare('SELECT revision FROM assets WHERE asset_id=?').get(asset).revision;
+  let injected=false;
+  db.batch=async statements=>{
+   if(!injected){injected=true;sql.prepare('UPDATE assets SET revision=revision+1 WHERE asset_id=?').run(asset);}
+   return batchBeforeConflict(statements);
+  };
+  try{
+   const result=await call(url+'/'+endpoint,'POST',payload);
+   assert.notEqual(result.status,200,'stale '+endpoint+' write must not succeed');
+  }finally{db.batch=batchBeforeConflict;}
+  assert.equal(injected,true);
+  assert.equal(sql.prepare('SELECT revision FROM assets WHERE asset_id=?').get(asset).revision,revisionBefore+1);
+  assert.equal(sql.prepare('SELECT COUNT(*) n FROM '+historyTable+' WHERE asset_id=?').get(asset).n,historyBefore);
+  assert.equal(sql.prepare('SELECT COUNT(*) n FROM audit_logs').get().n,auditBefore);
+  assert.notEqual(sql.prepare('SELECT barcode FROM assets WHERE asset_id=?').get(asset).barcode,'STALE-BARCODE');
+ }
+
  const vendor=await create('vendors',{vendor_code:'V360',vendor_name:'Test Supplier',vendor_type:'SUPPLIER'});
  const po=await create('purchase_orders',{po_number:'PO-360',vendor_id:vendor,order_date:'2026-10-08',total_amount:'100',currency_code:'USD',status:'OPEN'});
  const invoice=await create('invoices',{invoice_number:'INV-360',vendor_id:vendor,purchase_order_id:po,invoice_date:'2026-10-08',amount:'100',currency_code:'USD'});
