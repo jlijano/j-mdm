@@ -57,6 +57,15 @@ This audit inspected the current `main` source without modifying runtime code or
 - **Required tests:** Inject failure before object write, after object write, during metadata creation, during asset association/audit, and during cleanup; retry, duplicate, nonexistent/out-of-scope asset, and object-read checks; verify referential integrity with isolated QA data.
 - **Executed tests:** None. **Commit:** None. **Deployment:** Not attempted. **Production verification:** Not performed. **Status:** Pending.
 
+### FIX-006 isolated remediation checkpoint — 2026-10-09
+
+- **Branch:** `fix006-evidence-hardening`; no changes merged into `main`, no production deployment initiated.
+- **Changes:** `sites-service/worker/asset360.js` now writes `files`, `asset_files` and upload audit in one D1 batch after R2 object creation, with R2 cleanup on a failed batch. JPEG/PNG/WebP and PDF declarations are checked against specific signatures; photo categories reject non-images. Existing object downloads and permissions were not altered.
+- **Tests:** Connected Desktop Commander checkout at `06205ac`, root `npm test` **22 passed/0 failed**; Sites `npm run build` passed; Sites `npm test` **6 passed/0 failed**. The Asset 360 fixture now asserts mismatched JPEG declaration rejection, non-image photo rejection, failed foreign-key association rollback (no `files` row), and R2 object cleanup.
+- **Commits:** `c53fa26` (code), `b793163` (format regressions), `06205ac` (failure-path regression).
+- **Remaining risks:** The legacy `/api/files` and employee-photo upload paths still require consistency review; general non-image formats need a coordinated allowlist/policy; simulate R2 deletion failures and verify orphan reconciliation; separately verify R2 storage permissions and cross-scope attachment reads. Existing integration tests do not establish live object authorization.
+- **Status:** **In Progress** on isolated branch; not deployed or production-verified.
+
 ### SEC-002 — Evidence type validation and policy consistency (FIX-006)
 
 - **Evidence / affected files:** `sites-service/worker/asset360.js` `upload()` accepts image signatures from a combined set after `mime_type.startsWith('image/')`; legacy `/api/files` upload is in `sites-service/worker/index.js`.
