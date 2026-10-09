@@ -1,3 +1,4 @@
+import {validateEvidenceMime} from './evidence-validation.js';
 import {one,insert,query,audit,allowed,fail} from './data.js';
 import {digest,random} from './security.js';
 
@@ -33,8 +34,7 @@ export async function employeePhotoAPI(req,db,u,path,d,env){
  if(typeof d?.base64!=='string')fail('Invalid upload.');
  let bytes;try{bytes=Uint8Array.from(atob(d.base64),c=>c.charCodeAt(0));}catch{fail('Invalid upload.');}
  if(!bytes.length||bytes.length>5*1024*1024)fail('Employee photos must be 5 MB or smaller.');
- const b=bytes,valid=mime==='image/jpeg'?b[0]===255&&b[1]===216&&b[2]===255:mime==='image/png'?b[0]===137&&b[1]===80&&b[2]===78&&b[3]===71:b[0]===82&&b[1]===73&&b[2]===70&&b[3]===70&&b[8]===87&&b[9]===69&&b[10]===66&&b[11]===80;
- if(!valid)fail('Image content does not match its declared format.');
+ validateEvidenceMime(mime,bytes,{photo:true});
  const filename=String(d.filename||'employee-photo').replace(/[^a-zA-Z0-9_.-]/g,'_').slice(0,120),storage=random();
  await env.BUCKET.put(storage,bytes,{httpMetadata:{contentType:'application/octet-stream'}});
  try{
