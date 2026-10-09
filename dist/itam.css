@@ -1615,3 +1615,31 @@ body.app-shell{
 @keyframes j-spin{to{transform:rotate(360deg)}}
 @keyframes j-progress{0%{transform:translateX(-110%)}50%{transform:translateX(100%)}100%{transform:translateX(320%)}}
 @media(prefers-reduced-motion:reduce){.j-loading-ring,.j-loading-track span,.j-skeleton::after,.j-loading-line>i::after,.j-loading-line b::after{animation:none}}
+
+/* Responsive records: preserve the existing data source, action handlers and desktop table. */
+#records .page-heading{gap:16px}
+#records #new-record{display:inline-flex;align-items:center;justify-content:center;gap:8px}
+#records #new-record[hidden]{display:none!important}
+#records #module-select{background:var(--j-surface);border-color:var(--j-border)}
+#records .records-data-table tbody tr{background:var(--j-surface)}
+#records .records-data-table td,#records .records-data-table th{border-color:var(--j-border)}
+#records .records-data-table button{min-height:44px}
+@media(max-width:650px){
+ #records .toolbar{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+ #records .toolbar>label,#records #cloud-search{grid-column:1/-1;min-width:0}
+ #records #refresh-records,#records #cloud-export{grid-column:auto;width:100%;min-width:0}
+ #records #refresh-records:only-of-type{grid-column:1/-1}
+ #records #records-table{padding:0!important}
+ #records .table-scroll{overflow:visible!important;border:0;background:transparent}
+ #records .records-data-table{display:block;min-width:0!important;width:100%;background:transparent}
+ #records .records-data-table tbody{display:block}
+ #records .records-data-table thead{position:absolute;width:1px;height:1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+ #records .records-data-table tbody tr{display:block;border:1px solid var(--j-border)!important;border-radius:var(--j-radius-lg);padding:8px 16px;margin:0 0 14px;box-shadow:var(--j-shadow-card);background:var(--j-surface)}
+ #records .records-data-table td{display:grid;grid-template-columns:minmax(0,42%) minmax(0,58%);gap:8px;padding:12px 0!important;max-width:none;min-width:0;border-bottom:1px solid var(--j-border);overflow-wrap:anywhere;white-space:normal}
+ #records .records-data-table td::before{content:attr(data-label);font-weight:600;color:var(--j-text-secondary);font-size:13px}
+ #records .records-data-table td:last-child{display:block;border:0}
+ #records .records-data-table td:last-child::before{display:block;margin-bottom:10px}
+ #records .record-actions{display:flex;flex-wrap:wrap;gap:8px}
+ #records .record-actions button{flex:1 1 110px;min-width:0;min-height:44px}
+ #records #new-record{width:100%;min-height:48px}
+}
