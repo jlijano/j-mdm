@@ -31,6 +31,13 @@ test('Asset 360 evidence, custody photos, barcode, condition, reconciliation and
  assert.equal((await call('/api/employees/'+emp+'/photo','DELETE')).status,200);
  assert.equal((await call('/api/employees/'+emp+'/photo')).status,404);
  assert.equal((await call('/api/employees/'+emp+'/photo','POST',{filename:'bad.png',mime_type:'image/png',base64:'bm90YW5pbWFnZQ=='})).status,400);
+ const objectsBeforeInvalid=stored.size;
+ const badMime=await call(url+'/evidence','POST',{document_type:'ASSET_PHOTO',filename:'wrong.jpg',mime_type:'image/jpeg',base64:png});
+ assert.equal(badMime.status,400,'PNG bytes declared JPEG must be rejected');
+ assert.equal(stored.size,objectsBeforeInvalid,'Rejected files must not be persisted');
+ const nonImage=await call(url+'/evidence','POST',{document_type:'ASSET_PHOTO',filename:'wrong.txt',mime_type:'text/plain',base64:png});
+ assert.equal(nonImage.status,400,'Photo evidence requires an image');
+ assert.equal(stored.size,objectsBeforeInvalid);
  for(let i=0;i<5;i++)assert.equal((await call(url+'/evidence','POST',{document_type:'ASSET_PHOTO',evidence_type:'FRONT',filename:'evidence-'+i+'.png',mime_type:'image/png',base64:png})).status,200);
  assert.equal((await call(url+'/evidence','POST',{document_type:'BARCODE_PHOTO',evidence_type:'BARCODE',filename:'barcode.png',mime_type:'image/png',base64:png})).status,200);
  const score=(await call(url)).completeness;assert.equal(score.checks.find(x=>x.key==='reference_photos').complete,true);assert.equal(score.checks.find(x=>x.key==='barcode_photo').complete,true);
