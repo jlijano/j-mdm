@@ -60,9 +60,9 @@
  });
  $('asset-label-print').addEventListener('click',()=>{
   if(!canvas){$('asset-label-error').textContent='Label image is not ready. Please try again.';$('asset-label-error').hidden=false;return;}
-  const w=window.open('','_blank','noopener,noreferrer,width=800,height=650');
+  const w=window.open('','_blank','width=800,height=650');
   if(!w){$('asset-label-error').textContent='Allow pop-ups to print the label.';$('asset-label-error').hidden=false;return;}
-  const doc=w.document;doc.title='J-MDM Asset Label';const style=doc.createElement('style');
+  w.opener=null;const doc=w.document;doc.title='J-MDM Asset Label';const style=doc.createElement('style');
   style.textContent='@page{size:60mm 45mm;margin:2mm}body{margin:0;display:grid;place-items:center}img{width:100%;max-height:40mm;object-fit:contain;print-color-adjust:exact}';
   doc.head.append(style);const img=doc.createElement('img');img.alt='Asset identification label';img.src=canvas.toDataURL('image/png');
   img.onload=()=>{w.focus();w.print();};doc.body.append(img);
