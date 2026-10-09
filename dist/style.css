@@ -34,3 +34,32 @@ dialog .section-heading button{margin-left:auto;flex:none}
  dialog:not(#asset-dialog){max-width:calc(100vw - 20px);max-height:calc(100dvh - 24px);overflow:auto}
 }
 @media(prefers-reduced-motion:reduce){button{transition:none}}
+
+/* Approved J-MDM enterprise tokens. Alias legacy variables to preserve existing modules. */
+:root{
+ --j-primary:#155eef;--j-primary-hover:#124ac7;--j-background:#f3f7fd;--j-surface:#fff;
+ --j-text-primary:#101c35;--j-text-secondary:#64748b;--j-border:#dfe7f1;
+ --j-radius-sm:10px;--j-radius-md:14px;--j-radius-lg:20px;
+ --j-shadow-card:0 8px 28px rgba(20,46,85,.065);
+ --j-space-1:4px;--j-space-2:8px;--j-space-3:12px;--j-space-4:16px;--j-space-5:20px;--j-space-6:24px;
+ --j-ui-bg:var(--j-background);--j-ui-ink:var(--j-text-primary);--j-ui-muted:var(--j-text-secondary);
+ --j-ui-blue:var(--j-primary);--j-ui-border:var(--j-border);--j-ui-shadow:var(--j-shadow-card);
+ --j-ui-radius:var(--j-radius-lg);--blue:var(--j-primary);--muted:var(--j-text-secondary);
+ --border:var(--j-border);--surface:var(--j-surface);--bg:var(--j-background)
+}
+:root[data-theme=dark]{
+ --j-background:#0d1626;--j-surface:#162236;--j-text-primary:#edf2fa;
+ --j-text-secondary:#a5b5cb;--j-border:#304057;--j-ui-ink:var(--j-text-primary);
+ --j-ui-muted:var(--j-text-secondary)
+}
+body{background:var(--j-background);color:var(--j-text-primary)}
+.card,.panel,.module-card,.admin-card{background:var(--j-surface);border-color:var(--j-border);box-shadow:var(--j-shadow-card)}
+.page-heading .eyebrow{font-size:12px;letter-spacing:.12em;font-weight:700;color:var(--j-primary)}
+.page-heading h1{font-size:clamp(24px,2.4vw,32px);line-height:1.2;color:var(--j-text-primary)}
+.page-heading p.small{margin:7px 0 0;line-height:1.5;color:var(--j-text-secondary)}
+button.primary,.primary{background:var(--j-primary);border-color:var(--j-primary)}
+button.primary:hover,.primary:hover{background:var(--j-primary-hover);border-color:var(--j-primary-hover)}
+button:disabled{cursor:not-allowed}
+dialog{max-height:calc(100dvh - 32px);overflow-y:auto;overscroll-behavior:contain}
+@media(max-width:650px){.page-heading{align-items:flex-start;flex-wrap:wrap}.page-heading>button.primary{width:100%;min-height:48px}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;transition-duration:.01ms!important}}
