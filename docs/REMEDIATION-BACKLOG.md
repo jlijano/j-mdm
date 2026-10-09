@@ -76,6 +76,17 @@ This audit inspected the current `main` source without modifying runtime code or
 - **Outstanding:** No direct fault-injection regression yet proves employee-photo replacement rollback, legacy R2 cleanup failure handling, or financial/cross-scope download denials. Cleanup failure only logs a diagnostic; it does not persist a recoverable reconciliation queue. Legacy non-image MIME allowlist remains unreconciled. Avoid declaring full FIX-006 completion before those checks and recovery measures.
 - **Deployment:** None for this branch. **Status:** In Progress — Not Deployed.
 
+### FIX-006 hardening follow-up — 2026-10-09
+
+- **Branch:** `fix006-evidence-hardening` (isolated; not merged or deployed). Core code: `sites-service/worker/asset360.js`, `employee-photos.js`, `index.js`, `evidence-validation.js`, `evidence-cleanup.js`; migration `sites-service/drizzle/0006_evidence_cleanup_queue.sql`.
+- **Consistency:** Asset 360 and employee photo metadata/association/audit now commit as D1 batches; legacy route already used a D1 batch. On failed D1 work, R2 deletion is attempted; failed deletion is recorded in a persistent `evidence_cleanup_queue`. Bounded retry on service initialization attempts cleanup only for objects not referenced by `files`. Missing recovery schema no longer prevents worker startup but migration is mandatory for durable cleanup.
+- **Validation:** Centralized MIME/signature validation for JPEG, PNG, WebP, PDF; photos require images; legacy routes now reject other formats. This is a **compatibility change** requiring business approval for additional office/document types before production.
+- **Authorization tests:** Fixture confirms unauthenticated file access is rejected (401), Finance-restricted invoice is denied to non-Finance enterprise user (403), out-of-scope user is denied (404), and authorized admin can download. Cross-scope employee photo access remains a separate audit matrix item.
+- **Rollback/recovery tests:** Forced employee-photo insert failure preserves previous photo and leaves no new D1 metadata/R2 object. Forced Asset 360 related-assignment FK failure rolls back metadata and deletes object. Retry tests verify durable queue, eventual removal after retry, and no deletion of an object with a live `files` reference.
+- **Latest completed test run (checkout `110a875`):** root `npm test` 22/22; Sites `npm run build` passed; Sites `npm test` 8/8. The subsequent migration-availability guard at `697e77b` requires a final rerun before merge. Connected desktop uses Node 26, while project specifies Node 24.
+- **Release blockers:** Review Drizzle migration journal/deployment path and ensure migration 0006 applied **before** deploying worker; validate cleanup queue recovery with actual D1/R2 staging; explicitly approve the supported office-document MIME policy; confirm Node 24 CI results. R2 recovery executes on isolate startup, not through a guaranteed schedule—define an operational retry/reconciliation runbook and monitor failures.
+- **Status:** **In Progress — Not Deployed**; not yet approved for production deployment.
+
 ### SEC-002 — Evidence type validation and policy consistency (FIX-006)
 
 - **Evidence / affected files:** `sites-service/worker/asset360.js` `upload()` accepts image signatures from a combined set after `mime_type.startsWith('image/')`; legacy `/api/files` upload is in `sites-service/worker/index.js`.
