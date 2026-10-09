@@ -1,3 +1,4 @@
+import {cleanupFailedEvidence} from './evidence-cleanup.js';
 import {validateEvidenceMime} from './evidence-validation.js';
 import {one,insert,query,audit,allowed,fail} from './data.js';
 import {digest,random} from './security.js';
@@ -46,5 +47,5 @@ export async function employeePhotoAPI(req,db,u,path,d,env){
   ]);
 
   return new Response(JSON.stringify({ok:true}),{headers:{'content-type':'application/json','cache-control':'no-store'}});
- }catch(e){try{await env.BUCKET.delete(storage);}catch{console.error('Employee photo object cleanup requires reconciliation');}throw e;}
+ }catch(e){await cleanupFailedEvidence(db,env.BUCKET,storage)throw e;}
 }
