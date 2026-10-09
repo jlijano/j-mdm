@@ -99,6 +99,15 @@ This audit inspected the current `main` source without modifying runtime code or
 
 **Existing tested baseline on this branch:** root 22/22; Sites 8/8; Sites build passed on Node 26. New release-gate checks must not be conflated with those earlier results.
 
+### FIX-006 Drizzle sequencing correction — 2026-10-09
+
+- **Branch only:** `fix006-evidence-hardening`. `drizzle/meta/_journal.json` now contains the previously absent `0005_asset_360` and `0006_evidence_cleanup_queue` entries. Existing entries `0000`–`0004` were preserved. The journal correction was committed as `b3a4dba`.
+- **New regression tests:** `sites-service/test/migration-sequence.test.js` validates indexed ordering, presence of SQL files, fresh installation of all journaled migrations, and additive upgrade from schema `0004` to `0006` without losing a fixture system setting. Test commit `127b4dd`.
+- **Local Node 24 verification:** Root suite 22/22 passed; Sites `scripts/build.mjs` passed; Sites suite 11/11 passed, including all three new migration tests. The tests ran in a disconnected in-memory SQLite fixture, **not against deployed D1 or a verified Wrangler-managed migration invocation**.
+- **Deployment mechanism observation:** `sites-service/scripts/build.mjs` copies Drizzle SQL into the build artifact; it does not itself execute migrations. `sites-service/package.json` declares `generate` but no migration apply command. Migration execution and existing D1 applied-history must be confirmed with the authorized Sites deployment tooling before any deployment.
+- **Residual migration risk:** A database previously modified through untracked manual SQL may already contain `0005` tables/columns despite missing journal entries; blindly replaying them would fail. Read-only schema and migration-history inspection, then a tailored non-destructive reconciliation plan, are mandatory.
+- **Status:** Migration metadata and local tests **corrected/verified**; actual hosted migration sequencing **not verified**. FIX-006 remains **In Progress — Not Deployed**.
+
 ### SEC-002 — Evidence type validation and policy consistency (FIX-006)
 
 - **Evidence / affected files:** `sites-service/worker/asset360.js` `upload()` accepts image signatures from a combined set after `mime_type.startsWith('image/')`; legacy `/api/files` upload is in `sites-service/worker/index.js`.
