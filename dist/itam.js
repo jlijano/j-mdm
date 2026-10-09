@@ -163,7 +163,7 @@ const dashboardLoading=()=>{q('#cloud-stats').innerHTML='<div class="dashboard-s
      <div><small>Barcode</small><strong>${val(a.barcode)}</strong></div>
      <div><small>Serial</small><strong>${val(a.serial_number)}</strong></div>
     </div>
-    <div class="asset-actions">${actionsHTML}${d.permissions.manage_evidence?`<button data-upload-asset="${id}">Upload Evidence</button>`:''}${user.super||user.permissions.includes('security.manage')?`<button data-security-asset="${id}">Gate Check</button>`:''}</div>
+    <div class="asset-actions"><button type="button" data-asset-label="${escape(a.asset_id)}" data-label-value="${escape(a.barcode||a.asset_tag)}" data-label-tag="${escape(a.asset_tag)}">Generate Barcode / QR Label</button>${actionsHTML}${d.permissions.manage_evidence?`<button data-upload-asset="${id}">Upload Evidence</button>`:''}${user.super||user.permissions.includes('security.manage')?`<button data-security-asset="${id}">Gate Check</button>`:''}</div>
     <nav class="asset360-tabs" aria-label="Asset 360 sections">${tabs.map(([k,l],i)=>`<button type="button" data-asset360-tab="${k}" data-asset-id="${id}" aria-selected="${i===0}">${l}</button>`).join('')}</nav>
     <section id="asset360-panel" class="asset360-panel"></section></div>`;
    const panel=q('#asset360-panel');
