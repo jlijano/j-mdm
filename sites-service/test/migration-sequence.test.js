@@ -9,7 +9,7 @@ function apply(db,entries){
 }
 test('Drizzle journal registers every SQL migration in strict sequence',()=>{
  assert.deepEqual(journal.entries.map(e=>e.idx),journal.entries.map((_,i)=>i));
- assert.deepEqual(journal.entries.slice(-2).map(e=>e.tag),['0005_asset_360','0006_evidence_cleanup_queue']);
+ assert.deepEqual(journal.entries.slice(-3).map(e=>e.tag),['0005_asset_360','0006_evidence_cleanup_queue','0007_evidence_quarantine']);
  assert(journal.entries.every((e,i)=>existsSync(file(e.tag))&&(i===0||e.when>journal.entries[i-1].when)));
 });
 test('fresh schema applies all journaled migrations including cleanup queue',()=>{
