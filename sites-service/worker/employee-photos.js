@@ -47,5 +47,5 @@ export async function employeePhotoAPI(req,db,u,path,d,env){
   ]);
 
   return new Response(JSON.stringify({ok:true}),{headers:{'content-type':'application/json','cache-control':'no-store'}});
- }catch(e){await cleanupFailedEvidence(db,env.BUCKET,storage)throw e;}
+ }catch(e){await cleanupFailedEvidence(db,env.BUCKET,storage);throw e;}
 }
