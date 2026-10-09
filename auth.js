@@ -1,3 +1,4 @@
+import { clientIP } from './client-ip.js';
 import { randomBytes, scrypt, timingSafeEqual, createHash } from 'node:crypto';
 import { promisify } from 'node:util';
 const derive = promisify(scrypt);
@@ -51,7 +52,7 @@ export function createAuth(options = {}) {
         const now = Date.now();
         for (const [id, value] of attempts) if (value.until <= now) attempts.delete(id);
         for (const [id, value] of sessions) if (value.expires <= now) sessions.delete(id);
-        const ip = String(req.headers['x-forwarded-for'] || req.socket.remoteAddress).split(',').at(-1).trim();
+        const ip = clientIP(req, options.trustedProxyIPs);
         const state = attempts.get(ip) || { count: 0, until: now + 15 * 60 * 1000 };
         if (state.count >= 5 || attempts.size >= 10000 || sessions.size >= 1000) { res.setHeader('Retry-After', '900'); json(res, 429, { message: 'Too many sign-in attempts. Please try again in 15 minutes.' }); return true; }
         state.count++; attempts.set(ip, state);
