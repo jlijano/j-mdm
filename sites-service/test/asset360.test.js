@@ -44,7 +44,7 @@ test('Asset 360 evidence, custody photos, barcode, condition, reconciliation and
  const fakeOffice=Buffer.from([80,75,3,4,0,0,0,0]).toString('base64');
  const quarantineBefore=stored.size;
  const officeUpload=await call(url+'/evidence','POST',{document_type:'QUOTATION',filename:'quote.docx',mime_type:'application/vnd.openxmlformats-officedocument.wordprocessingml.document',base64:fakeOffice});
- assert.equal(officeUpload.status,200);
+ assert.equal(officeUpload.status,'PENDING_SCAN');
  assert.equal(officeUpload.ok,true);
  assert.equal(sql.prepare("SELECT COUNT(*) n FROM evidence_quarantine WHERE status='PENDING_SCAN'").get().n,1);
  assert.equal(sql.prepare("SELECT COUNT(*) n FROM asset_files WHERE document_type='QUOTATION'").get().n,0);
