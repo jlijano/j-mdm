@@ -38,6 +38,12 @@ test('Asset 360 evidence, custody photos, barcode, condition, reconciliation and
  const nonImage=await call(url+'/evidence','POST',{document_type:'ASSET_PHOTO',filename:'wrong.txt',mime_type:'text/plain',base64:png});
  assert.equal(nonImage.status,400,'Photo evidence requires an image');
  assert.equal(stored.size,objectsBeforeInvalid);
+ const beforeFailureCount=sql.prepare('SELECT COUNT(*) n FROM files').get().n;
+ const beforeFailureObjects=stored.size;
+ const failedRelation=await call(url+'/evidence','POST',{document_type:'ASSET_PHOTO',filename:'invalid-link.png',mime_type:'image/png',base64:png,related_assignment_id:999999999});
+ assert.notEqual(failedRelation.status,200,'Invalid related assignment must fail');
+ assert.equal(sql.prepare('SELECT COUNT(*) n FROM files').get().n,beforeFailureCount,'D1 file metadata must roll back on association failure');
+ assert.equal(stored.size,beforeFailureObjects,'R2 object must be compensated on D1 failure');
  for(let i=0;i<5;i++)assert.equal((await call(url+'/evidence','POST',{document_type:'ASSET_PHOTO',evidence_type:'FRONT',filename:'evidence-'+i+'.png',mime_type:'image/png',base64:png})).status,200);
  assert.equal((await call(url+'/evidence','POST',{document_type:'BARCODE_PHOTO',evidence_type:'BARCODE',filename:'barcode.png',mime_type:'image/png',base64:png})).status,200);
  const score=(await call(url)).completeness;assert.equal(score.checks.find(x=>x.key==='reference_photos').complete,true);assert.equal(score.checks.find(x=>x.key==='barcode_photo').complete,true);
