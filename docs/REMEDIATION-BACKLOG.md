@@ -18,7 +18,7 @@ This audit inspected the current `main` source without modifying runtime code or
 
 | Finding | Related task | Severity | Classification | Evidence | Business impact | Status |
 | --- | --- | --- | --- | --- | --- | --- |
-| SEC-001 | FIX-003 | High | Confirmed code-level trust-boundary weakness | [`auth.js`](../auth.js), [`remote-auth.js`](../remote-auth.js): login rate-limit client IP uses `x-forwarded-for` without an explicit trusted-hop policy; remote forwarding also passes derived IP upstream | Spoofed/misattributed client addresses may weaken throttling and audit attribution, depending on deployed proxy behavior | Pending |
+| SEC-001 | FIX-003 | High | Confirmed code-level trust-boundary weakness (code correction committed; operational verification pending) | [`auth.js`](../auth.js), [`remote-auth.js`](../remote-auth.js): login rate-limit client IP uses `x-forwarded-for` without an explicit trusted-hop policy; remote forwarding also passes derived IP upstream | Spoofed/misattributed client addresses may weaken throttling and audit attribution, depending on deployed proxy behavior | Pending |
 | DATA-001 | FIX-006 | High | Confirmed partial-failure consistency risk | [`sites-service/worker/asset360.js`](../sites-service/worker/asset360.js): `upload()` inserts `files` metadata before a separate `db.batch` for `asset_files`; the catch deletes the R2 object without explicitly removing the preceding metadata row | Orphaned file metadata and failed evidence retrieval after link failure | Pending |
 | SEC-002 | FIX-006 | Medium | Confirmed validation gap | [`sites-service/worker/asset360.js`](../sites-service/worker/asset360.js) `upload()`; [`sites-service/worker/index.js`](../sites-service/worker/index.js) legacy `/api/files` | Signature checks accept recognized image magic bytes without matching each precise declared subtype; differing 10 MB/5 MB route limits can cause inconsistent handling | Pending |
 | DATA-002 | FIX-005 | Medium | Confirmed concurrency-control gap | [`sites-service/worker/asset360.js`](../sites-service/worker/asset360.js): condition/barcode mutations increment revision without an old-revision predicate; compare [`sites-service/worker/api.js`](../sites-service/worker/api.js) `lifecycle()` | Concurrent Asset 360 updates may overwrite state or accept stale changes | Pending |
@@ -32,7 +32,7 @@ This audit inspected the current `main` source without modifying runtime code or
 - **Proposed correction:** Centralize client-IP resolution using a configured trusted-hop model; use it consistently in throttle keys and forwarded attribution; reject/ignore untrusted values without breaking legitimate proxy traffic.
 - **Acceptance criteria:** Untrusted client-supplied header values cannot select an arbitrary throttle identity; valid edge-forwarded traffic gets expected attribution; legitimate sign-in continues to function; secrets and identities remain protected in logs.
 - **Required tests:** Forged single/multiple `X-Forwarded-For` values; direct requests; expected trusted proxy chain; repeated failed logins across differing forged headers; correct remote-proxy propagation; IPv4/IPv6 normalization; login success and throttling regression.
-- **Executed tests:** None in this audit. **Commit:** None. **Deployment:** Not attempted. **Production verification:** Not performed. **Status:** Pending.
+- **Implementation:** Shared fail-closed `client-ip.js` resolver; `auth.js` and `remote-auth.js` use it for throttling and gateway attribution. `TRUSTED_PROXY_IPS` remains unset by default; configure only with verified, stable immediate proxy addresses. **Tests:** New `test/client-ip.test.js` committed; an isolated local mirror of the resolver passed 3/3 tests (not equivalent to the full repository CI). **Commits:** `124205d`, `747c1dd`, `0e42d18`, `747900e`. **Deployment:** Main branch may auto-deploy; not independently checked. **Production verification:** Not performed. **Status:** Fixed — Not Deployed (deployment not confirmed).
 
 ### DATA-001 — Evidence metadata / R2 atomicity gap (FIX-006)
 
@@ -82,7 +82,7 @@ For each task, record source/line evidence, affected files, expected business ou
 | --- | --- | --- | --- | --- |
 | FIX-001 | P1 | Authentication and sessions | Database-backed session and MFA paths observed; run logout/expiry/revocation and remote/local regression tests | Pending |
 | FIX-002 | P1 | Server-side RBAC/scopes | SEC-003: verify cross-scope related-record routes and negative RBAC cases | Pending |
-| FIX-003 | P1 | Trusted proxy/IP handling | SEC-001 High: forwarded-IP provenance weakness in auth and remote gateway | Pending |
+| FIX-003 | P1 | Trusted proxy/IP handling | SEC-001 High: fail-closed trusted-hop resolver committed; CI and edge deployment verification pending | Pending |
 | FIX-004 | P1 | CSRF and gateway validation | Verify allowed origin/host behavior | Pending |
 | FIX-005 | P1 | Transaction integrity | DATA-002 Medium: Asset 360 revision guards inconsistent; verify lifecycle atomicity | Pending |
 | FIX-006 | P1 | Evidence file security | DATA-001 High metadata/R2 consistency; SEC-002 Medium MIME and upload-policy validation | Pending |
