@@ -28,6 +28,16 @@ test('Asset 360 evidence, custody photos, barcode, condition, reconciliation and
  assert.equal((await call('/api/employees/'+emp+'/photo')).status,200);
  assert.equal((await call('/api/employees/'+emp+'/photo','POST',{filename:'replacement.png',mime_type:'image/png',base64:png})).status,200);
  assert.equal(sql.prepare("SELECT COUNT(*) n FROM employee_files WHERE employee_id=? AND is_active=1").get(emp).n,1);
+ const activeBeforeFailure=sql.prepare("SELECT file_id FROM employee_files WHERE employee_id=? AND is_active=1").get(emp).file_id;
+ const filesBeforeFailure=sql.prepare('SELECT COUNT(*) n FROM files').get().n;
+ const objectsBeforePhotoFailure=stored.size;
+ sql.exec("CREATE TRIGGER reject_employee_photo_fixture BEFORE INSERT ON employee_files BEGIN SELECT RAISE(ABORT,'fixture forced employee photo failure'); END;");
+ const rejectedPhoto=await call('/api/employees/'+emp+'/photo','POST',{filename:'rollback.png',mime_type:'image/png',base64:png});
+ assert.notEqual(rejectedPhoto.status,200,'Forced employee photo association failure must be rejected');
+ sql.exec('DROP TRIGGER reject_employee_photo_fixture');
+ assert.equal(sql.prepare("SELECT file_id FROM employee_files WHERE employee_id=? AND is_active=1").get(emp).file_id,activeBeforeFailure,'Previous employee photo must remain active');
+ assert.equal(sql.prepare('SELECT COUNT(*) n FROM files').get().n,filesBeforeFailure,'Employee file metadata must roll back');
+ assert.equal(stored.size,objectsBeforePhotoFailure,'Failed employee photo object must be removed');
  assert.equal((await call('/api/employees/'+emp+'/photo','DELETE')).status,200);
  assert.equal((await call('/api/employees/'+emp+'/photo')).status,404);
  assert.equal((await call('/api/employees/'+emp+'/photo','POST',{filename:'bad.png',mime_type:'image/png',base64:'bm90YW5pbWFnZQ=='})).status,400);
