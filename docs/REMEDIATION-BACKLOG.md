@@ -221,3 +221,11 @@ For each task, record source/line evidence, affected files, expected business ou
 ## Verification rules
 
 Statuses: Pending; In Progress; Blocked; Fixed — Not Deployed; Deployed — Not Verified; Verified; Not Applicable. A GitHub documentation commit is **not** evidence of a Render/Sites deployment or production validation. Production tests must be non-destructive unless approved.
+
+### FIX-006 Office quarantine validation checkpoint — 2026-10-09
+
+- **Root cause:** A ZIP local-file signature alone did not validate structural integrity or exclude dangerous Office archive members.
+- **Change:** `sites-service/worker/evidence-quarantine.js` now checks central-directory bounds, entry consistency, dangerous paths and extensions, duplicate names, expansion limits and required OOXML entries before storing quarantine objects.
+- **Commit:** `fbfbf9b80f01f77fb322c64f9100aecd76846120` on `fix006-evidence-hardening`.
+- **Tests:** No Node 24 or GitHub Actions result for this new commit; GitHub combined statuses and commit-associated workflow runs returned empty. Previous 22/22 root, 14/14 Sites test results apply to older branch revisions only.
+- **Status:** Blocked from completion pending authenticated malware scanning and full package inspection/release evidence; staging D1/R2 validation and post-commit CI unverified. DOCX/XLSX remain `PENDING_SCAN`; branch **not merged or deployed**.
