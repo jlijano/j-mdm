@@ -41,6 +41,15 @@ test('Asset 360 evidence, custody photos, barcode, condition, reconciliation and
  assert.equal((await call('/api/employees/'+emp+'/photo','DELETE')).status,200);
  assert.equal((await call('/api/employees/'+emp+'/photo')).status,404);
  assert.equal((await call('/api/employees/'+emp+'/photo','POST',{filename:'bad.png',mime_type:'image/png',base64:'bm90YW5pbWFnZQ=='})).status,400);
+ const fakeOffice=Buffer.from([80,75,3,4,0,0,0,0]).toString('base64');
+ const quarantineBefore=stored.size;
+ const officeUpload=await call(url+'/evidence','POST',{document_type:'QUOTATION',filename:'quote.docx',mime_type:'application/vnd.openxmlformats-officedocument.wordprocessingml.document',base64:fakeOffice});
+ assert.equal(officeUpload.status,200);
+ assert.equal(officeUpload.status,200);
+ assert.equal(officeUpload.ok,true);
+ assert.equal(sql.prepare("SELECT COUNT(*) n FROM evidence_quarantine WHERE status='PENDING_SCAN'").get().n,1);
+ assert.equal(sql.prepare("SELECT COUNT(*) n FROM asset_files WHERE document_type='QUOTATION'").get().n,0);
+ assert.equal(stored.size,quarantineBefore+1);
  const objectsBeforeInvalid=stored.size;
  const badMime=await call(url+'/evidence','POST',{document_type:'ASSET_PHOTO',filename:'wrong.jpg',mime_type:'image/jpeg',base64:png});
  assert.equal(badMime.status,400,'PNG bytes declared JPEG must be rejected');
