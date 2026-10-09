@@ -1643,3 +1643,19 @@ body.app-shell{
  #records .record-actions button{flex:1 1 110px;min-width:0;min-height:44px}
  #records #new-record{width:100%;min-height:48px}
 }
+
+/* Printable asset identification label controls. */
+#asset-label-dialog{width:min(510px,calc(100vw - 24px));max-height:calc(100dvh - 24px);overflow:auto;padding:24px}
+#asset-label-dialog label{display:grid;gap:8px;margin:20px 0;font-size:14px}
+#asset-label-dialog select{width:100%;min-height:48px}
+.asset-label-preview{display:grid;place-items:center;background:#f3f7fd;border:1px solid var(--j-border,#dfe7f1);border-radius:16px;padding:20px;min-height:260px}
+.asset-label-sheet{display:grid;justify-items:center;gap:9px;padding:18px;background:#fff;color:#101c35;border:1px solid #dfe7f1;border-radius:12px;max-width:100%;width:100%;text-align:center}
+.asset-label-sheet svg{width:100%;max-width:340px;height:auto}
+.asset-label-sheet strong{font-size:13px;letter-spacing:.09em}
+.asset-label-sheet b{font-size:20px;overflow-wrap:anywhere}
+.asset-label-sheet small{font-size:12px;overflow-wrap:anywhere}
+.asset-label-qr img,.asset-label-qr canvas{display:block;max-width:100%;height:auto}
+.asset-label-controls{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}
+.asset-label-controls button{min-height:48px}
+#asset-label-error:not([hidden]){color:#b42318;font-size:14px}
+@media(max-width:430px){#asset-label-dialog{padding:16px}.asset-label-controls{grid-template-columns:1fr}}
