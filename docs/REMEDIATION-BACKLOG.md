@@ -147,6 +147,13 @@ Sites authentication uses database session checks and MFA-required state; `data.
 
 **Release rule:** Keep both P0 findings open until the above independently evidenced conditions are satisfied. Do not equate green unit tests with deployed malware scanning or authenticated ingress attribution.
 
+## P0 functional completion checkpoint — 2026-10-09
+
+- **FIX-006:** Node 24 local root tests 22/22; Sites build succeeded; Sites tests 14/14 at branch commit `38ebdfd`. GitHub Actions workflow `.github/workflows/ci.yml` now triggers on `fix006-evidence-hardening`, but connected GitHub status and pull-request-filtered run endpoints returned no results; CI success is **not established**. Working photos/PDF and permitted CSV/TXT upload restrictions, metadata atomicity, D1 migrations, quarantine isolation, and R2 cleanup regression verified in local fixtures.
+- **Unclosed FIX-006 controls:** DOCX/XLSX quarantine is **PENDING_SCAN**, not scanned, sanitized or promotable; no authenticated scanner integration exists. Real hosted D1/R2 and migration sequencing remains unverified. This does not satisfy approved DOCX/XLSX acceptance.
+- **FIX-003:** Trusted-client-IP resolver tests pass, and earlier Render deployment was observed live, but actual trusted ingress and multi-client rate-limit attribution remain unverified. No production proxy setting modified.
+- **Disposition:** Both P0 tickets remain open for these narrowly defined acceptance criteria. Do not merge or deploy this branch, and do not classify the unverified controls as completed.
+
 ## Verification queue
 
 For each task, record source/line evidence, affected files, expected business outcome, reproducible steps, root cause if established, dependencies, test results, commit SHA, deployment and production verification. Do not implement already-working functionality merely because it appears below.
