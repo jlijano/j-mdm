@@ -26,7 +26,7 @@ export function createRemoteAuth(options={}){
       const ip=clientIP(req,options.trustedProxyIPs),time=Date.now();for(const [k,v]of attempts)if(v.until<=time)attempts.delete(k);
       const a=attempts.get(ip)||{count:0,until:time+900000};if(a.count>=5||attempts.size>=10000){send(res,429,{message:'Too many attempts. Try again in 15 minutes.'});return true;}a.count++;attempts.set(ip,a);
      }
-     let body;if(req.method!=='GET'){if(!(req.headers['content-type']||'').startsWith('application/json')){send(res,400,{message:'JSON request required.'});return true;}body='';for await(const c of req){body+=c;if(Buffer.byteLength(body)>7500000){send(res,413,{message:'Request too large.'});return true;}}}
+     let body;if(req.method!=='GET'){if(!(req.headers['content-type']||'').startsWith('application/json')){send(res,400,{message:'JSON request required.'});return true;}body='';for await(const c of req){body+=c;if(Buffer.byteLength(body)>22*1024*1024){send(res,413,{message:'Request too large.'});return true;}}}
      const upstream=await remote(req,req.url,{body});if(upstream.status>=300&&upstream.status<400)throw new Error('Sites gateway unavailable');
      if(pathname==='/api/auth/login'&&upstream.ok){const ip=clientIP(req,options.trustedProxyIPs);attempts.delete(ip);}
      const sessionCookies=upstream.headers.getSetCookie().filter(cookie=>/^mdm_session=/.test(cookie)&&!/(?:^|;)\s*Domain=/i.test(cookie));
