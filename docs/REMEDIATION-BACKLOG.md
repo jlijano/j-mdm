@@ -139,6 +139,14 @@ This audit inspected the current `main` source without modifying runtime code or
 
 Sites authentication uses database session checks and MFA-required state; `data.js` applies server-side permissions and scopes; `api.js` uses D1 batches and revision guards for lifecycle changes; file-download logic verifies module permission and asset visibility. These are source observations, **not** evidence of passing tests or completed QA. See [engineering standards](CODING-STANDARDS.md).
 
+## P0 closure assessment — 2026-10-09
+
+**FIX-006: NOT CLOSED (staging branch only).** Current `fix006-evidence-hardening` commit `cd58f45` passed root tests **22/22**, Sites build and Sites tests **14/14** with Node 24. Implemented restricted Office `PENDING_SCAN` quarantine, evidence category MIME checks, documented 5–15 MB caps, bounded request payloads, upload atomicity, cleanup retry, migrations through `0007`, and negative tests that pending evidence is excluded from regular downloads and listings. **Blockers:** No trusted antivirus/malware scanning engine or validated OOXML parser/promotion workflow; staged Office input is only checked for a ZIP marker and remains inaccessible. Hosted D1/R2 staging and migration-history checks are not complete. Do not merge or deploy until quarantined objects cannot be approved without genuine scanner evidence and all integrations pass.
+
+**FIX-003: NOT CLOSED (deployed remediation, production proxy verification pending).** The fail-closed trusted-peer IP resolver and unit regression tests are committed on `main`. Render's actual immediate peer, header authenticity contract and effective `TRUSTED_PROXY_IPS` setting have not been confirmed. Never guess Render edge IPs or trust arbitrary forwarded headers. Verify separate clients' throttling in staging and production-safe diagnostics before marking FIX-003 complete. No production settings changed in this pass.
+
+**Release rule:** Keep both P0 findings open until the above independently evidenced conditions are satisfied. Do not equate green unit tests with deployed malware scanning or authenticated ingress attribution.
+
 ## Verification queue
 
 For each task, record source/line evidence, affected files, expected business outcome, reproducible steps, root cause if established, dependencies, test results, commit SHA, deployment and production verification. Do not implement already-working functionality merely because it appears below.
