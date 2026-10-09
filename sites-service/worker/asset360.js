@@ -99,16 +99,30 @@ async function upload(req,db,u,id,d,env){
  const evidence=cleanText(d.evidence_type,60);if(evidence&&!PHOTO_TYPES.has(evidence))fail('Choose a valid evidence type.');
  let bytes;try{bytes=Uint8Array.from(atob(d.base64),c=>c.charCodeAt(0));}catch{fail('Invalid upload.');}
  if(!bytes.length||bytes.length>10*1024*1024)fail('Files must be between 1 byte and 10 MB.');
- const declared=cleanText(d.mime_type,150)||'application/octet-stream';const image=declared.startsWith('image/');
- const sig=[...bytes.slice(0,12)];const validImage=!image||((sig[0]===255&&sig[1]===216&&sig[2]===255)||(sig[0]===137&&sig[1]===80&&sig[2]===78&&sig[3]===71)||(sig[0]===82&&sig[1]===73&&sig[2]===70&&sig[3]===70)||(sig[0]===71&&sig[1]===73&&sig[2]===70));
- if(!validImage)fail('The uploaded image content does not match its declared type.');
- const filename=cleanText(d.filename,255)||'file',storage=random();await env.BUCKET.put(storage,bytes,{httpMetadata:{contentType:'application/octet-stream'}});
+ const declared=cleanText(d.mime_type,150)||'application/octet-stream';
+ if(declared.startsWith('image/')&&!['image/jpeg','image/png','image/webp'].includes(declared))fail('Unsupported image format.');
+ const sig=bytes;
+ const matches=declared==='image/jpeg'?sig[0]===255&&sig[1]===216&&sig[2]===255:
+  declared==='image/png'?sig[0]===137&&sig[1]===80&&sig[2]===78&&sig[3]===71&&sig[4]===13&&sig[5]===10&&sig[6]===26&&sig[7]===10:
+  declared==='image/webp'?sig[0]===82&&sig[1]===73&&sig[2]===70&&sig[3]===70&&sig[8]===87&&sig[9]===69&&sig[10]===66&&sig[11]===80:
+  declared==='application/pdf'?sig[0]===37&&sig[1]===80&&sig[2]===68&&sig[3]===70&&sig[4]===45:true;
+ if(!matches)fail('File content does not match its declared format.');
+ if(type.endsWith('_PHOTO')&&!declared.startsWith('image/'))fail('Photo evidence must be a supported image.');
+ const filename=cleanText(d.filename,255)||'file',storage=random();
+ await env.BUCKET.put(storage,bytes,{httpMetadata:{contentType:'application/octet-stream'}});
  try{
-  const fileStmt=insert(db,'files',{original_filename:filename,stored_filename:storage,storage_path:storage,mime_type:declared,file_size:bytes.length,checksum:await digest(d.base64),uploaded_by:u.user_id});
-  await fileStmt.run();const file=await one(db,'SELECT file_id FROM files WHERE stored_filename=?',storage);
-  await db.batch([insert(db,'asset_files',{asset_id:id,file_id:file.file_id,document_type:type,description:cleanText(d.description),evidence_type:evidence,caption:cleanText(d.caption,500),condition_id:num(d.condition_id),lifecycle_stage:cleanText(d.lifecycle_stage,60),captured_at:cleanText(d.captured_at,40),location_id:num(d.location_id),related_assignment_id:num(d.related_assignment_id),related_repair_id:num(d.related_repair_id),related_inventory_session_id:num(d.related_inventory_session_id),related_movement_id:num(d.related_movement_id),related_disposal_id:num(d.related_disposal_id),evidence_status:'ACTIVE'}),audit(db,u,'asset_files',null,'EVIDENCE_UPLOADED',null,{asset_id:id,file_id:file.file_id,document_type:type,evidence_type:evidence},req)]);
+  // File row, asset association and audit must commit together. R2 is compensated on D1 failure.
+  await db.batch([
+   insert(db,'files',{original_filename:filename,stored_filename:storage,storage_path:storage,mime_type:declared,file_size:bytes.length,checksum:await digest(d.base64),uploaded_by:u.user_id}),
+   query(db,'INSERT INTO asset_files(asset_id,file_id,document_type,description,evidence_type,caption,condition_id,lifecycle_stage,captured_at,location_id,related_assignment_id,related_repair_id,related_inventory_session_id,related_movement_id,related_disposal_id,evidence_status) SELECT ?,file_id,?,?,?,?,?,?,?,?,?,?,?,?,?,? FROM files WHERE stored_filename=?',id,type,cleanText(d.description),evidence,cleanText(d.caption,500),num(d.condition_id),cleanText(d.lifecycle_stage,60),cleanText(d.captured_at,40),num(d.location_id),num(d.related_assignment_id),num(d.related_repair_id),num(d.related_inventory_session_id),num(d.related_movement_id),num(d.related_disposal_id),'ACTIVE',storage),
+   audit(db,u,'asset_files',null,'EVIDENCE_UPLOADED',null,{asset_id:id,document_type:type,evidence_type:evidence},req)
+  ]);
+  const file=await one(db,'SELECT file_id FROM files WHERE stored_filename=?',storage);
   return{ok:true,file_id:file.file_id};
- }catch(e){await env.BUCKET.delete(storage);throw e;}
+ }catch(e){
+  try{await env.BUCKET.delete(storage);}catch{console.error('Evidence object cleanup requires reconciliation');}
+  throw e;
+ }
 }
 export async function asset360API(req,db,u,path,d,env){
  if(path==='/api/locations/smart'){
