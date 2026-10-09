@@ -70,5 +70,28 @@ test('Asset 360 evidence, custody photos, barcode, condition, reconciliation and
  sql.prepare("UPDATE invoices SET amount='101' WHERE invoice_id=?").run(invoice);
  assert.equal((await call(url+'/procurement')).reconciliation.cost_matched,false);
  assert.equal((await call(url)).completeness.checks.find(x=>x.key==='purchase_order').complete,true);
+ const financePdf=Buffer.from('%PDF-1.7\\n1 0 obj <<>> endobj\\n%%EOF').toString('base64');
+ assert.equal((await call(url+'/evidence','POST',{document_type:'INVOICE',filename:'invoice.pdf',mime_type:'application/pdf',base64:financePdf})).status,200);
+ const restrictedFile=sql.prepare("SELECT af.file_id FROM asset_files af WHERE af.asset_id=? AND af.document_type='INVOICE' ORDER BY af.file_id DESC LIMIT 1").get(asset).file_id;
+ const rootCookie=cookie;
+ cookie='';
+ assert.equal((await call('/api/files/'+restrictedFile)).status,401,'Unauthenticated evidence GET must be denied');
+ async function loginViewer(name,scoped){
+  const pass=await passwordHash('fixture-viewer-password');
+  const id=Number(sql.prepare("INSERT INTO users(username,email,password_hash,is_active) VALUES (?,?,?,1)").run(name,name+'@example.test',pass).lastInsertRowid);
+  for(const perm of ['assets.view','files.view']){
+   sql.prepare("INSERT INTO user_permission_overrides(user_id,permission_id,effect) SELECT ?,permission_id,'ALLOW' FROM permissions WHERE permission_code=?").run(id,perm);
+  }
+  if(scoped)sql.prepare("INSERT INTO user_scopes(user_id,scope_type,access_level) VALUES (?,'ENTERPRISE','VIEW')").run(id);
+  cookie='';
+  const login=await call('/api/auth/login','POST',{email:name+'@example.test',password:'fixture-viewer-password'});
+  assert.equal(login.status,200);
+ }
+ await loginViewer('finance-limited',true);
+ assert.equal((await call('/api/files/'+restrictedFile)).status,403,'Non-finance enterprise viewer cannot download financial evidence');
+ await loginViewer('outside-asset-scope',false);
+ assert.equal((await call('/api/files/'+restrictedFile)).status,404,'Out-of-scope viewer cannot download evidence');
+ cookie=rootCookie;
+ assert.equal((await call('/api/files/'+restrictedFile)).status,200,'Authorized administrator can retrieve document');
  assert(sql.prepare("SELECT COUNT(*) n FROM audit_logs WHERE action IN ('PROFILE_PHOTO_UPLOADED','PROFILE_PHOTO_REMOVED','BARCODE_REPLACED','CONDITION_RECORDED')").get().n>=4);
 });
