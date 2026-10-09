@@ -166,8 +166,21 @@ const idOf=row=>meta[currentTable].columns.filter(c=>c.key.includes('PK')).map(c
      const a=(result.rows||[]).find(row=>String(row.asset_id)===String(id));
      if(!a)throw Error('Asset not found in your permitted scope.');
      q('#asset-title').textContent=a.asset_tag||'Asset';
-     const fields=[['Asset Tag',a.asset_tag],['Description',a.description],['Barcode',a.barcode],['Serial Number',a.serial_number],['Status ID',a.status_id],['Condition ID',a.condition_id],['Location ID',a.current_location_id]];
-     q('#asset-content').innerHTML='<div class="asset360"><p>Basic asset information is available. Full Asset 360 details are temporarily unavailable.</p><dl>'+fields.map(([name,value])=>'<dt>'+escape(name)+'</dt><dd>'+escape(value??'Not set')+'</dd>').join('')+'</dl></div>';
+     // Resolve business labels through the same scoped lookups used by asset forms.
+     const lookupName=async(table,key,label,value)=>{
+      if(value==null||value==='')return 'Not set';
+      try{const result=await api('/api/records/'+table+'?limit=500&fields='+encodeURIComponent(key+','+label));return result.rows?.find(x=>String(x[key])===String(value))?.[label]||'Not set';}
+      catch{return 'Not available';}
+     };
+     const [status,condition,location]=await Promise.all([
+      lookupName('asset_statuses','status_id','status_name',a.status_id),
+      lookupName('asset_conditions','condition_id','condition_name',a.condition_id),
+      lookupName('locations','location_id','location_name',a.current_location_id)
+     ]);
+     const fields=[['Asset Tag',a.asset_tag,'tag'],['Description',a.description,'file-text'],['Barcode',a.barcode,'scan-line'],['Serial Number',a.serial_number,'cpu'],['Status',status,'check-circle'],['Condition',condition,'shield-check'],['Location',location,'map-pin']];
+     const icons={'tag':'◇','file-text':'▤','scan-line':'▥','cpu':'▦','check-circle':'✓','shield-check':'◈','map-pin':'⌖'};
+     const detailValue=(name,value)=>name==='Status'&&value!=='Not available'&&value!=='Not set'?'<span class="asset-detail-pill asset-detail-pill--status">'+escape(value)+'</span>':name==='Condition'&&value!=='Not available'&&value!=='Not set'?'<span class="asset-detail-pill asset-detail-pill--condition">'+escape(value)+'</span>':escape(value??'Not set');
+     q('#asset-content').innerHTML='<section class="asset-detail-fallback" aria-label="Basic asset information"><div class="asset-detail-notice" role="status"><span class="asset-detail-notice-icon" aria-hidden="true">i</span><div><strong>Basic asset information is available.</strong><p>Full Asset 360 details are temporarily unavailable.</p></div></div><h3>Basic Asset Information</h3><dl class="asset-detail-fields">'+fields.map(([name,value,icon])=>'<div class="asset-detail-field"><dt><span class="asset-detail-icon" aria-hidden="true">'+icons[icon]+'</span><span>'+escape(name)+'</span></dt><dd>'+detailValue(name,value)+'</dd></div>').join('')+'</dl></section>';
      return;
     }catch(fallbackError){q('#asset-content').textContent=fallbackError.message;return;}
    }
