@@ -45,11 +45,13 @@ test('Asset 360 evidence, custody photos, barcode, condition, reconciliation and
  const quarantineBefore=stored.size;
  const officeUpload=await call(url+'/evidence','POST',{document_type:'QUOTATION',filename:'quote.docx',mime_type:'application/vnd.openxmlformats-officedocument.wordprocessingml.document',base64:fakeOffice});
  assert.equal(officeUpload.status,200);
- assert.equal(officeUpload.status,200);
  assert.equal(officeUpload.ok,true);
  assert.equal(sql.prepare("SELECT COUNT(*) n FROM evidence_quarantine WHERE status='PENDING_SCAN'").get().n,1);
  assert.equal(sql.prepare("SELECT COUNT(*) n FROM asset_files WHERE document_type='QUOTATION'").get().n,0);
  assert.equal(stored.size,quarantineBefore+1);
+ assert.equal((await call(url+'/documents')).rows.some(x=>x.document_type==='QUOTATION'),false,'Pending Office documents must be invisible to evidence listing');
+ const quarantineId=sql.prepare("SELECT quarantine_id FROM evidence_quarantine WHERE status='PENDING_SCAN'").get().quarantine_id;
+ assert.equal((await call('/api/files/'+quarantineId)).status,404,'Quarantine IDs must not resolve through evidence download');
  const objectsBeforeInvalid=stored.size;
  const badMime=await call(url+'/evidence','POST',{document_type:'ASSET_PHOTO',filename:'wrong.jpg',mime_type:'image/jpeg',base64:png});
  assert.equal(badMime.status,400,'PNG bytes declared JPEG must be rejected');
