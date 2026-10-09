@@ -50,6 +50,13 @@
       "when": 1791331540978,
       "tag": "0006_evidence_cleanup_queue",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "6",
+      "when": 1791331540979,
+      "tag": "0007_evidence_quarantine",
+      "breakpoints": true
     }
   ]
 }
