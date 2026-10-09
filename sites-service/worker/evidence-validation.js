@@ -13,8 +13,8 @@ export function evidencePolicy({mime,filename,documentType,bytes,employee=false}
  const ext=String(filename||'').toLowerCase().split('.').at(-1);
  if(!filename||!String(filename).includes('.'))fail('File extension is required.');
  const photo=employee||doc==='PHOTO'||doc.endsWith('_PHOTO');
- const inventory=['INVENTORY','INVENTORY_REPORT','INVENTORY_RECONCILIATION','OTHER'].includes(doc);
- const diagnostic=['DIAGNOSTIC','REPAIR_REPORT','OTHER'].includes(doc);
+ const inventory=['INVENTORY_REPORT','INVENTORY_RECONCILIATION'].includes(doc);
+ const diagnostic=['DIAGNOSTIC','REPAIR_REPORT'].includes(doc);
  const max=employee||photo&&['BARCODE_PHOTO','SERIAL_LABEL_PHOTO','ASSET_TAG_PHOTO'].includes(doc)?5:photo?10:15;
  if(!bytes?.length||bytes.length>max*MB)fail('Evidence exceeds its document limit ('+max+' MB).',413);
  if(OFFICE.has(type)){
