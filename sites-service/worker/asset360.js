@@ -1,6 +1,7 @@
 import {rows,one,query,insert,audit,allowed,enterprise,visibleAsset,fail,guard} from './data.js';
 import {now,digest,random} from './security.js';
 import {assetCompleteness} from './asset360-completeness.js';
+import {validatedEvidence} from './evidence-validation.js';
 
 const DOC_TYPES=new Set(['ASSET_PHOTO','BARCODE_PHOTO','ASSET_TAG_PHOTO','SERIAL_LABEL_PHOTO','MANUFACTURER_LABEL_PHOTO','RECEIVING_PHOTO','DAMAGE_PHOTO','INVENTORY_PHOTO','TRANSFER_PHOTO','RETURN_PHOTO','DISPOSAL_PHOTO','PURCHASE_REQUEST','QUOTATION','PURCHASE_ORDER','DELIVERY_RECEIPT','INVOICE','ASSIGNMENT_FORM','RETURN_FORM','TRANSFER_FORM','GATE_PASS','WARRANTY_DOCUMENT','REPAIR_QUOTATION','REPAIR_INVOICE','REPAIR_REPORT','DATA_WIPE_CERTIFICATE','DISPOSAL_CERTIFICATE','OTHER']);
 const PHOTO_TYPES=new Set(['FRONT','BACK','LEFT','RIGHT','TOP','BOTTOM','SERIAL_LABEL','MANUFACTURER_LABEL','BARCODE','ASSET_TAG','PACKAGING','RECEIVING','ASSIGNMENT','RETURN','DAMAGE','REPAIR_BEFORE','REPAIR_AFTER','INVENTORY','TRANSFER','DISPOSAL','OTHER']);
@@ -97,12 +98,8 @@ async function upload(req,db,u,id,d,env){
  if(!allowed(u,'files',true))fail('Upload permission required.',403);await visibleAsset(db,u,id,true);if(!env.BUCKET)fail('File storage unavailable.',503);
  const type=cleanText(d.document_type,60);if(!DOC_TYPES.has(type))fail('Choose a valid document type.');
  const evidence=cleanText(d.evidence_type,60);if(evidence&&!PHOTO_TYPES.has(evidence))fail('Choose a valid evidence type.');
- let bytes;try{bytes=Uint8Array.from(atob(d.base64),c=>c.charCodeAt(0));}catch{fail('Invalid upload.');}
- if(!bytes.length||bytes.length>10*1024*1024)fail('Files must be between 1 byte and 10 MB.');
- const declared=cleanText(d.mime_type,150)||'application/octet-stream';const image=declared.startsWith('image/');
- const sig=[...bytes.slice(0,12)];const validImage=!image||((sig[0]===255&&sig[1]===216&&sig[2]===255)||(sig[0]===137&&sig[1]===80&&sig[2]===78&&sig[3]===71)||(sig[0]===82&&sig[1]===73&&sig[2]===70&&sig[3]===70)||(sig[0]===71&&sig[1]===73&&sig[2]===70));
- if(!validImage)fail('The uploaded image content does not match its declared type.');
- const filename=cleanText(d.filename,255)||'file',storage=random();await env.BUCKET.put(storage,bytes,{httpMetadata:{contentType:'application/octet-stream'}});
+ const {bytes,mime:declared,filename}=validatedEvidence(d,type,10*1024*1024);
+ const storage=random();await env.BUCKET.put(storage,bytes,{httpMetadata:{contentType:'application/octet-stream'}});
  try{
   const fileStmt=insert(db,'files',{original_filename:filename,stored_filename:storage,storage_path:storage,mime_type:declared,file_size:bytes.length,checksum:await digest(d.base64),uploaded_by:u.user_id});
   await fileStmt.run();const file=await one(db,'SELECT file_id FROM files WHERE stored_filename=?',storage);
