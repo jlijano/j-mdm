@@ -101,7 +101,7 @@ async function upload(req,db,u,id,d,env){
  const evidence=cleanText(d.evidence_type,60);if(evidence&&!PHOTO_TYPES.has(evidence))fail('Choose a valid evidence type.');
  let bytes;try{bytes=Uint8Array.from(atob(d.base64),c=>c.charCodeAt(0));}catch{fail('Invalid upload.');}
  if(!bytes.length||bytes.length>10*1024*1024)fail('Files must be between 1 byte and 10 MB.');
- const declared=validateEvidenceMime(d.mime_type,bytes,{photo:type.endsWith('_PHOTO')});
+ const declared=validateEvidenceMime(d.mime_type,bytes,{filename:d.filename,documentType:type});
  const filename=cleanText(d.filename,255)||'file',storage=random();
  await env.BUCKET.put(storage,bytes,{httpMetadata:{contentType:'application/octet-stream'}});
  try{
