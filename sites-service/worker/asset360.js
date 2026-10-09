@@ -1,3 +1,4 @@
+import {isOfficeEvidence,quarantineOfficeEvidence} from './evidence-quarantine.js';
 import {cleanupFailedEvidence} from './evidence-cleanup.js';
 import {validateEvidenceMime} from './evidence-validation.js';
 import {rows,one,query,insert,audit,allowed,enterprise,visibleAsset,fail} from './data.js';
@@ -101,6 +102,7 @@ async function upload(req,db,u,id,d,env){
  const evidence=cleanText(d.evidence_type,60);if(evidence&&!PHOTO_TYPES.has(evidence))fail('Choose a valid evidence type.');
  let bytes;try{bytes=Uint8Array.from(atob(d.base64),c=>c.charCodeAt(0));}catch{fail('Invalid upload.');}
  if(!bytes.length||bytes.length>15*1024*1024)fail('Files must be between 1 byte and 15 MB.');
+ if(isOfficeEvidence(d.mime_type))return quarantineOfficeEvidence(db,env.BUCKET,u,id,{...d,document_type:type},bytes);
  const declared=validateEvidenceMime(d.mime_type,bytes,{filename:d.filename,documentType:type});
  const filename=cleanText(d.filename,255)||'file',storage=random();
  await env.BUCKET.put(storage,bytes,{httpMetadata:{contentType:'application/octet-stream'}});
