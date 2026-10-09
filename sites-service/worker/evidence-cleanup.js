@@ -15,7 +15,9 @@ export async function cleanupFailedEvidence(db,bucket,key){
 // Called during initialization and can run again after a new isolate starts.
 export async function retryEvidenceCleanup(db,bucket){
  if(!bucket) return;
- const pending=await rows(db,'SELECT storage_path FROM evidence_cleanup_queue ORDER BY created_at LIMIT 10');
+ let pending;
+ try { pending=await rows(db,'SELECT storage_path FROM evidence_cleanup_queue ORDER BY created_at LIMIT 10'); }
+ catch { console.error('Evidence cleanup queue unavailable; apply migration before enabling recovery'); return; }
  for(const item of pending){
   if(await one(db,'SELECT file_id FROM files WHERE storage_path=? LIMIT 1',item.storage_path)){
    await query(db,"UPDATE evidence_cleanup_queue SET last_error='OBJECT_REFERENCED' WHERE storage_path=?",item.storage_path).run();
