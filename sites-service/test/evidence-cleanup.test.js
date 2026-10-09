@@ -19,8 +19,11 @@ test('failed R2 delete persists recovery work and next retry removes object',asy
 test('recovery never removes an object referenced by a live file metadata row',async()=>{
  const {db,sql}=database();
  sql.prepare("INSERT INTO evidence_cleanup_queue(storage_path) VALUES ('retained-object')").run();
- // Reference-check branch is exercised only after a valid user/file relation is inserted.
- const bucket={delete:async()=>{throw Error('not expected');}};
+ sql.prepare("INSERT INTO users(username,email,password_hash) VALUES ('cleanup-fixture','cleanup@example.test','fixture-hash')").run();
+ sql.prepare("INSERT INTO files(original_filename,stored_filename,storage_path,uploaded_by) VALUES ('keep.pdf','retained-object','retained-object',1)").run();
+ let deletions=0;
+ const bucket={delete:async()=>{deletions++;}};
  await retryEvidenceCleanup(db,bucket);
  assert.equal(sql.prepare('SELECT COUNT(*) n FROM evidence_cleanup_queue').get().n,1);
+ assert.equal(deletions,0,'Referenced objects must never be deleted during recovery');
 });
