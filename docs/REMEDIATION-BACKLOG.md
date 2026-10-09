@@ -66,6 +66,16 @@ This audit inspected the current `main` source without modifying runtime code or
 - **Remaining risks:** The legacy `/api/files` and employee-photo upload paths still require consistency review; general non-image formats need a coordinated allowlist/policy; simulate R2 deletion failures and verify orphan reconciliation; separately verify R2 storage permissions and cross-scope attachment reads. Existing integration tests do not establish live object authorization.
 - **Status:** **In Progress** on isolated branch; not deployed or production-verified.
 
+### FIX-006 employee-photo and legacy upload follow-up — 2026-10-09
+
+- **Branch:** `fix006-evidence-hardening`, isolated from production `main`.
+- **Changes:** `sites-service/worker/employee-photos.js` now inserts file metadata, deactivates the prior active photo, associates the new photo and writes audit information in one D1 batch; `sites-service/worker/index.js` legacy upload cleanup catches R2 deletion errors and preserves the original failure.
+- **Existing access policy:** `/api/files/:id` requires files-view, asset visibility, and finance-view on finance-classified records; employee-photo GET requires organization-view, employee scope, and files-view. This is a source inspection, not a complete adversarial test matrix.
+- **Test results:** Desktop checkout `50c6663`: root `npm test` **22 passed / 0 failed**, Sites `npm run build` passed, Sites `npm test` **6 passed / 0 failed**. Previously added regression cases cover rejection of mismatched photo formats and failed Asset 360 association rollback and R2 cleanup.
+- **Commits:** `9c453e3` employee-photo metadata atomicity; `50c6663` legacy R2 cleanup error preservation.
+- **Outstanding:** No direct fault-injection regression yet proves employee-photo replacement rollback, legacy R2 cleanup failure handling, or financial/cross-scope download denials. Cleanup failure only logs a diagnostic; it does not persist a recoverable reconciliation queue. Legacy non-image MIME allowlist remains unreconciled. Avoid declaring full FIX-006 completion before those checks and recovery measures.
+- **Deployment:** None for this branch. **Status:** In Progress — Not Deployed.
+
 ### SEC-002 — Evidence type validation and policy consistency (FIX-006)
 
 - **Evidence / affected files:** `sites-service/worker/asset360.js` `upload()` accepts image signatures from a combined set after `mime_type.startsWith('image/')`; legacy `/api/files` upload is in `sites-service/worker/index.js`.
