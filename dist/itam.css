@@ -1588,3 +1588,30 @@ body.app-shell{
  .dashboard-asset-icon{width:54px;height:54px}
 }
 @media(max-width:400px){.dashboard-stat{padding:8px 10px}.dashboard-asset-meta{gap:6px}}
+
+
+/* Shared loading treatment for dashboard, lists, forms and Asset 360. */
+.j-loading{width:100%;padding:18px 8px;color:#112344}
+.j-loading-head{display:flex;align-items:center;gap:14px;margin-bottom:18px}
+.j-loading-head strong,.j-loading-head span{display:block}
+.j-loading-head strong{font-weight:750;font-size:1.04rem}
+.j-loading-head div>span{color:#7185a0;font-size:.87rem;margin-top:3px}
+.j-loading-ring{flex:none;width:43px;height:43px;border-radius:50%;border:5px solid #e5effd;border-top-color:#1868f7;border-right-color:#7fb6ff;animation:j-spin .95s linear infinite}
+.j-loading-track{height:8px;border-radius:999px;background:#e9eff7;overflow:hidden;margin:0 0 20px}
+.j-loading-track span{display:block;width:35%;height:100%;border-radius:inherit;background:linear-gradient(90deg,#1868f7,#9bc9ff);animation:j-progress 1.65s ease-in-out infinite}
+.j-loading-lines{display:grid;gap:13px}
+.j-loading-line{display:flex;gap:13px;align-items:center}
+.j-loading-line>i{width:52px;height:49px;flex:none;border-radius:13px;background:#eaf0f7}
+.j-loading-line>span{display:grid;flex:1;gap:9px}
+.j-loading-line b{height:12px;width:78%;border-radius:8px;background:#eaf0f7}
+.j-loading-line b:last-child{width:55%}
+.j-skeleton,.j-loading-line>i,.j-loading-line b{position:relative;overflow:hidden;background:#eaf0f7}
+.j-skeleton::after,.j-loading-line>i::after,.j-loading-line b::after{content:"";position:absolute;inset:0;transform:translateX(-100%);background:linear-gradient(90deg,transparent,rgba(255,255,255,.9),transparent);animation:j-shimmer 1.5s ease-in-out infinite}
+.j-skeleton{display:block;border-radius:10px}
+.j-skeleton-icon{height:51px;width:51px;border-radius:15px;margin-bottom:13px}
+.j-skeleton-num{width:60%;height:37px;margin-bottom:5px}
+.j-skeleton-label{width:80%;height:16px}
+@keyframes j-shimmer{to{transform:translateX(100%)}}
+@keyframes j-spin{to{transform:rotate(360deg)}}
+@keyframes j-progress{0%{transform:translateX(-110%)}50%{transform:translateX(100%)}100%{transform:translateX(320%)}}
+@media(prefers-reduced-motion:reduce){.j-loading-ring,.j-loading-track span,.j-skeleton::after,.j-loading-line>i::after,.j-loading-line b::after{animation:none}}
