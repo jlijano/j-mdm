@@ -177,3 +177,16 @@ Statuses: Pending; In Progress; Blocked; Fixed — Not Deployed; Deployed — No
 - Verification: live visual audit plus synthetic preview of shared viewing, login return, local-data retention, dark table/field contrast, form layout. Regression checks cover return-path allowlist and fresh-browser view without upload. Final local baseline: 36/36 root tests, syntax checks and 11/11 backend tests/build passed. GitHub CI run 41239765227 passed both jobs. PR #8 merged as e1383835de5af0bd93db82cecb6be44f65aedc1f. Render deployment dep-dbj53cavcj2c73ekosag reached live.
 - Security/data: role/scope checks, cookies and backend unchanged. UI edit controls reflect server-provided access; upload still requires downloaded JSON backup and explicit action. Asset 360 currently falls back to basic details on the hosted service; this redesign does not claim to deploy missing backend modules.
 - Commit/deployment: feature fe500aff6e69b81746387a803a5835bba7420630; merge e1383835de5af0bd93db82cecb6be44f65aedc1f. Verified live authenticated table/dropdown/button contrast, session access, scanner navigation, no page-wide overflow, release-byte matches for scanner/library/theme/login assets, and anonymous shared-read denial (401). No production records were written during visual QA.
+
+
+## FEAT-EMP-001 — Employee equipment register (2026-11-01)
+
+**Status:** Fixed — Not Deployed. Pull request #11; CI workflow run #132 (`41249101048`): Root tests/browser syntax and Sites service build/tests passed. Sites production migration not applied. **Scope:** Additive D1 register for Date, Site, #, Account, Employee ID, Name, CPU serial, two monitor serials, headset serial. Keep the canonical \`assets\` and \`asset_assignments\` tables intact.
+
+**Evidence:** Existing \`assets\` represents a single physical device; \`asset_assignments\` links one asset to one employee at a time. The requested import layout represents one employee with a multi-device kit, requiring a separate dataset rather than reusing asset IDs. The source sample contains personal information and is not inserted as a migration seed.
+
+**Files:** \`sites-service/drizzle/0007_employee_equipment_register.sql\`, \`sites-service/drizzle/meta/_journal.json\`, \`sites-service/db/schema.ts\`, \`sites-service/db/metadata.json\`, \`sites-service/worker/data.js\`, \`sites-service/worker/api.js\`, \`sites-service/worker/index.js\`, \`dist/index.html\`, \`dist/itam.js\`, \`dist/ui-presentation.js\`, \`sites-service/test/employee-equipment-register.test.js\`, \`docs/EMPLOYEE-EQUIPMENT-REGISTER.md\`.
+
+**Security:** Authenticated custody permissions plus enterprise scope; server validates dates, required text and line numbers; existing audit events and CSV export rules apply. No sample PII committed.
+
+**Required release gates:** GitHub CI; approved D1 backup; additive Sites migration and API deploy; count reconciliation for existing assets, assignments, and audit logs; verified unauthorized requests; coordinated Render UI deployment; approved manual record entry; production smoke checks. **Deployment:** Not attempted. **Production verification:** Not attempted.

@@ -43,6 +43,13 @@
       "when": 1793451252039,
       "tag": "0006_quick_sync",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1793510400000,
+      "tag": "0007_employee_equipment_register",
+      "breakpoints": true
     }
   ]
 }
