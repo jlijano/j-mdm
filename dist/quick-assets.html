@@ -39,6 +39,7 @@ dialog::backdrop{background:#020810c9;backdrop-filter:blur(6px)}.dialog-body{pad
 .notice{margin-bottom:14px;border:1px solid #4a6886;background:#183650;border-radius:10px;padding:11px 13px;color:#c1e1ff}
 [hidden]{display:none!important}@media(max-width:850px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.top{padding:13px 15px}main{padding:0 13px}.filters select{width:calc(50% - 5px);max-width:none}}@media(max-width:520px){.stats{gap:9px}.card{padding:13px}.table-card{padding:0}.toolbar{padding:13px}.filters{padding:13px}.pagehead{align-items:start}.formgrid{grid-template-columns:1fr}.dialog-body{padding:17px}.top{align-items:flex-start}}
 </style>
+<script src="/quick-sync.js"></script>
 <script defer src="/quick-assets.js"></script>
 </head>
 <body>
@@ -66,7 +67,7 @@ dialog::backdrop{background:#020810c9;backdrop-filter:blur(6px)}.dialog-body{pad
 <select id="work-filter" aria-label="Filter by work arrangement"><option value="">All work arrangements</option><option value="B&M">B&M</option><option value="WAH">WAH</option></select>
 </div>
 <div class="table-wrap"><table><thead id="table-head"></thead><tbody id="table-body"></tbody></table><div class="empty" id="empty" hidden><strong>No matching items</strong><span>Scan a barcode or add an asset to start tracking.</span></div></div>
-<div class="footer"><span id="showing">Showing 0 items</span><span>Scan history and assets are stored on this device. Export regularly for backup.</span></div>
+<div class="footer"><span id="showing">Showing 0 items</span><span>Use Global synchronization above to back up and share this browser’s records.</span></div>
 </section>
 </main>
 <dialog id="asset-dialog" aria-labelledby="dialog-title"><form id="asset-form" class="dialog-body">

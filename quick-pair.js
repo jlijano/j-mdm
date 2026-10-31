@@ -63,6 +63,7 @@ export function createPairing(options = {}) {
         if (!room || !room.connected) { respond(res, 404, { error: 'Pairing link is invalid or expired.' }); return true; }
         const value = typeof body.value === 'string' ? body.value.trim().slice(0, 256) : '';
         if (!value) { respond(res, 400, { error: 'Barcode or text is required.' }); return true; }
+        if (room.events.length >= 200) { respond(res, 429, { error: 'Desktop has pending scans. Wait for it to reconnect; this scan remains on the phone.' }); return true; }
         if (Date.now() - room.lastSend < 600) { respond(res, 429, { error: 'Please wait between scans.' }); return true; }
         room.lastSend = Date.now(); room.expires = Date.now() + lifetime;
         room.sequence++;
@@ -73,7 +74,7 @@ export function createPairing(options = {}) {
           source: String(body.source || 'phone').slice(0, 30),
           at: new Date().toISOString()
         });
-        if (room.events.length > 50) room.events.shift();
+
         respond(res, 200, { received: true }); return true;
       }
       if (pathname === '/pair/frame' && method === 'POST') {
@@ -101,6 +102,8 @@ export function createPairing(options = {}) {
         if (!room) { respond(res, 404, { error: 'Pairing session expired.' }); return true; }
         const after = Number(url.searchParams.get('after') || 0);
         const afterFrame = Number(url.searchParams.get('afterFrame') || 0);
+        if (Number.isSafeInteger(after) && after >= 0) room.events = room.events.filter(event => event.id > after);
+        if (room.connected) room.expires = Date.now() + lifetime;
         respond(res, 200, { connected: room.connected, expiresIn: Math.max(0, Math.floor((room.expires - Date.now()) / 1000)), events: room.events.filter(event => event.id > (Number.isFinite(after) ? after : 0)), frameSeq: room.frameSeq, frame: room.frameSeq > (Number.isFinite(afterFrame) ? afterFrame : 0) ? room.frame : null });
         return true;
       }

@@ -1,3 +1,4 @@
+import {quickSyncAPI} from './quick-sync.js';
 import {validatedEvidence} from './evidence-validation.js';
 import {metadata,query,one,rows,insert,audit,seed,access,allowed,scopeSQL,visibleAsset,fail,enterprise,readonly,moduleFor} from './data.js';
 import {lookups,context} from './lookups.js';
@@ -42,6 +43,7 @@ export default {async fetch(req,env){
   if(path==='/api/auth/me')return json({user:{...u,role:u.roles.map(r=>r.replaceAll('_',' ')).join(', ')}});
   if(path.startsWith('/api/auth/')&&req.method==='POST')return json(await securityAPI(req,db,u,path,await input(req),env));
   if(u.requires_password_change||u.requires_mfa)return json({message:'Complete account security before continuing.',code:'ACCOUNT_SECURITY_REQUIRED',redirect:'/account-security'},403);
+  if(path.startsWith('/api/quick-sync/'))return json(await quickSyncAPI(req,db,u,path,req.method==='GET'?null:await input(req),env));
   if(path.startsWith('/api/admin/'))return json(await adminAPI(req,db,u,path,req.method==='GET'?null:await input(req)));
   if(/^\/api\/manufacturers\/\d+\/logo$/.test(path))return await manufacturerLogoAPI(req,db,u,path,req.method==='POST'?await input(req):null,env);
   if(/^\/api\/employees\/\d+\/photo$/.test(path))return await employeePhotoAPI(req,db,u,path,req.method==='POST'?await input(req):null,env);
