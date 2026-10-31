@@ -697,3 +697,32 @@ export const quick_sync_events = sqliteTable('quick_sync_events', {
  content_hash:text('content_hash').notNull(), request_hash:text('request_hash').notNull(), payload:text('payload').notNull(),
  deleted:integer('deleted').notNull().default(0), actor:integer('actor').notNull().references(()=>users.user_id), created_at:text('created_at').notNull()
 },t=>[uniqueIndex('quick_sync_revision').on(t.tenant,t.kind,t.entity_id,t.revision),uniqueIndex('quick_sync_operation').on(t.tenant,t.operation_id),index('quick_sync_cursor').on(t.tenant,t.sequence)]);
+
+// Operational employee equipment register. This complements (never replaces) the
+// canonical one-device-per-row assets and asset_assignments tables.
+// Serial columns are snapshots of the employee's equipment at the recorded date.
+export const employee_equipment_register = sqliteTable('employee_equipment_register', {
+  register_id: integer('register_id').primaryKey({autoIncrement:true}),
+  record_date: text('record_date'),
+  site: text('site').notNull(),
+  line_number: integer('line_number'),
+  account: text('account').notNull(),
+  employee_number: text('employee_number').notNull(),
+  employee_name: text('employee_name').notNull(),
+  cpu_serial: text('cpu_serial'),
+  monitor_1_serial: text('monitor_1_serial'),
+  monitor_2_serial: text('monitor_2_serial'),
+  headset_serial: text('headset_serial'),
+  is_active: integer('is_active').notNull().default(1),
+  created_at: text('created_at').notNull().default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ','now'))`),
+  created_by: integer('created_by').notNull().references(() => users.user_id, {onDelete:'restrict'}),
+  updated_at: text('updated_at').notNull().default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ','now'))`),
+  updated_by: integer('updated_by').notNull().references(() => users.user_id, {onDelete:'restrict'}),
+}, t => [
+  index('idx_equipment_employee').on(t.employee_number),
+  index('idx_equipment_site_date').on(t.site,t.record_date),
+  index('idx_equipment_account').on(t.account),
+  index('idx_equipment_cpu_serial').on(t.cpu_serial),
+  check('equipment_line_number_positive', sql`line_number IS NULL OR line_number > 0`),
+  check('equipment_active_boolean', sql`is_active IN (0,1)`)
+]);
