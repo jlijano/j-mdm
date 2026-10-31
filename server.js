@@ -53,11 +53,11 @@ export function createServer(options = {}) {
     }
     if (await pairing(req, res, pathname)) return;
     if (pathname === '/' || pathname === '/login') {
-      res.writeHead(302, { Location: '/quick', 'Cache-Control': 'no-store' }); res.end(); return;
+      res.writeHead(303, { Location: '/quick', 'Cache-Control': 'no-store' }); res.end(); return;
     }
-    if (pathname === '/quick' || pathname === '/quick.css' || pathname === '/quick.js' || pathname === '/vendor/zxing.min.js' || pathname === '/vendor/qrcode.min.js') {
+    if (pathname === '/quick' || pathname === '/admin/login' || pathname === '/quick.css' || pathname === '/quick.js' || pathname === '/vendor/zxing.min.js' || pathname === '/vendor/qrcode.min.js') {
       if (!['GET', 'HEAD'].includes(req.method)) { reply(res, 405, 'Method not allowed\n'); return; }
-      const publicFile = pathname === '/quick' ? 'quick.html' : pathname.slice(1);
+      const publicFile = pathname === '/quick' ? 'quick.html' : pathname === '/admin/login' ? 'login.html' : pathname.slice(1);
       try {
         const root = await realpath(dist);
         const filename = await realpath(path.join(root, publicFile));
