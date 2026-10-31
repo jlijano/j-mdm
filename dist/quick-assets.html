@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0b1220">
+<title>Asset Library · J-MDM</title>
+<link rel="icon" href="/icon.svg">
+<style>
+:root{color-scheme:dark;font:14px/1.5 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#0b1220;color:#e8eefb}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 30% -15%,#1a385b 0,#0b1220 48%)}
+a{color:inherit;text-decoration:none}button,input,select,textarea{font:inherit}button{cursor:pointer}
+button:disabled{opacity:.5;cursor:not-allowed}input,select,textarea{background:#0b182b;border:1px solid #3d516d;border-radius:10px;color:#e9efff;padding:11px;min-width:0;width:100%}
+input:focus,select:focus,textarea:focus,button:focus-visible,a:focus-visible{outline:2px solid #5cafff;outline-offset:2px}
+button,.button{border:1px solid #496080;border-radius:11px;background:#223b5b;color:#eff5ff;padding:10px 15px;font-weight:650;white-space:nowrap}
+button:hover,.button:hover{filter:brightness(1.13)}button.primary,.button.primary{background:#357df5;border-color:#357df5}
+button.danger{color:#ffd3d3;border-color:#793c45;background:#47212a}.button.ghost{background:transparent;border-color:transparent}
+header{border-bottom:1px solid #2d4057;background:#0d1a2ad9;backdrop-filter:blur(12px)}.top{max-width:1360px;margin:auto;padding:15px 25px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.brand{font-weight:800;font-size:19px;letter-spacing:-.4px;display:flex;align-items:center;gap:10px}.mark{background:#377df5;border-radius:11px;width:37px;height:37px;display:grid;place-items:center;color:#fff}
+nav{display:flex;align-items:center;gap:8px;flex-wrap:wrap}nav a{padding:9px 14px;border-radius:10px;color:#abc0dc;font-weight:650}nav a.active{background:#27426b;color:#fff}
+main{max-width:1360px;margin:28px auto;padding:0 24px}.eyebrow{font-size:11px;letter-spacing:2px;color:#75baff;font-weight:750}h1{font-size:clamp(28px,3.5vw,41px);margin:2px 0 6px;letter-spacing:-1.2px}h2{font-size:16px;margin:0}.muted{color:#a1b3ce}.pagehead{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:24px;flex-wrap:wrap}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:19px}
+.card{background:#132135;border:1px solid #30435e;border-radius:17px;padding:18px;box-shadow:0 13px 26px #02071422}
+.metric strong{font-size:30px;letter-spacing:-1.1px;display:block;font-variant-numeric:tabular-nums}.metric span{color:#a4b5cf;font-size:12px;font-weight:650}
+.table-card{padding:0;overflow:hidden}.toolbar{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;padding:18px;border-bottom:1px solid #293f5a}
+.tabs{display:flex;gap:7px;flex-wrap:wrap}.tab{border-color:transparent;background:transparent;color:#aebfd8}.tab[aria-selected="true"]{background:#2959a3;color:#fff}
+.filters{padding:15px 18px;display:flex;gap:10px;flex-wrap:wrap;align-items:center}.filters input{flex:1;min-width:190px}.filters select{width:auto;max-width:200px}
+.table-wrap{overflow:auto;max-height:63vh}table{width:100%;border-collapse:collapse;text-align:left;min-width:780px}
+th{font-size:11px;text-transform:uppercase;letter-spacing:.8px;background:#162942;color:#9cbedf;padding:12px 15px;position:sticky;top:0}
+td{padding:12px 15px;border-top:1px solid #2a3d56;vertical-align:middle}
+tbody tr:hover{background:#182a41}.identifier{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;color:#e8f3ff;font-weight:750;overflow-wrap:anywhere}
+.small{font-size:12px}.tag{display:inline-flex;align-items:center;border-radius:20px;padding:3px 9px;font-size:11px;font-weight:750;border:1px solid #3d607e;color:#a9d1ff}.tag.saved{color:#9af0c5;border-color:#387458}.tag.pending{color:#ffd2a6;border-color:#886040}
+.actions{display:flex;gap:7px;flex-wrap:wrap}.actions button{font-size:12px;padding:6px 10px}
+.empty{padding:50px 20px;text-align:center;color:#a8bad2}.empty strong{display:block;color:#e5edff;font-size:17px;margin-bottom:7px}
+.footer{padding:14px 18px;border-top:1px solid #293f5a;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;color:#9cabc5;font-size:12px}
+dialog{border:1px solid #496486;background:#14233a;color:#ebf2ff;border-radius:20px;width:min(96vw,650px);max-height:90vh;overflow:auto;padding:0;box-shadow:0 35px 110px #0009}
+dialog::backdrop{background:#020810c9;backdrop-filter:blur(6px)}.dialog-body{padding:24px}.dialog-head{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:18px}
+.formgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}label{display:block;font-size:12px;color:#b8c8df;font-weight:700}label input,label select,label textarea{margin-top:6px}.wide{grid-column:1/-1}.dialog-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;margin-top:22px}
+.notice{margin-bottom:14px;border:1px solid #4a6886;background:#183650;border-radius:10px;padding:11px 13px;color:#c1e1ff}
+[hidden]{display:none!important}@media(max-width:850px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.top{padding:13px 15px}main{padding:0 13px}.filters select{width:calc(50% - 5px);max-width:none}}@media(max-width:520px){.stats{gap:9px}.card{padding:13px}.table-card{padding:0}.toolbar{padding:13px}.filters{padding:13px}.pagehead{align-items:start}.formgrid{grid-template-columns:1fr}.dialog-body{padding:17px}.top{align-items:flex-start}}
+</style>
+<script defer src="/quick-assets.js"></script>
+</head>
+<body>
+<header><div class="top">
+<div class="brand"><span class="mark">J</span><span>J-MDM <span class="muted" style="font-size:12px;font-weight:500">/ Asset Library</span></span></div>
+<nav aria-label="Quick scanner navigation"><a href="/quick">Live Scanner</a><a class="active" href="/quick/assets" aria-current="page">Asset Library</a></nav>
+</div></header>
+<main>
+<div class="pagehead"><div><div class="eyebrow">DESKTOP ASSET WORKSPACE</div><h1>Assets & Scan History</h1><div class="muted">Review detected barcodes and manage saved asset information from this browser.</div></div>
+<div class="actions"><a class="button" href="/quick">Back to Scanner</a><button id="new-asset" class="primary">+ New Asset</button></div></div>
+<div id="notice" class="notice" role="status" aria-live="polite" hidden></div>
+<div class="stats">
+<div class="card metric"><span>Saved Assets</span><strong id="saved-count">0</strong></div>
+<div class="card metric"><span>Total Scans</span><strong id="scan-count">0</strong></div>
+<div class="card metric"><span>Not Yet Registered</span><strong id="pending-count">0</strong></div>
+<div class="card metric"><span>WAH Assets</span><strong id="wah-count">0</strong></div>
+</div>
+<section class="card table-card" aria-label="Asset library">
+<div class="toolbar">
+<div class="tabs" role="tablist" aria-label="Record type"><button class="tab" id="tab-scans" role="tab" aria-selected="true">Scanned Items</button><button class="tab" id="tab-assets" role="tab" aria-selected="false">Saved Assets</button></div>
+<div class="actions"><button id="export-active" class="primary">Export Scans CSV</button><button id="export-both">Export All CSV</button></div>
+</div>
+<div class="filters"><input id="search" type="search" placeholder="Search identifier, assignee, location, status…" aria-label="Search records">
+<select id="location-filter" aria-label="Filter by location"><option value="">All locations</option></select>
+<select id="work-filter" aria-label="Filter by work arrangement"><option value="">All work arrangements</option><option value="B&M">B&M</option><option value="WAH">WAH</option></select>
+</div>
+<div class="table-wrap"><table><thead id="table-head"></thead><tbody id="table-body"></tbody></table><div class="empty" id="empty" hidden><strong>No matching items</strong><span>Scan a barcode or add an asset to start tracking.</span></div></div>
+<div class="footer"><span id="showing">Showing 0 items</span><span>Scan history and assets are stored on this device. Export regularly for backup.</span></div>
+</section>
+</main>
+<dialog id="asset-dialog" aria-labelledby="dialog-title"><form id="asset-form" class="dialog-body">
+<div class="dialog-head"><h2 id="dialog-title">Asset Details</h2><button type="button" id="close-dialog" aria-label="Close">✕</button></div>
+<div class="formgrid">
+<label class="wide">Asset Barcode / Serial Number<input id="f-barcode" required maxlength="256" autocomplete="off"></label>
+<label>Asset Type<select id="f-type"><option>Desktop</option><option>Laptop</option><option>Monitor</option><option>Headset</option><option>Keyboard</option><option>Mouse</option><option>Mobile Phone</option><option>Other</option></select></label>
+<label>Work Arrangement<select id="f-work"><option>B&M</option><option>WAH</option></select></label>
+<label>Location<input id="f-location" maxlength="150" placeholder="Site / Floor / Room"></label>
+<label>Status<select id="f-status"><option>Available</option><option>Assigned</option><option>Deployed</option><option>For Repair</option><option>Defective</option><option>For Disposal</option><option>In Storage</option></select></label>
+<label class="wide">Assigned To<input id="f-assignee" maxlength="200" placeholder="Employee / Custodian"></label>
+<label class="wide">Notes / OCR Text<textarea id="f-notes" rows="3" maxlength="1500"></textarea></label>
+</div>
+<div class="dialog-actions"><button type="button" id="delete-in-modal" class="danger" hidden>Delete Asset</button><button type="button" id="cancel-dialog">Cancel</button><button type="submit" class="primary" id="save-asset">Save Asset</button></div>
+</form></dialog>
+</body></html>
