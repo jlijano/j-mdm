@@ -23,6 +23,8 @@ test('health and scanner assets return their original bytes and correct MIME typ
   const files = {
     '/dashboard': ['index.html', 'text/html'],
     '/assets/scanner': ['index.html', 'text/html'],
+    '/quick/assets': ['quick-assets.html', 'text/html'],
+    '/quick-assets.js': ['quick-assets.js', 'text/javascript'],
     '/app.js': ['app.js', 'text/javascript'],
     '/style.css': ['style.css', 'text/css'],
     '/icon.svg': ['icon.svg', 'image/svg+xml'],
