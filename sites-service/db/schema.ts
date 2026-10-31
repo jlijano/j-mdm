@@ -724,5 +724,8 @@ export const employee_equipment_register = sqliteTable('employee_equipment_regis
   index('idx_equipment_account').on(t.account),
   index('idx_equipment_cpu_serial').on(t.cpu_serial),
   check('equipment_line_number_positive', sql`line_number IS NULL OR line_number > 0`),
+  check('equipment_site_nonempty', sql`length(trim(site)) > 0`),
+  check('equipment_account_nonempty', sql`length(trim(account)) > 0`),
+  check('equipment_employee_nonempty', sql`length(trim(employee_number)) > 0 AND length(trim(employee_name)) > 0`),
   check('equipment_active_boolean', sql`is_active IN (0,1)`)
 ]);
