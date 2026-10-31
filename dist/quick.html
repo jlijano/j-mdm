@@ -26,7 +26,7 @@
 <label class="wide">Detected text / notes<input id="notes" placeholder="OCR text or additional information"></label>
 </div><div class="actions"><button id="save" class="primary">Save asset record</button><button id="reset">Clear form</button></div><p class="tip" style="margin-top:12px">Saving updates an existing matching barcode instead of creating a duplicate.</p></div>
 <div class="card"><div class="row"><h2>Saved assets</h2><span class="count" id="count">0</span></div><label>Search records<input id="filter" placeholder="Barcode, type, location, assignee"></label><div id="records" class="list"></div><div class="actions"><button id="export" class="primary">Export CSV report</button><button id="export-json">Backup JSON</button></div><p class="tip" style="margin-top:10px">CSV opens in Excel. Data is stored locally; export before clearing browser data.</p></div>
-</section></div></div>
+</section></div><p class="tip" style="margin:10px 0 30px;text-align:right"><a href="/admin/login">Administrator sign-in</a></p></div>
 <script>
 (()=>{'use strict';
 const $=id=>document.getElementById(id),fields=['barcode','type','work','location','asset-status','assignee','notes'],key='jmdm-quick-records-v1';
