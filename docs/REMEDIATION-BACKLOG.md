@@ -158,9 +158,13 @@ Statuses: Pending; In Progress; Blocked; Fixed — Not Deployed; Deployed — No
 
 ## QS-001 — Browser-local Quick Scanner records are not shared
 
-- Evidence/root cause: `dist/quick.html` and `dist/quick-assets.js` directly read/write two localStorage arrays; pairing relay is temporary memory. Another device cannot read these records.
-- Risk: high data preservation/privacy impact; unstructured assignments must not enter a public API or bypass ITAM scopes.
-- Status: Fixed — Not Deployed.
-- Change: opt-in backup/migration UI, separate durable client queue, authenticated enterprise-scoped Sites event log, revision conflicts, idempotent per-origin imports, retained tombstones/audit, bounded pairing acknowledgments. See `docs/QUICK-SYNC.md` for rollout/rollback and privacy limits.
-- Tests: root baseline 27 passed and backend 10 passed before final scope/syntax regressions; final counts recorded in release evidence. Manual local browser asset creation and scanner compatibility passed. Production migration and physical camera behavior remain unverified.
-- Commit/deployment: pending feature commit/CI and separate Sites/Render verification. No local browser records uploaded by this change alone.
+- Evidence/root cause: Quick Scanner saved two localStorage arrays; the temporary pairing relay did not persist a global inventory.
+- Risk: high data preservation/privacy impact. Unstructured assignments must not enter a public API or bypass ITAM scopes.
+- Status: Deployed — Not Verified (authenticated production migration and physical-device scanning remain unverified).
+- Change: explicit JSON/CSV backups, opt-in per-browser import, separate durable outbox, authenticated enterprise-scoped Sites revisions, conflict review, origin/hash idempotency, retained tombstones/audit and bounded pairing acknowledgments. See `docs/QUICK-SYNC.md`.
+- Validation: Node 24 syntax checks; root 29/29 and GitHub-mirror backend 11/11; scoped hosted-source build and 4/4 tests. CI run 41203887885 passed. Local browser asset creation/manual scan/modal and scanner-library compatibility passed.
+- Feature commit: 97720390bd53bcf00b81540082b98c7f3f746749. PR #5 merged as d5ee134c57834db3b26e1b7d038ac77d5d33849f.
+- Sites: scoped source 627ea7c5564be8ad08cd2c0b32785aa401efbbeb; saved version 6; deployment appgdep_6ae5e7ad5e3c8191888d4d1bcd16ccb7 succeeded. Existing private audience and D1/R2 bindings retained.
+- Render: deployment dep-dbiuftvb9u1s73b4cog0 reached live for the exact merge commit at 2026-10-31T13:07:41Z.
+- Live verification 2026-10-31T13:08Z: scanner/library and both JS files returned 200 and matched release bytes; anonymous shared reads/writes returned 401, missing-Origin write returned 403; ephemeral phone pairing connected/delivered a synthetic code and was closed. Live browser showed backup/sign-in controls. Detailed evidence: `docs/quick-sync-release-evidence.json`.
+- Remaining: no historical production browser records have been migrated by this deployment; every original browser must explicitly download backups and upload. Positive authenticated production CRUD/migration and physical camera testing require an authorized signed-in device. Browser copies/backups cannot be remotely revoked. Existing dependency audit reported 8 dependency advisories (4 moderate, 4 high); dependencies were not changed in this feature.

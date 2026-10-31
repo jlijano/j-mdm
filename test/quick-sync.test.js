@@ -42,3 +42,9 @@ test('partial migration and a committed response lost in transit both resume wit
  a.store.setItem=originalSet;await a.api.migrate();await a.api.sync();assert.equal(s.events.length,1);assert([...a.map.keys()].some(k=>k.includes(':op:')));
  await a.api.sync();assert.equal(s.events.length,2);assert.equal(a.api.read(assetKey).length,2);assert.equal(a.store.getItem(assetKey),raw);
 });
+
+test('paired scan identities do not persist relay capability tokens',()=>{
+ const html=readFileSync(new URL('../dist/quick.html',import.meta.url),'utf8');
+ assert(!html.includes("event.ocr,owner+"),'owner capability must not be included in stored scan history');
+ assert(html.includes("event.ocr,(await QuickStore.hash(owner))"));
+});
