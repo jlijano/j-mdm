@@ -55,7 +55,7 @@ export function createServer(options = {}) {
     if (pathname === '/' || pathname === '/login') {
       res.writeHead(303, { Location: '/quick', 'Cache-Control': 'no-store' }); res.end(); return;
     }
-    if (pathname === '/quick' || pathname === '/quick/assets' || pathname === '/quick-assets.js' || pathname === '/quick-sync.js' || pathname === '/admin/login' || pathname === '/quick.css' || pathname === '/quick.js' || pathname === '/vendor/zxing.min.js' || pathname === '/vendor/qrcode.min.js') {
+    if (pathname === '/quick' || pathname === '/quick/assets' || pathname === '/quick-assets.js' || pathname === '/quick-sync.js' || pathname === '/workspace.css' || pathname === '/workspace-theme.js' || pathname === '/admin/login' || pathname === '/quick.css' || pathname === '/quick.js' || pathname === '/vendor/zxing.min.js' || pathname === '/vendor/qrcode.min.js') {
       if (!['GET', 'HEAD'].includes(req.method)) { reply(res, 405, 'Method not allowed\n'); return; }
       const publicFile = pathname === '/quick/assets' ? 'quick-assets.html' : pathname === '/quick' ? 'quick.html' : pathname === '/admin/login' ? 'login.html' : pathname.slice(1);
       try {

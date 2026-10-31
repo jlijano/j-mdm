@@ -41,14 +41,14 @@ dialog::backdrop{background:#020810c9;backdrop-filter:blur(6px)}.dialog-body{pad
 </style>
 <script src="/quick-sync.js"></script>
 <script defer src="/quick-assets.js"></script>
-</head>
-<body>
+<link rel="stylesheet" href="/workspace.css"><script src="/workspace-theme.js"></script></head>
+<body class="quick-shell">
 <header><div class="top">
-<div class="brand"><span class="mark">J</span><span>J-MDM <span class="muted" style="font-size:12px;font-weight:500">/ Asset Library</span></span></div>
-<nav aria-label="Quick scanner navigation"><a href="/quick">Live Scanner</a><a class="active" href="/quick/assets" aria-current="page">Asset Library</a></nav>
+<div class="brand"><span class="mark">J</span><span>J-MDM <span class="muted" style="font-size:12px;font-weight:500">/ Scanner Library</span></span></div>
+<nav aria-label="Quick scanner navigation"><a href="/dashboard">ITAM workspace</a><a href="/quick">Live Scanner</a><a class="active" href="/quick/assets" aria-current="page">Scanner Library</a></nav>
 </div></header>
 <main>
-<div class="pagehead"><div><div class="eyebrow">DESKTOP ASSET WORKSPACE</div><h1>Assets & Scan History</h1><div class="muted">Review detected barcodes and manage saved asset information from this browser.</div></div>
+<div class="pagehead"><div><div class="eyebrow">QUICK SCANNER WORKSPACE</div><h1>Scanner Library</h1><div class="muted">Review scanned identifiers and manage asset details across your authorized devices.</div></div>
 <div class="actions"><a class="button" href="/quick">Back to Scanner</a><button id="new-asset" class="primary">+ New Asset</button></div></div>
 <div id="notice" class="notice" role="status" aria-live="polite" hidden></div>
 <div class="stats">
@@ -67,7 +67,7 @@ dialog::backdrop{background:#020810c9;backdrop-filter:blur(6px)}.dialog-body{pad
 <select id="work-filter" aria-label="Filter by work arrangement"><option value="">All work arrangements</option><option value="B&M">B&M</option><option value="WAH">WAH</option></select>
 </div>
 <div class="table-wrap"><table><thead id="table-head"></thead><tbody id="table-body"></tbody></table><div class="empty" id="empty" hidden><strong>No matching items</strong><span>Scan a barcode or add an asset to start tracking.</span></div></div>
-<div class="footer"><span id="showing">Showing 0 items</span><span>Use Global synchronization above to back up and share this browser’s records.</span></div>
+<div class="footer"><span id="showing">Showing 0 items</span><span id="data-scope-label">Entries saved in this browser</span></div>
 </section>
 </main>
 <dialog id="asset-dialog" aria-labelledby="dialog-title"><form id="asset-form" class="dialog-body">
