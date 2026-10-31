@@ -575,7 +575,7 @@ export const delivery_receipts = sqliteTable("delivery_receipts", {
 export const delivery_receipt_lines = sqliteTable("delivery_receipt_lines", {
   delivery_receipt_line_id: integer("delivery_receipt_line_id").primaryKey({ autoIncrement: true }),
   delivery_receipt_id: integer("delivery_receipt_id").notNull().references((): AnySQLiteColumn => delivery_receipts.delivery_receipt_id, { onDelete: "restrict" }),
-  purchase_order_item_id: integer("purchase_order_item_id").references((): AnySQLiteColumn => purchase_order_items.purchase_order_item_id, { onDelete: "restrict" }),
+  purchase_order_item_id: integer("purchase_order_item_id").references((): AnySQLiteColumn => purchase_order_items.po_item_id, { onDelete: "restrict" }),
   asset_id: integer("asset_id").references((): AnySQLiteColumn => assets.asset_id, { onDelete: "restrict" }),
   description: text("description"),
   quantity_delivered: text("quantity_delivered").notNull().default("1"),
@@ -688,3 +688,12 @@ export const user_permission_overrides = sqliteTable("user_permission_overrides"
 export const system_settings = sqliteTable("system_settings",{
  setting_key:text("setting_key").primaryKey(),setting_value:text("setting_value").notNull()
 });
+
+// Append-only scanner revisions: a tombstone is reversible; historical payloads are retained.
+export const quick_sync_events = sqliteTable('quick_sync_events', {
+ sequence:integer('sequence').primaryKey({autoIncrement:true}),
+ tenant:text('tenant').notNull(), kind:text('kind').notNull(), entity_id:text('entity_id').notNull(),
+ revision:integer('revision').notNull(), operation_id:text('operation_id').notNull(), origin:text('origin').notNull(),
+ content_hash:text('content_hash').notNull(), request_hash:text('request_hash').notNull(), payload:text('payload').notNull(),
+ deleted:integer('deleted').notNull().default(0), actor:integer('actor').notNull().references(()=>users.user_id), created_at:text('created_at').notNull()
+},t=>[uniqueIndex('quick_sync_revision').on(t.tenant,t.kind,t.entity_id,t.revision),uniqueIndex('quick_sync_operation').on(t.tenant,t.operation_id),index('quick_sync_cursor').on(t.tenant,t.sequence)]);

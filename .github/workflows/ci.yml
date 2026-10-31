@@ -27,6 +27,8 @@ jobs:
           node --check dist/users.js
           node --check dist/login.js
           node --check dist/account-security.js
+          node --check dist/quick-sync.js
+          node --check dist/quick-assets.js
       - run: npm test
 
   backend-tests:

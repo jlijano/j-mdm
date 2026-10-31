@@ -155,3 +155,12 @@ For each task, record source/line evidence, affected files, expected business ou
 ## Verification rules
 
 Statuses: Pending; In Progress; Blocked; Fixed — Not Deployed; Deployed — Not Verified; Verified; Not Applicable. A GitHub documentation commit is **not** evidence of a Render/Sites deployment or production validation. Production tests must be non-destructive unless approved.
+
+## QS-001 — Browser-local Quick Scanner records are not shared
+
+- Evidence/root cause: `dist/quick.html` and `dist/quick-assets.js` directly read/write two localStorage arrays; pairing relay is temporary memory. Another device cannot read these records.
+- Risk: high data preservation/privacy impact; unstructured assignments must not enter a public API or bypass ITAM scopes.
+- Status: Fixed — Not Deployed.
+- Change: opt-in backup/migration UI, separate durable client queue, authenticated enterprise-scoped Sites event log, revision conflicts, idempotent per-origin imports, retained tombstones/audit, bounded pairing acknowledgments. See `docs/QUICK-SYNC.md` for rollout/rollback and privacy limits.
+- Tests: root baseline 27 passed and backend 10 passed before final scope/syntax regressions; final counts recorded in release evidence. Manual local browser asset creation and scanner compatibility passed. Production migration and physical camera behavior remain unverified.
+- Commit/deployment: pending feature commit/CI and separate Sites/Render verification. No local browser records uploaded by this change alone.
