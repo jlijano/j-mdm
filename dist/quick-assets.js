@@ -41,6 +41,8 @@ const csv=v=>{const t=String(v??'');return '"'+(/^[=+\-@\t\r]/.test(t)?"'"+t:t).
 function exportCSV(kind){const records=kind==='scans'?scans:assets;const cols=kind==='scans'?['barcode','format','source','at','ocr']:['barcode','type','work','location','status','assignee','notes','updatedAt'];const body='\ufeff'+[cols,...records.map(r=>cols.map(k=>r[k]??''))].map(r=>r.map(csv).join(',')).join('\r\n');const url=URL.createObjectURL(new Blob([body],{type:'text/csv;charset=utf-8'}));const a=document.createElement('a');a.href=url;a.download='jmdm-'+kind+'-'+new Date().toISOString().slice(0,10)+'.csv';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)}
 $('export-active').onclick=()=>{assets=load(assetKey);scans=load(scanKey);exportCSV(tab)};
 $('export-both').onclick=()=>{assets=load(assetKey);scans=load(scanKey);exportCSV('scans');exportCSV('assets')};
+const searchQuery = new URLSearchParams(location.search).get('q');
+if (searchQuery && !document.querySelector('#search').value) document.querySelector('#search').value = searchQuery.slice(0,256);
 window.addEventListener('quick-store-change',render);
 window.addEventListener('storage',e=>{if(e.key===assetKey||e.key===scanKey)render()});render();
 })();
