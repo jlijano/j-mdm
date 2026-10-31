@@ -29,6 +29,8 @@ test('health and scanner assets return their original bytes and correct MIME typ
     '/style.css': ['style.css', 'text/css'],
     '/workspace.css': ['workspace.css', 'text/css'],
     '/workspace-theme.js': ['workspace-theme.js', 'text/javascript'],
+    '/workspace-shell.css': ['workspace-shell.css', 'text/css'],
+    '/workspace-shell.js': ['workspace-shell.js', 'text/javascript'],
     '/icon.svg': ['icon.svg', 'image/svg+xml'],
     '/manifest.webmanifest': ['manifest.webmanifest', 'application/manifest+json'],
     '/vendor/zxing.min.js': ['vendor/zxing.min.js', 'text/javascript']
