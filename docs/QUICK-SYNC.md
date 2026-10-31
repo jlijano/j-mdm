@@ -37,3 +37,7 @@ Rollback: set Sites runtime `QUICK_SYNC_DISABLED=1` to stop shared operations, o
 ## Verification boundaries
 
 Automated regressions cover two isolated browser stores, exact legacy-string preservation, repeated imports, offline retry, concurrent stale edits, explicit tombstones, unknown operation-ID replay, transaction rollback on audit failure, tenant isolation, missing gateway/session, narrow-scope denial, view/manage separation, session revocation, corrupt legacy JSON and local-mode reversion. Existing baseline checks are required. Browser UI checks cover local creation and scanner/library compatibility; physical phone cameras and authenticated production migration are separate checks. No production records should be created for testing without an approved test account/data scope.
+
+## Release evidence — October 31, 2026
+
+PR #5 merged as `d5ee134c57834db3b26e1b7d038ac77d5d33849f` after CI run 41203887885 succeeded. Sites version 6 deployed the scoped source `627ea7c5564be8ad08cd2c0b32785aa401efbbeb` successfully. Render deployment `dep-dbiuftvb9u1s73b4cog0` reached live for the merge commit. Live static-byte, unauthorized access, CSRF and ephemeral pairing checks passed at 21:08 Manila time. Status remains **Deployed — Not Verified** for authenticated production migration/CRUD and real phone cameras. No historical local browser records were uploaded. Full evidence is in `quick-sync-release-evidence.json`; rollout steps above remain required on each original device.

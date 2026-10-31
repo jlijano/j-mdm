@@ -1,0 +1,98 @@
+{
+  "checkedAt": "2026-10-31T13:08:22.128Z",
+  "pages": [
+    {
+      "url": "/quick",
+      "status": 200,
+      "matchesRelease": true,
+      "sha256": "53e0eb14970fd436dda4501acd1060437dc78982344abd195bd902952ce88e61"
+    },
+    {
+      "url": "/quick/assets",
+      "status": 200,
+      "matchesRelease": true,
+      "sha256": "9ba587953bb4ec98acf32ee72c0fb6d776ba109c4a3d38a35d399e92da71dc38"
+    },
+    {
+      "url": "/quick-sync.js",
+      "status": 200,
+      "matchesRelease": true,
+      "sha256": "0b8ce635000a2bdba3493886bc968573b89fa9f119bf67895997f6e4f020c1a9"
+    },
+    {
+      "url": "/quick-assets.js",
+      "status": 200,
+      "matchesRelease": true,
+      "sha256": "02de11957babbdc9513b3bb76feae5aa04a692abc752145a247816620d67992b"
+    }
+  ],
+  "authorization": [
+    {
+      "path": "context",
+      "method": "GET",
+      "hasOrigin": false,
+      "status": 401,
+      "body": {
+        "message": "Please sign in."
+      }
+    },
+    {
+      "path": "events",
+      "method": "GET",
+      "hasOrigin": false,
+      "status": 401,
+      "body": {
+        "message": "Please sign in."
+      }
+    },
+    {
+      "path": "mutate",
+      "method": "POST",
+      "hasOrigin": true,
+      "status": 401,
+      "body": {
+        "message": "Please sign in."
+      }
+    },
+    {
+      "path": "mutate",
+      "method": "POST",
+      "hasOrigin": false,
+      "status": 403,
+      "body": {
+        "message": "This request is not allowed."
+      }
+    }
+  ],
+  "pairing": {
+    "connected": true,
+    "received": true
+  },
+  "featurePR": "https://github.com/jlijano/j-mdm/pull/5",
+  "featureCommit": "97720390bd53bcf00b81540082b98c7f3f746749",
+  "mergeCommit": "d5ee134c57834db3b26e1b7d038ac77d5d33849f",
+  "ci": {
+    "id": 41203887885,
+    "conclusion": "success"
+  },
+  "tests": {
+    "root": 29,
+    "backendMirror": 11,
+    "hostedSource": 4
+  },
+  "sites": {
+    "sourceCommit": "627ea7c5564be8ad08cd2c0b32785aa401efbbeb",
+    "version": 6,
+    "deployment": "appgdep_6ae5e7ad5e3c8191888d4d1bcd16ccb7",
+    "status": "succeeded"
+  },
+  "render": {
+    "deployment": "dep-dbiuftvb9u1s73b4cog0",
+    "status": "live"
+  },
+  "notVerified": [
+    "authenticated production CRUD/migration",
+    "physical phone camera"
+  ],
+  "historicalBrowserDataUploaded": false
+}
