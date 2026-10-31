@@ -13,8 +13,11 @@ async function fixture(t, options={}) {
 }
 test('login-first, credential validation, protected assets, admin session, logout revocation',async t=>{
  const {base,login}=await fixture(t);
- for(const route of ['/','/dashboard','/index.html','/app.js','/vendor/zxing.min.js']){const r=await fetch(base+route,{redirect:'manual'});assert.equal(r.status,303);assert.equal(r.headers.get('location'),'/login')}
- assert.equal((await fetch(base+'/login')).status,200);
+ for(const route of ['/','/login']){const r=await fetch(base+route,{redirect:'manual'});assert.equal(r.status,303);assert.equal(r.headers.get('location'),'/quick')}
+ for(const route of ['/dashboard','/index.html','/app.js']){const r=await fetch(base+route,{redirect:'manual'});assert.equal(r.status,303);assert.equal(r.headers.get('location'),'/admin/login')}
+ assert.equal((await fetch(base+'/vendor/zxing.min.js')).status,200);
+ assert.equal((await fetch(base+'/quick')).status,200);
+ assert.equal((await fetch(base+'/admin/login')).status,200);
  assert.equal((await fetch(base+'/api/auth/me')).status,401);
  assert.equal((await login('admin@example.com','wrong')).status,401);
  assert.equal((await login('other@example.com')).status,401);
@@ -25,7 +28,7 @@ test('login-first, credential validation, protected assets, admin session, logou
  const who=await fetch(base+'/api/auth/me',{headers});assert.deepEqual(await who.json(),{user:{email:'admin@example.com',role:'Super Admin'}});
  const dashboard=await fetch(base+'/dashboard',{headers});assert.equal(dashboard.status,200);assert.match(await dashboard.text(),/Main Dashboard/);
  assert.equal((await fetch(base+'/app.js',{headers})).status,200);
- assert.equal((await fetch(base+'/login',{headers,redirect:'manual'})).headers.get('location'),'/dashboard');
+ assert.equal((await fetch(base+'/login',{headers,redirect:'manual'})).headers.get('location'),'/quick');
  const logout=await fetch(base+'/api/auth/logout',{method:'POST',headers:{...headers,Origin:base}});assert.equal(logout.status,200);
  assert.equal((await fetch(base+'/api/auth/me',{headers})).status,401);
  assert.equal((await fetch(base+'/api/auth/me',{headers:{Cookie:cookie.replace(/.$/,'0')}})).status,401);

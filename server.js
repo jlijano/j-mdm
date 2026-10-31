@@ -1,4 +1,5 @@
 import http from 'node:http';
+import { createPairing } from './quick-pair.js';
 import { createRemoteAuth } from './remote-auth.js';
 import { createReadStream } from 'node:fs';
 import { realpath, stat } from 'node:fs/promises';
@@ -30,6 +31,7 @@ function reply(res, status, text, headers = {}) {
 
 export function createServer(options = {}) {
   const auth = createRemoteAuth(options);
+  const pairing = createPairing(options.pairing || {});
   return http.createServer(async (req, res) => {
     res.setHeader('X-Content-Type-Options', 'nosniff');
     res.setHeader('Cache-Control', 'no-store');
@@ -47,6 +49,23 @@ export function createServer(options = {}) {
         'Content-Type': 'application/json; charset=utf-8',
         'Cache-Control': 'no-store'
       });
+      return;
+    }
+    if (await pairing(req, res, pathname)) return;
+    if (pathname === '/' || pathname === '/login') {
+      res.writeHead(303, { Location: '/quick', 'Cache-Control': 'no-store' }); res.end(); return;
+    }
+    if (pathname === '/quick' || pathname === '/admin/login' || pathname === '/quick.css' || pathname === '/quick.js' || pathname === '/vendor/zxing.min.js' || pathname === '/vendor/qrcode.min.js') {
+      if (!['GET', 'HEAD'].includes(req.method)) { reply(res, 405, 'Method not allowed\n'); return; }
+      const publicFile = pathname === '/quick' ? 'quick.html' : pathname === '/admin/login' ? 'login.html' : pathname.slice(1);
+      try {
+        const root = await realpath(dist);
+        const filename = await realpath(path.join(root, publicFile));
+        if (path.relative(root, filename).startsWith('..')) { reply(res, 404, 'Not found\n'); return; }
+        const info = await stat(filename);
+        res.writeHead(200, { 'Content-Type': types[path.extname(filename)] || 'text/plain; charset=utf-8', 'Content-Length': info.size });
+        if (req.method === 'HEAD') res.end(); else await pipeline(createReadStream(filename), res);
+      } catch { reply(res, 404, 'Not found\n'); }
       return;
     }
     if (await auth.handle(req, res, pathname)) return;

@@ -6,7 +6,7 @@ export function createRemoteAuth(options={}){
  const origin=new URL(siteURL);if(origin.protocol!=='https:'&&!options.allowHTTP)throw new Error('SITE_API_URL must use HTTPS');
  const secret=options.siteSecret||process.env.SITE_API_SECRET,bearer=options.siteBearer||process.env.SITE_SERVICE_TOKEN;
  if(!secret||!bearer)throw new Error('Sites API credentials are missing');
- const publicPaths=new Set(['/login','/login.js','/login.css','/style.css','/icon.svg']);const attempts=new Map();
+ const publicPaths=new Set(['/login','/admin/login','/login.js','/login.css','/style.css','/icon.svg']);const attempts=new Map();
  async function remote(req,pathname,{method=req.method,body}={}){
   const url=new URL(pathname,origin);if(url.origin!==origin.origin)throw new Error('Invalid API path');
   return fetch(url,{method,headers:{'OAI-Sites-Authorization':`Bearer ${bearer}`,'x-mdm-api-secret':secret,'content-type':'application/json',cookie:req.headers.cookie||'','x-mdm-client-ip':clientIP(req,options.trustedProxyIPs),'user-agent':req.headers['user-agent']||'mdm-render-gateway'},body,redirect:'manual',signal:AbortSignal.timeout(25000)});
@@ -36,6 +36,6 @@ export function createRemoteAuth(options={}){
    }
    if(pathname==='/'||pathname==='/login'){try{const logged=await authenticated(req);if(pathname==='/'||logged){redirect(res,logged?(logged.user.requires_password_change||logged.user.requires_mfa?'/account-security':'/dashboard'):'/login');return true;}}catch{if(pathname==='/'){redirect(res,'/login');return true;}}}return false;
   },
-  async deny(req,res,pathname){if(publicPaths.has(pathname))return false;try{const session=await authenticated(req);if(session){if((session.user.requires_password_change||session.user.requires_mfa)&&!['/account-security','/account-security.js','/users.css'].includes(pathname)){redirect(res,'/account-security');return true;}return false;}redirect(res,'/login');}catch{send(res,503,{message:'Shared database unavailable. Please try again.'});}return true;}
+  async deny(req,res,pathname){if(publicPaths.has(pathname))return false;try{const session=await authenticated(req);if(session){if((session.user.requires_password_change||session.user.requires_mfa)&&!['/account-security','/account-security.js','/users.css'].includes(pathname)){redirect(res,'/account-security');return true;}return false;}redirect(res,'/admin/login');}catch{send(res,503,{message:'Shared database unavailable. Please try again.'});}return true;}
  };
 }

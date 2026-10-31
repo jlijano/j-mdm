@@ -13,7 +13,7 @@ export function createAuth(options = {}) {
   const secure = options.secureCookies ?? (process.env.NODE_ENV === 'production' || Boolean(process.env.RENDER));
   const ttl = options.sessionTTL ?? 8 * 60 * 60 * 1000;
   const sessions = new Map(), attempts = new Map();
-  const publicPaths = new Set(['/login', '/login.js', '/login.css', '/style.css', '/icon.svg']);
+  const publicPaths = new Set(['/login', '/admin/login', '/login.js', '/login.css', '/style.css', '/icon.svg']);
   function json(res, code, data) { res.writeHead(code, { 'Content-Type': 'application/json; charset=utf-8' }); res.end(JSON.stringify(data)); }
   function redirect(res, location) { res.writeHead(303, { Location: location }); res.end(); }
   function token(req) { return /(?:^|;\s*)mdm_session=([a-f0-9]{64})(?:;|$)/.exec(req.headers.cookie || '')?.[1]; }
@@ -75,7 +75,7 @@ export function createAuth(options = {}) {
     },
     deny(req, res, pathname) {
       if (publicPaths.has(pathname) || session(req)) return false;
-      redirect(res, '/login'); return true;
+      redirect(res, '/admin/login'); return true;
     }
   };
 }
