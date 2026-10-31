@@ -8,15 +8,15 @@ import { moduleFor } from '../worker/data.js';
 
 const sample = {
   record_date: null,
-  site: 'PAVIA T2',
+  site: 'TEST SITE T2',
   line_number: 1,
-  account: 'LABCORP',
-  employee_number: 'SG419594',
-  employee_name: 'Nialon, Michelle Ann',
-  cpu_serial: '4CE613CJV1',
-  monitor_1_serial: '1CR62007RB',
-  monitor_2_serial: '1CR62005NX',
-  headset_serial: '414623219'
+  account: 'SAMPLE ACCOUNT',
+  employee_number: 'EMP000123',
+  employee_name: 'Sample, Employee',
+  cpu_serial: 'CPU-TEST-001',
+  monitor_1_serial: 'MON-TEST-001',
+  monitor_2_serial: 'MON-TEST-002',
+  headset_serial: 'HS-TEST-001'
 };
 
 test('register metadata exposes all requested columns and uses custody authorization', () => {
@@ -28,8 +28,8 @@ test('register metadata exposes all requested columns and uses custody authoriza
 
 test('register validation keeps serial IDs as strings and dates optional', () => {
   const data=clean('employee_equipment_register', sample, true, {user_id:7});
-  assert.equal(data.employee_number,'SG419594');
-  assert.equal(data.headset_serial,'414623219');
+  assert.equal(data.employee_number,'EMP000123');
+  assert.equal(data.headset_serial,'HS-TEST-001');
   assert.equal(data.created_by,7);
   assert.equal(data.updated_by,7);
   assert.equal(data.record_date,null);
@@ -55,13 +55,13 @@ test('additive SQL migration preserves existing asset data and accepts the sampl
     const cols=Object.keys(sample).filter(k=>sample[k]!==null);
     const insert=db.prepare('INSERT INTO employee_equipment_register ('+cols.map(k=>'"'+k+'"').join(',')+',created_by,updated_by) VALUES ('+cols.map(()=>'?').join(',')+',?,?)');
     insert.run(...cols.map(k=>sample[k]),7,7);
-    const saved=db.prepare('SELECT * FROM employee_equipment_register WHERE employee_number=?').get('SG419594');
-    assert.equal(saved.site,'PAVIA T2');
+    const saved=db.prepare('SELECT * FROM employee_equipment_register WHERE employee_number=?').get('EMP000123');
+    assert.equal(saved.site,'TEST SITE T2');
     assert.equal(saved.record_date,null);
-    assert.equal(saved.cpu_serial,'4CE613CJV1');
-    assert.equal(saved.monitor_2_serial,'1CR62005NX');
-    assert.equal(saved.headset_serial,'414623219');
+    assert.equal(saved.cpu_serial,'CPU-TEST-001');
+    assert.equal(saved.monitor_2_serial,'MON-TEST-002');
+    assert.equal(saved.headset_serial,'HS-TEST-001');
     assert.equal(db.prepare('SELECT serial_number FROM assets WHERE asset_id=1').get().serial_number,'PRESERVED-ASSET-001');
-    assert.throws(()=>db.prepare('INSERT INTO employee_equipment_register(site,line_number,account,employee_number,employee_name,created_by,updated_by) VALUES (?,?,?,?,?,?,?)').run('PAVIA T2',0,'LABCORP','SG419594','Nialon, Michelle Ann',7,7));
+    assert.throws(()=>db.prepare('INSERT INTO employee_equipment_register(site,line_number,account,employee_number,employee_name,created_by,updated_by) VALUES (?,?,?,?,?,?,?)').run('TEST SITE T2',0,'SAMPLE ACCOUNT','EMP000123','Sample, Employee',7,7));
   } finally {db.close();}
 });
