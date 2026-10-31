@@ -17,6 +17,9 @@ CREATE TABLE "employee_equipment_register" (
   "created_by" integer NOT NULL REFERENCES "users"("user_id") ON DELETE RESTRICT,
   "updated_at" text NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')),
   "updated_by" integer NOT NULL REFERENCES "users"("user_id") ON DELETE RESTRICT,
+  CONSTRAINT "equipment_site_nonempty" CHECK(length(trim("site")) > 0),
+  CONSTRAINT "equipment_account_nonempty" CHECK(length(trim("account")) > 0),
+  CONSTRAINT "equipment_employee_nonempty" CHECK(length(trim("employee_number")) > 0 AND length(trim("employee_name")) > 0),
   CONSTRAINT "equipment_line_number_positive" CHECK("line_number" IS NULL OR "line_number" > 0),
   CONSTRAINT "equipment_active_boolean" CHECK("is_active" IN (0,1))
 );
