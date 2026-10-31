@@ -12,6 +12,7 @@
     ]},
     { label: 'ASSET MANAGEMENT', private: true, items: [
       { name: 'Assets', icon: '▤', href: '/dashboard#records' },
+      { name: 'Employee Equipment', icon: '▤', href: '/dashboard?module=employee_equipment_register#records', requiresEnterprise: true },
       { name: 'Scan Asset', icon: '▣', href: '/assets/scanner' },
       { name: 'Device inventory', icon: '▤', href: '/dashboard#inventory' },
       { name: 'Device scan history', icon: '◷', href: '/dashboard#history' }
@@ -40,11 +41,12 @@
       anchor.className = 'ws-nav-link' + (item.active ? ' active' : '');
       anchor.href = item.href;
       if (item.active) anchor.setAttribute('aria-current', 'page');
-      if (item.private || item.adminOnly) {
+      if (item.private || item.adminOnly || item.requiresEnterprise) {
         anchor.hidden = true;
         anchor.classList.add('ws-private');
       }
       if (item.adminOnly) anchor.dataset.adminOnly = 'true';
+      if (item.requiresEnterprise) anchor.dataset.enterpriseOnly = 'true';
       const symbol = document.createElement('span');
       symbol.className = 'ws-nav-icon';
       symbol.setAttribute('aria-hidden', 'true');
@@ -168,6 +170,7 @@
         const admin = /super.admin/i.test(role);
         sidebar.querySelectorAll('.ws-private').forEach(node => {
           if (node.dataset.adminOnly === 'true' && !admin) return;
+          if (node.dataset.enterpriseOnly === 'true' && !user.super && !user.scopes?.some(scope => scope.scope_type === 'ENTERPRISE')) return;
           node.hidden = false;
         });
         const state = header.querySelector('#ws-user-state');
