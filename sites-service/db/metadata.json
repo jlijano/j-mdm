@@ -4674,5 +4674,141 @@
         "user_id"
       ]
     }
+  ],
+  "employee_equipment_register": [
+    {
+      "name": "register_id",
+      "type": "BIGINT",
+      "key": "PK",
+      "null": "NO",
+      "description": "Surrogate primary key.",
+      "references": null
+    },
+    {
+      "name": "record_date",
+      "type": "DATE",
+      "key": "",
+      "null": "YES",
+      "description": "Date of employee equipment snapshot (YYYY-MM-DD); may be unknown.",
+      "references": null
+    },
+    {
+      "name": "site",
+      "type": "VARCHAR(150)",
+      "key": "",
+      "null": "NO",
+      "description": "Site or tower e.g. PAVIA T2.",
+      "references": null
+    },
+    {
+      "name": "line_number",
+      "type": "INT",
+      "key": "",
+      "null": "YES",
+      "description": "Row number in source site/account register; not a unique identifier.",
+      "references": null
+    },
+    {
+      "name": "account",
+      "type": "VARCHAR(120)",
+      "key": "",
+      "null": "NO",
+      "description": "Client or account name e.g. LABCORP.",
+      "references": null
+    },
+    {
+      "name": "employee_number",
+      "type": "VARCHAR(50)",
+      "key": "",
+      "null": "NO",
+      "description": "External employee ID e.g. SG419594; text preserves leading zeroes.",
+      "references": null
+    },
+    {
+      "name": "employee_name",
+      "type": "VARCHAR(200)",
+      "key": "",
+      "null": "NO",
+      "description": "Employee name as printed in source register.",
+      "references": null
+    },
+    {
+      "name": "cpu_serial",
+      "type": "VARCHAR(120)",
+      "key": "",
+      "null": "YES",
+      "description": "Desktop/CPU serial number, if assigned.",
+      "references": null
+    },
+    {
+      "name": "monitor_1_serial",
+      "type": "VARCHAR(120)",
+      "key": "",
+      "null": "YES",
+      "description": "First monitor serial number, if assigned.",
+      "references": null
+    },
+    {
+      "name": "monitor_2_serial",
+      "type": "VARCHAR(120)",
+      "key": "",
+      "null": "YES",
+      "description": "Second monitor serial number, if assigned.",
+      "references": null
+    },
+    {
+      "name": "headset_serial",
+      "type": "VARCHAR(120)",
+      "key": "",
+      "null": "YES",
+      "description": "Headset serial number, if assigned.",
+      "references": null
+    },
+    {
+      "name": "is_active",
+      "type": "BOOLEAN",
+      "key": "",
+      "null": "NO",
+      "description": "Active record; disable instead of deleting.",
+      "references": null
+    },
+    {
+      "name": "created_at",
+      "type": "DATETIME",
+      "key": "",
+      "null": "NO",
+      "description": "Database-created timestamp.",
+      "references": null
+    },
+    {
+      "name": "created_by",
+      "type": "INT",
+      "key": "",
+      "null": "NO",
+      "description": "User who added the register record.",
+      "references": [
+        "users",
+        "user_id"
+      ]
+    },
+    {
+      "name": "updated_at",
+      "type": "DATETIME",
+      "key": "",
+      "null": "NO",
+      "description": "Last-updated timestamp.",
+      "references": null
+    },
+    {
+      "name": "updated_by",
+      "type": "INT",
+      "key": "",
+      "null": "NO",
+      "description": "User who last modified the record.",
+      "references": [
+        "users",
+        "user_id"
+      ]
+    }
   ]
 }
