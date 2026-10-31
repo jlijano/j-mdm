@@ -181,7 +181,7 @@ Statuses: Pending; In Progress; Blocked; Fixed — Not Deployed; Deployed — No
 
 ## FEAT-EMP-001 — Employee equipment register (2026-11-01)
 
-**Status:** In Progress — feature branch only, Sites production migration not applied. **Scope:** Additive D1 register for Date, Site, #, Account, Employee ID, Name, CPU serial, two monitor serials, headset serial. Keep the canonical \`assets\` and \`asset_assignments\` tables intact.
+**Status:** Fixed — Not Deployed. Pull request #11; CI workflow run #132 (`41249101048`): Root tests/browser syntax and Sites service build/tests passed. Sites production migration not applied. **Scope:** Additive D1 register for Date, Site, #, Account, Employee ID, Name, CPU serial, two monitor serials, headset serial. Keep the canonical \`assets\` and \`asset_assignments\` tables intact.
 
 **Evidence:** Existing \`assets\` represents a single physical device; \`asset_assignments\` links one asset to one employee at a time. The requested import layout represents one employee with a multi-device kit, requiring a separate dataset rather than reusing asset IDs. The source sample contains personal information and is not inserted as a migration seed.
 
