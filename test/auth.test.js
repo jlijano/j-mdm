@@ -17,6 +17,8 @@ test('login-first, credential validation, protected assets, admin session, logou
  for(const route of ['/dashboard','/index.html','/app.js']){const r=await fetch(base+route,{redirect:'manual'});assert.equal(r.status,303);assert.equal(r.headers.get('location'),'/admin/login')}
  assert.equal((await fetch(base+'/vendor/zxing.min.js')).status,200);
  assert.equal((await fetch(base+'/quick')).status,200);
+ assert.equal((await fetch(base+'/workspace.css')).status,200);
+ assert.equal((await fetch(base+'/workspace-theme.js')).status,200);
  assert.equal((await fetch(base+'/admin/login')).status,200);
  assert.equal((await fetch(base+'/api/auth/me')).status,401);
  assert.equal((await login('admin@example.com','wrong')).status,401);
@@ -26,7 +28,7 @@ test('login-first, credential validation, protected assets, admin session, logou
  const setCookie=r.headers.get('set-cookie');assert.match(setCookie,/HttpOnly/);assert.match(setCookie,/SameSite=Strict/);assert.match(setCookie,/Secure/);
  const cookie=setCookie.split(';')[0],headers={Cookie:cookie};
  const who=await fetch(base+'/api/auth/me',{headers});assert.deepEqual(await who.json(),{user:{email:'admin@example.com',role:'Super Admin'}});
- const dashboard=await fetch(base+'/dashboard',{headers});assert.equal(dashboard.status,200);assert.match(await dashboard.text(),/Main Dashboard/);
+ const dashboard=await fetch(base+'/dashboard',{headers});assert.equal(dashboard.status,200);assert.match(await dashboard.text(),/<h1>Overview<\/h1>/);
  assert.equal((await fetch(base+'/app.js',{headers})).status,200);
  assert.equal((await fetch(base+'/login',{headers,redirect:'manual'})).headers.get('location'),'/quick');
  const logout=await fetch(base+'/api/auth/logout',{method:'POST',headers:{...headers,Origin:base}});assert.equal(logout.status,200);

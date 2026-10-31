@@ -17,7 +17,7 @@
   if(!document.body.classList.contains('navigation-open'))return;
   if(event.key==='Escape'){event.preventDefault();close(true);return;}
   if(event.key==='Tab'){
-   const controls=[toggle,...Array.from(nav.querySelectorAll('[data-page]:not([disabled])')).filter(button=>!false)];
+   const controls=[toggle,...Array.from(nav.querySelectorAll('a[href],button:not([disabled])')).filter(button=>!button.hidden&&button.getClientRects().length)];
    if(!controls.length)return;
    const index=controls.indexOf(document.activeElement);
    event.preventDefault();controls[(index+(event.shiftKey?-1:1)+controls.length)%controls.length].focus();

@@ -59,3 +59,9 @@ test('conflict review and deletion use the revision actually reviewed by the use
  await b.api.resolve(JSON.parse(conflict[1]).operationId,true);assert.equal(s.events.at(-1).payload.notes,'three after review','unseen edit must cause a fresh conflict');
  await a.api.remove(assetKey,stale);await settle();await a.api.sync();assert.equal(s.events.at(-1).deleted,false,'stale dialog deletion must not delete a newer edit');
 });
+test('a fresh authorized browser displays shared entries without importing or changing legacy data',async()=>{
+ const s=server(),a=browser(s.fetch,{[assetKey]:'[{"barcode":"FROM-OTHER-DEVICE"}]'});await a.api.connect();await a.api.migrate();await a.api.sync();
+ const b=browser(s.fetch);await b.api.connect();assert.equal(b.api.active,true);assert.equal(b.api.read(assetKey)[0].barcode,'FROM-OTHER-DEVICE');assert.equal(b.store.getItem(assetKey),null);assert.equal(s.events.length,1);
+ const c=browser(s.fetch,{[assetKey]:'[{"barcode":"LOCAL-ONLY"}]'});await c.api.connect();assert.equal(c.api.active,false);assert.equal(c.api.read(assetKey)[0].barcode,'LOCAL-ONLY');assert.equal(s.events.length,1);
+ const d=browser(s.fetch,{'jmdm-sync-v1:test:1:enabled':'false'});await d.api.connect();assert.equal(d.api.active,false,'explicit local mode remains selected');
+});
