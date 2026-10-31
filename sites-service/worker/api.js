@@ -16,6 +16,20 @@ export function clean(table,input,creating,user){
   else {if(typeof value!=='string')fail(`Invalid ${key}.`);const max=Number(c.type.match(/\d+/)?.[0]||10000);if(value.length>max)fail(`${key} is too long.`);if(c.type==='DATE'&&!/^\d{4}-\d{2}-\d{2}$/.test(value))fail(`Invalid ${key} date.`);if(c.type==='DATETIME'&&!Number.isFinite(Date.parse(value)))fail(`Invalid ${key} timestamp.`);out[key]=c.type==='DATETIME'?new Date(value).toISOString():value;}
  }
  for(const c of metadata[table]){if(c.name==='created_by'&&creating)out[c.name]=user.user_id;if(c.name==='updated_by')out[c.name]=user.user_id;if(c.name==='updated_at')out[c.name]=now();}
+ if(table==='employee_equipment_register'){
+  for(const name of ['site','account','employee_number','employee_name','cpu_serial','monitor_1_serial','monitor_2_serial','headset_serial']){
+   if(typeof out[name]==='string')out[name]=out[name].trim();
+  }
+  for(const name of ['site','account','employee_number','employee_name']){
+   if(name in out&&!out[name])fail(name.replaceAll('_',' ')+' is required.');
+  }
+  if(out.record_date){
+   const [year,month,day]=out.record_date.split('-').map(Number);
+   const verified=new Date(Date.UTC(year,month-1,day));
+   if(verified.getUTCFullYear()!==year||verified.getUTCMonth()+1!==month||verified.getUTCDate()!==day)fail('Invalid date.');
+  }
+  if(out.line_number!==undefined&&out.line_number!==null&&out.line_number<1)fail('Row number must be positive.');
+ }
  if(table==='assets'){
   if(creating){out.quantity??='1';out.is_serialized??=1;}
   if(out.is_serialized===1&&out.quantity&&out.quantity!=='1')fail('Serialized assets must have quantity 1.');
