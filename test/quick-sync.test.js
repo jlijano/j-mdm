@@ -48,3 +48,14 @@ test('paired scan identities do not persist relay capability tokens',()=>{
  assert(!html.includes("event.ocr,owner+"),'owner capability must not be included in stored scan history');
  assert(html.includes("event.ocr,(await QuickStore.hash(owner))"));
 });
+
+test('conflict review and deletion use the revision actually reviewed by the user',async()=>{
+ const s=server(),a=browser(s.fetch,{[assetKey]:'[{"barcode":"REVIEW","notes":"one"}]'}),b=browser(s.fetch);
+ await a.api.connect();await a.api.migrate();await a.api.sync();await b.api.connect();await b.api.migrate();await b.api.sync();
+ const stale=b.api.read(assetKey)[0];await a.api.write(assetKey,[{...a.api.read(assetKey)[0],notes:'two'}]);await settle();await a.api.sync();
+ await b.api.write(assetKey,[{...stale,notes:'my alternative'}]);await settle();await b.api.sync();
+ const conflict=[...b.map.entries()].find(([k,v])=>k.includes(':op:')&&JSON.parse(v).conflict);assert(conflict);
+ await a.api.write(assetKey,[{...a.api.read(assetKey)[0],notes:'three after review'}]);await settle();await a.api.sync();await b.api.sync();
+ await b.api.resolve(JSON.parse(conflict[1]).operationId,true);assert.equal(s.events.at(-1).payload.notes,'three after review','unseen edit must cause a fresh conflict');
+ await a.api.remove(assetKey,stale);await settle();await a.api.sync();assert.equal(s.events.at(-1).deleted,false,'stale dialog deletion must not delete a newer edit');
+});
