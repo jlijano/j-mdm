@@ -93,16 +93,17 @@ function draw(){
  if(migrationReady&&context.canWrite)panel.append(button('Upload this browser and enable sync',async()=>{if(sessionStorage.getItem(prefix+'backup-downloaded')!=='yes')throw Error('Download the original JSON backup first, then enable upload.');await migrate();await sync()}));
  if(active){panel.append(button('Sync now',sync),button('Return to local mode',()=>{localStorage.setItem(namespace+'enabled','false');active=false;message='Local mode restored. Shared cache, pending work, and backups are retained.';notify()}));
   const conflicts=pending().filter(o=>o.conflict);
-  for(const op of conflicts){const box=document.createElement('details'),label=document.createElement('summary');label.textContent='Conflict: '+op.payload.barcode;const text=document.createElement('pre');text.style.whiteSpace='pre-wrap';text.textContent=JSON.stringify({pending:op.payload,shared:op.conflict.payload,sharedDeleted:op.conflict.deleted},null,2);box.append(label,text,button('Keep shared version (archive my pending version)',()=>resolve(op,false)),button('Apply my version after review',()=>resolve(op,true)));panel.append(box)}
+  for(const op of conflicts){const box=document.createElement('details'),label=document.createElement('summary');label.textContent='Conflict: '+op.payload.barcode;const text=document.createElement('pre');text.style.whiteSpace='pre-wrap';text.textContent=JSON.stringify({pending:op.payload,shared:op.conflict.payload,sharedDeleted:op.conflict.deleted},null,2);box.append(label,text,button('Keep shared version (archive my pending version)',()=>resolve(op.operationId,false)),button('Apply my version after review',()=>resolve(op.operationId,true)));panel.append(box)}
  }
 }
-async function resolve(op,apply){await locked(async()=>{
+async function resolve(operationId,apply){await locked(async()=>{
+ const op=pending().find(p=>p.operationId===operationId);if(!op?.conflict)throw Error('Conflict changed. Review the latest pending item.');
  await identity();const archive=namespace+'resolved:'+uuid();const related=pending().filter(p=>p.kind===op.kind&&p.id===op.id);localStorage.setItem(archive,JSON.stringify(related));
  // Refresh before selecting a new base. Another edit still produces a conflict, never an overwrite.
- if(apply){const s=state(),current=s.entities[op.kind+':'+op.id];await enqueue(op.kind,op.payload,op.action==='delete'?'delete':'put',current?.revision||op.conflict.revision,op.id)}
+ if(apply)await enqueue(op.kind,op.payload,op.action==='delete'?'delete':'put',op.conflict.revision,op.id)
  for(const item of related)localStorage.removeItem(item.storageKey);
 });notify();await sync()}
-window.QuickStore={read,write,remove,connect,migrate,sync,backup,canonical,hash,get active(){return active}};
+window.QuickStore={read,write,remove,resolve,connect,migrate,sync,backup,canonical,hash,get active(){return active}};
 window.addEventListener('storage',()=>notify());window.addEventListener('online',()=>void sync());
 if(typeof document!=='undefined')document.addEventListener('DOMContentLoaded',()=>{panel=document.createElement('section');panel.className='card';panel.style.cssText='margin:16px;padding:18px;border:1px solid #496080;border-radius:14px';panel.setAttribute('aria-label','Global synchronization and backup');(document.querySelector('main')||document.querySelector('.container')||document.body).prepend(panel);draw();connect().catch(e=>{message=e.message+' Local mode remains available.';draw()});setInterval(()=>void sync(),3000)});
 })();

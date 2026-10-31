@@ -41,3 +41,5 @@ Automated regressions cover two isolated browser stores, exact legacy-string pre
 ## Release evidence — October 31, 2026
 
 PR #5 merged as `d5ee134c57834db3b26e1b7d038ac77d5d33849f` after CI run 41203887885 succeeded. Sites version 6 deployed the scoped source `627ea7c5564be8ad08cd2c0b32785aa401efbbeb` successfully. Render deployment `dep-dbiuftvb9u1s73b4cog0` reached live for the merge commit. Live static-byte, unauthorized access, CSRF and ephemeral pairing checks passed at 21:08 Manila time. Status remains **Deployed — Not Verified** for authenticated production migration/CRUD and real phone cameras. No historical local browser records were uploaded. Full evidence is in `quick-sync-release-evidence.json`; rollout steps above remain required on each original device.
+
+Final concurrency review also pins conflict resolution and modal deletion to the revision the user actually reviewed. If another device edits the asset while the dialog is open, the delete/apply request conflicts again; it cannot silently adopt the newest revision as its base. Pairing capability tokens are hashed before storing relay scan IDs (PR #6).
